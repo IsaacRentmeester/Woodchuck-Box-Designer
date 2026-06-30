@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>IronLog – Workout Tracker</title>
+<style>
+  :root {
+    --bg:#0f0f13;--surface:#1a1a24;--surface2:#22222f;--surface3:#2a2a3a;
+    --accent:#6c63ff;--accent2:#ff6584;--accent3:#43e97b;--accent4:#fbbf24;
+    --text:#e8e8f0;--text2:#9999bb;--text3:#6666aa;--border:#2e2e45;
+    --chest:#ff6b6b;--back:#4ecdc4;--shoulders:#ffe66d;--arms:#a855f7;--legs:#3b82f6;--core:#f97316;--yoga:#8b5cf6;--running:#43e97b;--goals:#f43f5e;--nav-h:64px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding-top:env(safe-area-inset-top);}
+  /* ── TOP HEADER ── */
+  .top-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 18px;display:flex;align-items:center;justify-content:center;min-height:52px;position:sticky;top:0;z-index:100;}
+  .logo{font-size:20px;font-weight:800;color:var(--accent);}
+  .logo span{color:var(--text);}
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:stretch;height:var(--nav-h);padding-bottom:env(safe-area-inset-bottom);}
+  .nav-tab{flex:1;background:none;border:none;color:var(--text3);padding:6px 2px 4px;cursor:pointer;font-size:10px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:color .15s;min-width:0;-webkit-tap-highlight-color:transparent;}
+  .nav-tab-icon{font-size:22px;line-height:1;}
+  .nav-tab-label{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;}
+  .nav-tab.active{color:var(--accent);}
+  .nav-tab:active{opacity:.7;}
+
+  /* ── VIEWS ── */
+  .view{display:none;padding:16px 14px 80px;max-width:900px;margin:0 auto;}
+  .view.active{display:block;}
+  .page-title{font-size:23px;font-weight:800;margin-bottom:4px;}
+  .page-sub{color:var(--text2);margin-bottom:20px;font-size:14px;}
+
+  /* Body cards */
+  .section-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+  .body-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+  .body-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+  .body-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+  .body-card.chest::before{background:var(--chest)}.body-card.back::before{background:var(--back)}
+  .body-card.shoulders::before{background:var(--shoulders)}.body-card.arms::before{background:var(--arms)}
+  .body-card.legs::before{background:var(--legs)}.body-card.core::before{background:var(--core)}
+  .body-card.yoga::before{background:var(--yoga)}.body-card.running::before{background:var(--running)}
+  .body-card:hover{transform:translateY(-2px);border-color:var(--accent);}
+  .body-icon{font-size:36px;margin-bottom:8px;}
+  .body-name{font-size:18px;font-weight:700;margin-bottom:2px;}
+  .body-count{font-size:12px;color:var(--text2);}
+
+  /* Exercise list */
+  .back-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;margin-bottom:16px;display:inline-flex;align-items:center;gap:5px;transition:all .2s;}
+  .back-btn:hover{color:var(--text);border-color:var(--accent);}
+  .ex-list-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+  .exercise-list{display:flex;flex-direction:column;gap:7px;}
+  .exercise-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:space-between;}
+  .exercise-item:hover{border-color:var(--accent);background:var(--surface2);}
+  .exercise-item.custom-ex{border-left:3px solid var(--accent4);}
+  .ex-left{display:flex;align-items:center;gap:11px;}
+  .ex-emoji{font-size:22px;width:40px;height:40px;background:var(--surface3);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .ex-name{font-size:14px;font-weight:600;margin-bottom:3px;}
+  .ex-tags{display:flex;gap:4px;flex-wrap:wrap;}
+  .tag{background:var(--surface3);color:var(--text2);padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;}
+  .tag.custom-tag{background:rgba(251,191,36,.12);color:var(--accent4);border:1px solid rgba(251,191,36,.2);}
+  .ex-right{display:flex;align-items:center;gap:6px;}
+  .ex-del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:4px 6px;transition:color .2s;display:none;}
+  .ex-del-btn:hover{color:var(--accent2);}
+  .exercise-item.custom-ex .ex-del-btn{display:block;}
+
+  /* MODAL base */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:center;justify-content:center;padding:14px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;max-width:580px;width:100%;max-height:92vh;overflow-y:auto;padding:24px;}
+  .modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+  .modal-title{font-size:19px;font-weight:800;}
+  .modal-close{background:var(--surface3);border:none;color:var(--text2);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .modal-close:hover{color:var(--text);}
+  .modal-emoji{font-size:42px;margin-bottom:12px;}
+  .modal-section{margin-bottom:16px;}
+  .modal-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+  .modal-text{color:var(--text2);font-size:13px;line-height:1.7;}
+  .equipment-list{display:flex;flex-wrap:wrap;gap:6px;}
+  .equip-tag{background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:4px 11px;border-radius:20px;font-size:12px;}
+  .steps-list{list-style:none;}
+  .steps-list li{display:flex;gap:9px;margin-bottom:8px;font-size:13px;color:var(--text2);line-height:1.6;}
+  .step-num{background:var(--accent);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px;}
+  .muscles-tags{display:flex;flex-wrap:wrap;gap:5px;}
+  .muscle-tag{background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.3);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+
+  /* Log sets */
+  .log-section{background:var(--surface2);border-radius:14px;padding:16px;margin-top:16px;}
+  .log-title{font-size:14px;font-weight:700;margin-bottom:12px;}
+  .set-row{display:grid;grid-template-columns:44px 1fr 1fr 1fr auto;gap:7px;align-items:center;margin-bottom:7px;}
+  .set-label{font-size:12px;color:var(--text3);font-weight:600;}
+  .set-input{background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:7px 9px;border-radius:8px;font-size:13px;text-align:center;width:100%;outline:none;transition:border-color .2s;}
+  .set-input:focus{border-color:var(--accent);}
+  .set-input::placeholder{color:var(--text3);}
+  .col-header{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;text-align:center;}
+  .del-btn{background:rgba(255,101,132,.1);border:1px solid rgba(255,101,132,.2);color:var(--accent2);width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+  .del-btn:hover{background:rgba(255,101,132,.25);}
+  .btn-add-set{background:var(--surface3);border:1px dashed var(--border);color:var(--text2);padding:8px;border-radius:8px;cursor:pointer;font-size:13px;width:100%;transition:all .2s;margin-top:3px;}
+  .btn-add-set:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-log{background:var(--accent3);border:none;color:#000;padding:11px 18px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;width:100%;margin-top:10px;transition:all .2s;}
+  .btn-log:hover{filter:brightness(1.1);}
+
+  /* Today */
+  .today-empty{text-align:center;padding:46px 18px;color:var(--text3);}
+  .today-empty .big{font-size:46px;margin-bottom:12px;}
+  .today-exercise-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;}
+  .tec-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:7px;}
+  .tec-name{font-size:15px;font-weight:700;}
+  .tec-body{font-size:11px;color:var(--text2);background:var(--surface3);padding:3px 9px;border-radius:20px;}
+  .tec-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .tec-table th{color:var(--text3);font-size:10px;text-transform:uppercase;padding:4px 6px;text-align:center;border-bottom:1px solid var(--border);}
+  .tec-table td{padding:6px;text-align:center;color:var(--text2);border-bottom:1px solid var(--border);}
+  .tec-table tr:last-child td{border-bottom:none;}
+  .tec-table .num{color:var(--text);font-weight:600;}
+  .del-log-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:3px;}
+  .del-log-btn:hover{color:var(--accent2);}
+  .today-summary{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .summary-stat{text-align:center;}
+  .summary-num{font-size:24px;font-weight:800;color:var(--accent);}
+  .summary-lbl{font-size:11px;color:var(--text3);margin-top:2px;}
+
+  /* Week */
+  .week-nav{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .week-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:7px 13px;border-radius:8px;cursor:pointer;font-size:13px;transition:all .2s;}
+  .week-btn:hover{border-color:var(--accent);color:var(--text);}
+  .week-label{font-size:15px;font-weight:600;}
+  .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-bottom:18px;}
+  .day-col{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:9px;min-height:140px;}
+  .day-col.today-col{border-color:var(--accent);}
+  .day-name{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:2px;}
+  .day-date{font-size:16px;font-weight:800;margin-bottom:7px;}
+  .day-col.today-col .day-date{color:var(--accent);}
+  .day-exercise-pill{background:var(--surface3);border-radius:5px;padding:3px 5px;font-size:10px;color:var(--text2);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .day-total{font-size:10px;color:var(--text3);margin-top:4px;}
+  .week-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .week-stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
+  .week-stat-num{font-size:26px;font-weight:800;color:var(--accent);}
+  .week-stat-lbl{font-size:11px;color:var(--text3);margin-top:3px;}
+
+  /* Progress */
+  .progress-select-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+  .prog-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 13px;border-radius:10px;font-size:14px;outline:none;cursor:pointer;flex:1;min-width:170px;}
+  .prog-select:focus{border-color:var(--accent);}
+  .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;}
+  .chart-title{font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text2);}
+  .chart-title span{color:var(--text);}
+  .chart-wrap{overflow-x:auto;}
+  .no-data{text-align:center;padding:36px 18px;color:var(--text3);font-size:14px;}
+  .prog-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:16px;}
+  .prog-stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;}
+  .prog-stat-num{font-size:20px;font-weight:800;color:var(--accent4);}
+  .prog-stat-lbl{font-size:10px;color:var(--text3);margin-top:2px;}
+  .chart-line{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+  .chart-dot{cursor:pointer;}
+
+  /* Body weight tracker */
+  .bw-section{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:18px;}
+  .bw-section-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .bw-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+  .bw-input-wrap{display:flex;flex-direction:column;gap:6px;}
+  .bw-label{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);}
+  .bw-input{background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:15px;outline:none;width:100%;transition:border-color .2s;}
+  .bw-input:focus{border-color:var(--accent);}
+  .bw-input::placeholder{color:var(--text3);}
+  .btn-log-weight{background:var(--accent);border:none;color:#fff;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;transition:all .2s;white-space:nowrap;}
+  .btn-log-weight:hover{filter:brightness(1.15);}
+  .bw-today-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px;}
+  .bw-stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;flex:1;min-width:130px;text-align:center;}
+  .bw-stat-val{font-size:22px;font-weight:800;}
+  .bw-stat-lbl{font-size:11px;color:var(--text3);margin-top:2px;}
+  .bw-change-pos{color:var(--accent2);}
+  .bw-change-neg{color:var(--accent3);}
+  .bw-change-zero{color:var(--text3);}
+  .goal-bar-wrap{margin-top:12px;}
+  .goal-bar-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:5px;}
+  .goal-bar-track{background:var(--surface3);border-radius:20px;height:10px;overflow:hidden;}
+  .goal-bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),var(--accent3));transition:width .5s;}
+  .bw-log-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;}
+  .bw-log-table th{color:var(--text3);font-size:10px;text-transform:uppercase;padding:4px 8px;text-align:center;border-bottom:1px solid var(--border);}
+  .bw-log-table td{padding:6px 8px;text-align:center;color:var(--text2);border-bottom:1px solid var(--border);}
+  .bw-log-table tr:last-child td{border-bottom:none;}
+  .bw-log-table .num{color:var(--text);font-weight:600;}
+  .change-badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:700;}
+  .badge-up{background:rgba(255,101,132,.12);color:var(--accent2);}
+  .badge-down{background:rgba(67,233,123,.12);color:var(--accent3);}
+  .badge-same{background:var(--surface3);color:var(--text3);}
+  .prog-divider{border:none;border-top:1px solid var(--border);margin:22px 0;}
+
+  /* Templates */
+  .templates-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+  .btn-primary{background:var(--accent);border:none;color:#fff;padding:9px 16px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;}
+  .btn-primary:hover{filter:brightness(1.15);}
+  .btn-danger{background:rgba(255,101,132,.12);border:1px solid rgba(255,101,132,.25);color:var(--accent2);padding:7px 13px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;}
+  .btn-danger:hover{background:rgba(255,101,132,.22);}
+  .templates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+  .template-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;}
+  .template-card:hover{border-color:var(--accent);}
+  .tc-name{font-size:16px;font-weight:700;margin-bottom:2px;}
+  .tc-count{font-size:11px;color:var(--text3);margin-bottom:12px;}
+  .tc-exercises{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+  .tc-ex-row{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text2);}
+  .tc-actions{display:flex;gap:7px;}
+  .btn-load{background:var(--accent3);border:none;color:#000;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;flex:1;}
+  .btn-load:hover{filter:brightness(1.1);}
+  .templates-empty{text-align:center;padding:46px 18px;color:var(--text3);}
+
+  /* Template & Custom Exercise Modals */
+  .tpl-modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;max-width:560px;width:100%;max-height:88vh;overflow-y:auto;padding:24px;}
+  .tpl-name-input{background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:10px 13px;border-radius:10px;font-size:14px;width:100%;outline:none;margin-bottom:16px;}
+  .tpl-name-input:focus{border-color:var(--accent);}
+  .tpl-name-input::placeholder{color:var(--text3);}
+  .tpl-body-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
+  .tpl-body-tab{background:var(--surface3);border:1px solid var(--border);color:var(--text2);padding:5px 12px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;}
+  .tpl-body-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .tpl-ex-list{display:flex;flex-direction:column;gap:5px;max-height:195px;overflow-y:auto;margin-bottom:14px;}
+  .tpl-ex-item{display:flex;align-items:center;gap:9px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:9px 11px;cursor:pointer;}
+  .tpl-ex-item:hover{border-color:var(--accent);}
+  .tpl-ex-item.selected{border-color:var(--accent3);background:rgba(67,233,123,.07);}
+  .tpl-ex-check{width:17px;height:17px;border-radius:4px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+  .tpl-ex-item.selected .tpl-ex-check{background:var(--accent3);border-color:var(--accent3);color:#000;}
+  .tpl-selected-list{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;min-height:32px;}
+  .tpl-selected-pill{display:flex;align-items:center;justify-content:space-between;background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.2);border-radius:8px;padding:6px 11px;font-size:13px;}
+  .tpl-remove-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 0 0 8px;}
+  .tpl-remove-btn:hover{color:var(--accent2);}
+  .btn-save-tpl{background:var(--accent);border:none;color:#fff;padding:11px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;width:100%;}
+  .section-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:7px;}
+
+  /* Custom exercise modal */
+  .custom-modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;max-width:540px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;}
+  .form-group{margin-bottom:14px;}
+  .form-label{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;display:block;}
+  .form-input{background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:9px 13px;border-radius:9px;font-size:13px;width:100%;outline:none;transition:border-color .2s;}
+  .form-input:focus{border-color:var(--accent);}
+  .form-input::placeholder{color:var(--text3);}
+  .form-select{background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:9px 13px;border-radius:9px;font-size:13px;width:100%;outline:none;}
+  .form-select:focus{border-color:var(--accent);}
+  .form-textarea{background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:9px 13px;border-radius:9px;font-size:13px;width:100%;outline:none;resize:vertical;min-height:80px;line-height:1.5;}
+  .form-textarea:focus{border-color:var(--accent);}
+  .form-textarea::placeholder{color:var(--text3);}
+  .form-hint{font-size:11px;color:var(--text3);margin-top:4px;}
+  .btn-save-custom{background:var(--accent4);border:none;color:#000;padding:12px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;width:100%;margin-top:4px;}
+  .btn-save-custom:hover{filter:brightness(1.1);}
+  .emoji-pick-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+  .emoji-opt{font-size:22px;cursor:pointer;padding:4px;border-radius:7px;border:2px solid transparent;transition:border-color .15s;}
+  .emoji-opt.selected{border-color:var(--accent);}
+
+  /* Toast */
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--accent3);color:#000;padding:10px 16px;border-radius:10px;font-weight:700;font-size:13px;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s;pointer-events:none;}
+  .toast.show{transform:translateY(0);opacity:1;}
+
+
+  /* ── YOGA ─────────────────────────────────────────── */
+  .yoga-cats { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  .yoga-cat-btn { background:var(--surface2); border:1px solid var(--border); color:var(--text2); padding:7px 16px; border-radius:20px; cursor:pointer; font-size:13px; font-weight:500; transition:all .2s; }
+  .yoga-cat-btn.active { background:#8b5cf6; border-color:#8b5cf6; color:#fff; }
+  .yoga-cat-btn:hover:not(.active) { border-color:#8b5cf6; color:var(--text); }
+  .yoga-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
+  .yoga-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px; cursor:pointer; transition:all .2s; display:flex; flex-direction:column; gap:8px; }
+  .yoga-card:hover { border-color:#8b5cf6; transform:translateY(-2px); }
+  .yoga-card-icon { font-size:32px; }
+  .yoga-card-name { font-size:14px; font-weight:700; }
+  .yoga-card-sanskrit { font-size:11px; color:var(--text3); font-style:italic; }
+  .yoga-card-meta { display:flex; gap:6px; flex-wrap:wrap; margin-top:2px; }
+  .yoga-diff { padding:2px 8px; border-radius:20px; font-size:10px; font-weight:700; }
+  .diff-beginner { background:rgba(67,233,123,.15); color:var(--accent3); }
+  .diff-intermediate { background:rgba(251,191,36,.15); color:var(--accent4); }
+  .diff-advanced { background:rgba(255,101,132,.15); color:var(--accent2); }
+  .yoga-focus-tag { background:rgba(139,92,246,.12); color:#a78bfa; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:500; }
+  .yoga-modal { background:var(--surface); border:1px solid var(--border); border-radius:20px; max-width:600px; width:100%; max-height:92vh; overflow-y:auto; padding:26px; }
+  .yoga-pose-banner { display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+  .yoga-pose-icon-big { font-size:56px; }
+  .yoga-benefits-list { display:flex; flex-wrap:wrap; gap:6px; }
+  .benefit-pill { background:rgba(139,92,246,.12); border:1px solid rgba(139,92,246,.2); color:#a78bfa; padding:3px 10px; border-radius:20px; font-size:11px; }
+  .yoga-log-section { background:var(--surface2); border-radius:14px; padding:18px; margin-top:18px; }
+  .yoga-log-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; margin-bottom:12px; }
+  .yoga-log-input-wrap { display:flex; flex-direction:column; gap:5px; }
+  .yoga-log-label { font-size:10px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--text3); }
+  .yoga-log-input { background:var(--surface3); border:1px solid var(--border); color:var(--text); padding:8px 10px; border-radius:8px; font-size:14px; text-align:center; width:100%; outline:none; transition:border-color .2s; }
+  .yoga-log-input:focus { border-color:#8b5cf6; }
+  .yoga-log-input::placeholder { color:var(--text3); }
+  .btn-log-yoga { background:#8b5cf6; border:none; color:#fff; padding:11px; border-radius:10px; cursor:pointer; font-size:14px; font-weight:700; width:100%; transition:all .2s; }
+  .btn-log-yoga:hover { filter:brightness(1.12); }
+  .yoga-today-card { background:var(--surface); border:1px solid var(--border); border-left:3px solid #8b5cf6; border-radius:12px; padding:14px; margin-bottom:10px; }
+  .yoga-today-name { font-size:15px; font-weight:700; margin-bottom:6px; }
+  .yoga-today-stats { display:flex; gap:10px; flex-wrap:wrap; }
+  .yoga-stat-chip { background:var(--surface3); border-radius:8px; padding:5px 10px; font-size:12px; color:var(--text2); }
+  .yoga-stat-chip strong { color:var(--text); }
+
+  /* ── RUNNING ─────────────────────────────────────── */
+  .run-log-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:22px; margin-bottom:18px; }
+  .run-log-title { font-size:16px; font-weight:700; margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+  .run-type-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  .run-type-group { display:flex; flex-direction:column; gap:7px; }
+  .run-type-label { font-size:11px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--text3); }
+  .run-type-btns { display:flex; gap:6px; }
+  .run-type-btn { flex:1; background:var(--surface3); border:1px solid var(--border); color:var(--text2); padding:9px 12px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:600; transition:all .2s; text-align:center; }
+  .run-type-btn.active { border-color:var(--accent); color:var(--accent); background:rgba(108,99,255,.1); }
+  .run-type-btn.walk-active { border-color:var(--accent3); color:var(--accent3); background:rgba(67,233,123,.1); }
+  .run-type-btn.outdoor-active { border-color:var(--accent4); color:var(--accent4); background:rgba(251,191,36,.1); }
+  .run-type-btn.indoor-active { border-color:var(--back); color:var(--back); background:rgba(78,205,196,.1); }
+  .run-inputs-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:14px; }
+  .run-input-group { display:flex; flex-direction:column; gap:5px; }
+  .run-input-label { font-size:11px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--text3); }
+  .run-input { background:var(--surface3); border:1px solid var(--border); color:var(--text); padding:10px 12px; border-radius:10px; font-size:15px; text-align:center; width:100%; outline:none; transition:border-color .2s; }
+  .run-input:focus { border-color:var(--accent); }
+  .run-input::placeholder { color:var(--text3); }
+  .run-pace-display { background:var(--surface2); border-radius:10px; padding:12px; text-align:center; margin-bottom:14px; }
+  .run-pace-val { font-size:24px; font-weight:800; color:var(--accent4); }
+  .run-pace-lbl { font-size:11px; color:var(--text3); margin-top:2px; }
+  .btn-log-run { background:linear-gradient(135deg,var(--accent3),#22c55e); border:none; color:#000; padding:12px; border-radius:10px; cursor:pointer; font-size:14px; font-weight:700; width:100%; transition:all .2s; }
+  .btn-log-run:hover { filter:brightness(1.08); }
+  .run-history { margin-top:6px; }
+  .run-history-title { font-size:16px; font-weight:700; margin-bottom:14px; color:var(--text); }
+  .run-entry { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:10px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .run-entry-icon { font-size:32px; flex-shrink:0; }
+  .run-entry-main { flex:1; min-width:120px; }
+  .run-entry-type { font-size:13px; font-weight:700; margin-bottom:4px; }
+  .run-entry-stats { display:flex; gap:10px; flex-wrap:wrap; }
+  .run-entry-stat { font-size:13px; color:var(--text2); }
+  .run-entry-stat strong { color:var(--text); }
+  .run-entry-pace { font-size:18px; font-weight:800; color:var(--accent4); text-align:right; }
+  .run-entry-pace-lbl { font-size:10px; color:var(--text3); }
+  .run-week-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:22px; }
+  .run-stat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; text-align:center; }
+  .run-stat-num { font-size:22px; font-weight:800; color:var(--accent3); }
+  .run-stat-lbl { font-size:10px; color:var(--text3); margin-top:3px; }
+  .run-notes-input { background:var(--surface3); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:10px; font-size:13px; width:100%; outline:none; resize:none; }
+  .run-notes-input::placeholder { color:var(--text3); }
+  .run-notes-input:focus { border-color:var(--accent); }
+  @media(max-width:720px){.yoga-log-grid{grid-template-columns:1fr 1fr}.run-inputs-row,.run-type-row{grid-template-columns:1fr}.run-week-stats{grid-template-columns:repeat(2,1fr)}}
+
+  @media(max-width:720px){
+    .week-grid{grid-template-columns:repeat(2,1fr);}
+    .week-stats,.prog-stats-row,.bw-grid{grid-template-columns:repeat(2,1fr);}
+    .bw-today-row .bw-stat-box{min-width:100px;}
+  }
+
+  /* ── GOALS ── */
+  .goals-add-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px;}
+  .goals-add-title{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+  .goal-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .goal-form-full{margin-bottom:10px;}
+  .goal-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:5px;display:block;}
+  .goal-input{background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:10px 13px;border-radius:10px;font-size:14px;width:100%;outline:none;transition:border-color .2s;}
+  .goal-input:focus{border-color:var(--goals);}
+  .goal-input::placeholder{color:var(--text3);}
+  .goal-textarea{background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:10px 13px;border-radius:10px;font-size:14px;width:100%;outline:none;resize:none;min-height:72px;line-height:1.5;}
+  .goal-textarea:focus{border-color:var(--goals);}
+  .goal-textarea::placeholder{color:var(--text3);}
+  .btn-add-goal{background:var(--goals);border:none;color:#fff;padding:12px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;width:100%;margin-top:4px;transition:all .2s;}
+  .btn-add-goal:hover{filter:brightness(1.1);}
+  .goals-list-section{margin-bottom:6px;}
+  .goals-list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .goals-list-title{font-size:16px;font-weight:700;}
+  .goals-filter-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+  .goals-filter-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:5px 13px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;}
+  .goals-filter-btn.active{background:var(--goals);border-color:var(--goals);color:#fff;}
+  .goal-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;transition:all .2s;position:relative;overflow:hidden;}
+  .goal-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;}
+  .goal-card.status-active::before{background:var(--accent);}
+  .goal-card.status-done::before{background:var(--accent3);}
+  .goal-card.status-overdue::before{background:var(--accent2);}
+  .goal-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;}
+  .goal-card-left{flex:1;min-width:0;}
+  .goal-title-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;}
+  .goal-card-title{font-size:15px;font-weight:700;line-height:1.3;}
+  .goal-card-title.done-title{text-decoration:line-through;color:var(--text3);}
+  .goal-status-badge{padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;}
+  .badge-active{background:rgba(108,99,255,.15);color:var(--accent);}
+  .badge-done{background:rgba(67,233,123,.15);color:var(--accent3);}
+  .badge-overdue{background:rgba(255,101,132,.15);color:var(--accent2);}
+  .goal-card-cat{font-size:11px;color:var(--text3);background:var(--surface3);padding:2px 8px;border-radius:20px;white-space:nowrap;}
+  .goal-card-desc{font-size:13px;color:var(--text2);margin-bottom:10px;line-height:1.6;}
+  .goal-card-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+  .goal-date-info{display:flex;flex-direction:column;gap:2px;}
+  .goal-date-row{font-size:11px;color:var(--text3);}
+  .goal-date-row strong{color:var(--text2);}
+  .goal-days-remaining{font-size:12px;font-weight:700;}
+  .days-ok{color:var(--accent3);}
+  .days-warn{color:var(--accent4);}
+  .days-over{color:var(--accent2);}
+  .days-done{color:var(--accent3);}
+  .goal-actions{display:flex;gap:6px;}
+  .btn-goal-done{background:rgba(67,233,123,.12);border:1px solid rgba(67,233,123,.25);color:var(--accent3);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;}
+  .btn-goal-done:hover{background:rgba(67,233,123,.22);}
+  .btn-goal-del{background:rgba(255,101,132,.1);border:1px solid rgba(255,101,132,.2);color:var(--accent2);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px;transition:all .2s;}
+  .btn-goal-del:hover{background:rgba(255,101,132,.22);}
+  .goals-empty{text-align:center;padding:46px 18px;color:var(--text3);}
+  .goals-empty .big{font-size:46px;margin-bottom:12px;}
+  .goals-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:18px;}
+  .goal-stat-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;}
+  .goal-stat-num{font-size:22px;font-weight:800;color:var(--goals);}
+  .goal-stat-lbl{font-size:10px;color:var(--text3);margin-top:2px;}
+
+  /* ── MOBILE IMPROVEMENTS ── */
+  .page-title{font-size:20px;font-weight:800;margin-bottom:4px;}
+  .page-sub{color:var(--text2);margin-bottom:16px;font-size:13px;}
+  .body-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .body-card{padding:16px;}
+  .body-icon{font-size:30px;margin-bottom:6px;}
+  .body-name{font-size:16px;font-weight:700;margin-bottom:2px;}
+  input, textarea, select{font-size:16px!important;} /* prevent iOS zoom */
+  .set-input{font-size:16px!important;}
+  .modal{padding:18px;border-radius:18px 18px 0 0;position:fixed;bottom:0;left:0;right:0;max-width:100%;max-height:88vh;margin:0;}
+  .modal-overlay.open{align-items:flex-end;}
+  @media(min-width:600px){
+    .modal{border-radius:20px;position:static;max-width:580px;margin:auto;}
+    .modal-overlay.open{align-items:center;}
+    .body-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
+  }
+  @media(max-width:480px){
+    .week-grid{grid-template-columns:repeat(2,1fr);}
+    .week-stats,.prog-stats-row,.bw-grid{grid-template-columns:repeat(2,1fr);}
+    .today-summary{grid-template-columns:repeat(3,1fr);}
+    .set-row{grid-template-columns:36px 1fr 1fr 1fr auto;}
+    .run-week-stats{grid-template-columns:repeat(2,1fr);}
+    .goals-stats-row{grid-template-columns:repeat(3,1fr);}
+    .goal-form-row{grid-template-columns:1fr;}
+    .yoga-log-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="logo">Iron<span>Log</span></div>
+</header>
+
+<nav class="bottom-nav">
+  <button class="nav-tab active" data-view="home" onclick="showView('home',this)">
+    <span class="nav-tab-icon">💪</span><span class="nav-tab-label">Workout</span>
+  </button>
+  <button class="nav-tab" data-view="today" onclick="showView('today',this)">
+    <span class="nav-tab-icon">📋</span><span class="nav-tab-label">Today</span>
+  </button>
+  <button class="nav-tab" data-view="goals" onclick="showView('goals',this)">
+    <span class="nav-tab-icon">🎯</span><span class="nav-tab-label">Goals</span>
+  </button>
+  <button class="nav-tab" data-view="progress" onclick="showView('progress',this)">
+    <span class="nav-tab-icon">📈</span><span class="nav-tab-label">Progress</span>
+  </button>
+  <button class="nav-tab" data-view="more" onclick="showView('more',this)">
+    <span class="nav-tab-icon">⋯</span><span class="nav-tab-label">More</span>
+  </button>
+</nav>
+
+<!-- WORKOUTS VIEW -->
+<div id="view-home" class="view active">
+  <div id="bodypart-screen">
+    <div class="section-top">
+      <div><p class="page-title">Choose Muscle Group</p><p class="page-sub" style="margin-bottom:0">Select a body part to browse exercises</p></div>
+      <button class="btn-primary" onclick="openCustomModal()">✏️ Create Exercise</button>
+    </div>
+    <div class="body-grid">
+      <div class="body-card chest" onclick="showExercises('chest')"><div class="body-icon">🏋️</div><div class="body-name">Chest</div><div class="body-count" id="count-chest">7 exercises</div></div>
+      <div class="body-card back" onclick="showExercises('back')"><div class="body-icon">🦾</div><div class="body-name">Back</div><div class="body-count" id="count-back">7 exercises</div></div>
+      <div class="body-card shoulders" onclick="showExercises('shoulders')"><div class="body-icon">🔱</div><div class="body-name">Shoulders</div><div class="body-count" id="count-shoulders">6 exercises</div></div>
+      <div class="body-card arms" onclick="showExercises('arms')"><div class="body-icon">💪</div><div class="body-name">Arms</div><div class="body-count" id="count-arms">7 exercises</div></div>
+      <div class="body-card legs" onclick="showExercises('legs')"><div class="body-icon">🦵</div><div class="body-name">Legs</div><div class="body-count" id="count-legs">7 exercises</div></div>
+      <div class="body-card core" onclick="showExercises('core')"><div class="body-icon">⚡</div><div class="body-name">Core</div><div class="body-count" id="count-core">6 exercises</div></div>
+      <div class="body-card yoga" onclick="showYogaSubView()"><div class="body-icon">🧘</div><div class="body-name">Yoga</div><div class="body-count">30+ poses</div></div>
+      <div class="body-card running" onclick="showRunSubView()"><div class="body-icon">🏃</div><div class="body-name">Running</div><div class="body-count">Track activity</div></div>
+    </div>
+  </div>
+  <div id="exercise-screen" style="display:none">
+    <button class="back-btn" onclick="showBodyParts()">← Back</button>
+    <div class="ex-list-top">
+      <p class="page-title" id="ex-screen-title"></p>
+      <button class="btn-primary" style="font-size:12px;padding:7px 13px" onclick="openCustomModal(currentBodyPart)">✏️ Add Custom</button>
+    </div>
+    <div class="exercise-list" id="exercise-list"></div>
+  </div>
+  <div id="yoga-screen" style="display:none">
+    <button class="back-btn" onclick="showBodyParts()">← Back</button>
+    <p class="page-title">🧘 Yoga</p>
+    <p class="page-sub">Click a pose for instructions, then log your practice</p>
+    <div class="yoga-cats" id="yoga-cats"></div>
+    <div class="yoga-grid" id="yoga-grid"></div>
+    <div id="yoga-today-section" style="margin-top:28px"></div>
+  </div>
+  <div id="running-screen" style="display:none">
+    <button class="back-btn" onclick="showBodyParts()">← Back</button>
+    <p class="page-title">🏃 Running &amp; Walking</p>
+    <p class="page-sub">Log your runs and walks — track time, distance, and pace</p>
+    <div class="run-week-stats" id="run-week-stats"></div>
+    <div class="run-log-card">
+      <div class="run-log-title">➕ Log Activity</div>
+      <div class="run-type-row">
+        <div class="run-type-group">
+          <div class="run-type-label">Activity Type</div>
+          <div class="run-type-btns">
+            <button class="run-type-btn active" id="btn-run" onclick="setRunType('run')">🏃 Run</button>
+            <button class="run-type-btn" id="btn-walk" onclick="setRunType('walk')">🚶 Walk</button>
+          </div>
+        </div>
+        <div class="run-type-group">
+          <div class="run-type-label">Environment</div>
+          <div class="run-type-btns">
+            <button class="run-type-btn outdoor-active" id="btn-outdoor" onclick="setRunEnv('outdoor')">🌤 Outdoor</button>
+            <button class="run-type-btn" id="btn-indoor" onclick="setRunEnv('indoor')">🏠 Indoor</button>
+          </div>
+        </div>
+      </div>
+      <div class="run-inputs-row">
+        <div class="run-input-group">
+          <label class="run-input-label">Hours</label>
+          <input class="run-input" id="run-hours" type="number" min="0" max="24" placeholder="0" oninput="updatePaceDisplay()" />
+        </div>
+        <div class="run-input-group">
+          <label class="run-input-label">Minutes</label>
+          <input class="run-input" id="run-minutes" type="number" min="0" max="59" placeholder="30" oninput="updatePaceDisplay()" />
+        </div>
+        <div class="run-input-group">
+          <label class="run-input-label">Miles</label>
+          <input class="run-input" id="run-miles" type="number" min="0" step="0.01" placeholder="3.1" oninput="updatePaceDisplay()" />
+        </div>
+      </div>
+      <div class="run-pace-display" id="pace-display">
+        <div class="run-pace-val">—</div>
+        <div class="run-pace-lbl">Estimated Pace (min/mile)</div>
+      </div>
+      <div class="run-input-group" style="margin-bottom:14px">
+        <label class="run-input-label">Notes (optional)</label>
+        <textarea class="run-notes-input" id="run-notes" placeholder="How did it feel? Route, weather, goals hit..." rows="2"></textarea>
+      </div>
+      <button class="btn-log-run" onclick="logRun()">✅ Save Activity</button>
+    </div>
+    <div class="run-history">
+      <div class="run-history-title">📋 Activity History</div>
+      <div id="run-history-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TODAY VIEW -->
+<div id="view-today" class="view">
+  <p class="page-title">Today's Workout</p>
+  <p class="page-sub" id="today-date-label"></p>
+  <div id="today-summary-area"></div>
+  <div id="today-log-area"></div>
+</div>
+
+<!-- PROGRESS VIEW -->
+<div id="view-progress" class="view">
+  <p class="page-title">Progress</p>
+  <p class="page-sub">Track your body weight and strength gains</p>
+
+  <!-- BODY WEIGHT SECTION -->
+  <div class="bw-section">
+    <div class="bw-section-title">⚖️ Body Weight Tracker</div>
+    <div class="bw-grid">
+      <div class="bw-input-wrap">
+        <label class="bw-label">Goal Weight (lbs)</label>
+        <input class="bw-input" id="goal-weight-input" type="number" placeholder="e.g. 175" step="0.1" oninput="saveGoalWeight()" />
+      </div>
+      <div class="bw-input-wrap">
+        <label class="bw-label">Today's Weight (lbs)</label>
+        <div style="display:flex;gap:8px;">
+          <input class="bw-input" id="todays-weight-input" type="number" placeholder="e.g. 192.5" step="0.1" style="flex:1" />
+          <button class="btn-log-weight" onclick="logBodyWeight()">Log</button>
+        </div>
+      </div>
+    </div>
+    <div class="bw-today-row" id="bw-stats-row"></div>
+    <div id="bw-goal-bar"></div>
+    <div id="bw-weight-chart-wrap" style="margin-top:14px"></div>
+    <div id="bw-log-table-wrap" style="margin-top:14px;max-height:200px;overflow-y:auto;"></div>
+  </div>
+
+  <hr class="prog-divider">
+
+  <!-- STRENGTH PROGRESS SECTION -->
+  <p class="page-title" style="font-size:18px;margin-bottom:4px">💪 Strength Progress</p>
+  <p class="page-sub">Select an exercise to chart your gains</p>
+  <div class="progress-select-row">
+    <select class="prog-select" id="prog-body-select" onchange="updateExSelect()">
+      <option value="">— All Body Parts —</option>
+      <option value="chest">Chest</option><option value="back">Back</option>
+      <option value="shoulders">Shoulders</option><option value="arms">Arms</option>
+      <option value="legs">Legs</option><option value="core">Core</option>
+    </select>
+    <select class="prog-select" id="prog-ex-select" onchange="renderProgress()">
+      <option value="">— Select Exercise —</option>
+    </select>
+  </div>
+  <div id="progress-content"><div class="no-data">👆 Select an exercise to see your progress</div></div>
+</div>
+
+  <div class="yoga-grid" id="yoga-grid"></div>
+  <!-- Today's yoga log -->
+  <div id="yoga-today-section" style="margin-top:28px"></div>
+</div>
+
+
+<!-- YOGA POSE MODAL -->
+<div class="modal-overlay" id="yoga-modal">
+  <div class="yoga-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="yoga-modal-title"></div>
+      <button class="modal-close" onclick="closeYogaModal()">✕</button>
+    </div>
+    <div class="yoga-pose-banner">
+      <div class="yoga-pose-icon-big" id="yoga-modal-icon"></div>
+      <div>
+        <div id="yoga-modal-sanskrit" style="font-size:14px;color:var(--text3);font-style:italic;margin-bottom:6px"></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="yoga-modal-tags"></div>
+      </div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-label">Description</div>
+      <div class="modal-text" id="yoga-modal-desc"></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-label">Benefits</div>
+      <div class="yoga-benefits-list" id="yoga-modal-benefits"></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-label">How To Do It</div>
+      <ul class="steps-list" id="yoga-modal-steps"></ul>
+    </div>
+    <div class="modal-section" id="yoga-modal-mod-section">
+      <div class="modal-label">Modifications & Tips</div>
+      <div class="modal-text" id="yoga-modal-mods"></div>
+    </div>
+    <div class="yoga-log-section">
+      <div class="log-title">📝 Log This Practice</div>
+      <div class="yoga-log-grid">
+        <div class="yoga-log-input-wrap">
+          <label class="yoga-log-label">Sets</label>
+          <input class="yoga-log-input" id="yoga-sets" type="number" placeholder="3" min="1" />
+        </div>
+        <div class="yoga-log-input-wrap">
+          <label class="yoga-log-label">Reps</label>
+          <input class="yoga-log-input" id="yoga-reps" type="number" placeholder="10" min="1" />
+        </div>
+        <div class="yoga-log-input-wrap">
+          <label class="yoga-log-label">Hold (sec)</label>
+          <input class="yoga-log-input" id="yoga-hold" type="number" placeholder="30" min="1" />
+        </div>
+        <div class="yoga-log-input-wrap">
+          <label class="yoga-log-label">Weight (lbs)</label>
+          <input class="yoga-log-input" id="yoga-weight" type="number" placeholder="0" min="0" step="0.5" />
+        </div>
+      </div>
+      <button class="btn-log-yoga" onclick="logYogaPose()">🧘 Save to Today</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXERCISE DETAIL MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="modal-title"></div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-emoji" id="modal-emoji"></div>
+    <div class="modal-section"><div class="modal-label">Primary Muscles</div><div class="muscles-tags" id="modal-muscles"></div></div>
+    <div class="modal-section" id="modal-equip-section"><div class="modal-label">Equipment Needed</div><div class="equipment-list" id="modal-equipment"></div></div>
+    <div class="modal-section" id="modal-steps-section"><div class="modal-label">How To Do It</div><ul class="steps-list" id="modal-steps"></ul></div>
+    <div class="modal-section" id="modal-tips-section"><div class="modal-label">Pro Tips</div><div class="modal-text" id="modal-tips"></div></div>
+    <div class="log-section">
+      <div class="log-title">📝 Log Sets for Today</div>
+      <div class="set-row" style="margin-bottom:4px">
+        <span class="col-header">Set</span><span class="col-header">Reps</span><span class="col-header">Weight (lbs)</span><span class="col-header">RPE</span><span></span>
+      </div>
+      <div id="set-rows"></div>
+      <button class="btn-add-set" onclick="addSetRow()">+ Add Set</button>
+      <button class="btn-log" onclick="logWorkout()">✅ Save to Today's Workout</button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM EXERCISE MODAL -->
+<div class="modal-overlay" id="custom-modal">
+  <div class="custom-modal">
+    <div class="modal-header"><div class="modal-title">✏️ Create Custom Exercise</div><button class="modal-close" onclick="closeCustomModal()">✕</button></div>
+    <div class="form-group">
+      <label class="form-label">Exercise Name *</label>
+      <input class="form-input" id="cust-name" placeholder="e.g. Landmine Press, Banded Pull-Apart…" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Choose an Icon</label>
+      <div class="emoji-pick-row" id="emoji-pick-row"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category *</label>
+      <select class="form-select" id="cust-category">
+        <option value="chest">Chest</option><option value="back">Back</option>
+        <option value="shoulders">Shoulders</option><option value="arms">Arms</option>
+        <option value="legs">Legs</option><option value="core">Core</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Equipment Needed</label>
+      <input class="form-input" id="cust-equipment" placeholder="e.g. Barbell, Resistance Band, None" />
+      <div class="form-hint">Separate multiple items with commas</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Target Muscles</label>
+      <input class="form-input" id="cust-muscles" placeholder="e.g. Glutes, Hamstrings, Core" />
+      <div class="form-hint">Separate with commas</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">How To Do It</label>
+      <textarea class="form-textarea" id="cust-steps" placeholder="Enter each step on a new line:&#10;1. Set up the equipment…&#10;2. Position your body…&#10;3. Execute the movement…"></textarea>
+      <div class="form-hint">One step per line</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tips & Notes</label>
+      <textarea class="form-textarea" id="cust-tips" placeholder="Any cues, common mistakes to avoid, progressions, etc." style="min-height:60px"></textarea>
+    </div>
+    <button class="btn-save-custom" onclick="saveCustomExercise()">💾 Save Exercise</button>
+  </div>
+</div>
+
+<!-- TEMPLATE BUILDER MODAL -->
+<div class="modal-overlay" id="tpl-modal">
+  <div class="tpl-modal">
+    <div class="modal-header"><div class="modal-title">📂 New Template</div><button class="modal-close" onclick="closeTplModal()">✕</button></div>
+    <input class="tpl-name-input" id="tpl-name-input" placeholder="e.g. Push Day, Leg Day, Full Body…" />
+    <div class="section-label">Select Body Part</div>
+    <div class="tpl-body-tabs" id="tpl-body-tabs"></div>
+    <div class="section-label" style="margin-top:12px">Exercises</div>
+    <div class="tpl-ex-list" id="tpl-ex-list"></div>
+    <div class="section-label">Selected</div>
+    <div class="tpl-selected-list" id="tpl-selected-list"><div style="color:var(--text3);font-size:13px;padding:6px 0">No exercises selected yet</div></div>
+    <button class="btn-save-tpl" onclick="saveTemplate()">Save Template</button>
+  </div>
+</div>
+
+
+<!-- GOALS VIEW -->
+<div id="view-goals" class="view">
+  <p class="page-title">🎯 Goals</p>
+  <p class="page-sub">Set targets, track deadlines, crush them</p>
+
+  <div class="goals-stats-row" id="goals-stats-row"></div>
+
+  <div class="goals-add-card">
+    <div class="goals-add-title">➕ Add New Goal</div>
+    <div class="goal-form-full">
+      <label class="goal-label">Goal *</label>
+      <textarea class="goal-textarea" id="goal-text-input" placeholder="e.g. Run a 5K under 30 minutes, Bench press 225 lbs, Lose 15 lbs…" rows="2"></textarea>
+    </div>
+    <div class="goal-form-row">
+      <div>
+        <label class="goal-label">Category</label>
+        <select class="goal-input" id="goal-cat-input">
+          <option value="strength">💪 Strength</option>
+          <option value="cardio">🏃 Cardio</option>
+          <option value="weight">⚖️ Weight</option>
+          <option value="yoga">🧘 Yoga</option>
+          <option value="habit">🔥 Habit</option>
+          <option value="other">⭐ Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="goal-label">Target Date *</label>
+        <input class="goal-input" id="goal-date-input" type="date" />
+      </div>
+    </div>
+    <button class="btn-add-goal" onclick="addGoal()">🎯 Add Goal</button>
+  </div>
+
+  <div class="goals-filter-row">
+    <button class="goals-filter-btn active" id="gf-all" onclick="setGoalFilter('all')">All</button>
+    <button class="goals-filter-btn" id="gf-active" onclick="setGoalFilter('active')">Active</button>
+    <button class="goals-filter-btn" id="gf-done" onclick="setGoalFilter('done')">Completed</button>
+    <button class="goals-filter-btn" id="gf-overdue" onclick="setGoalFilter('overdue')">Overdue</button>
+  </div>
+
+  <div id="goals-list"></div>
+</div>
+
+<!-- MORE VIEW (Week, Templates) -->
+<div id="view-more" class="view">
+  <p class="page-title">More</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+    <div class="body-card" style="cursor:pointer;background:var(--surface)" onclick="showView('week',document.querySelector('[data-view=week]'))">
+      <div class="body-icon">📅</div><div class="body-name">Week</div><div class="body-count">Weekly overview</div>
+    </div>
+    <div class="body-card" style="cursor:pointer;background:var(--surface)" onclick="showView('templates',document.querySelector('[data-view=templates]'))">
+      <div class="body-icon">📂</div><div class="body-name">Templates</div><div class="body-count">Save routines</div>
+    </div>
+  </div>
+</div>
+
+<!-- WEEK VIEW (hidden from bottom nav, accessible via More) -->
+<div id="view-week" class="view">
+  <button class="back-btn" onclick="showView('more',document.querySelector('[data-view=more]'))">← Back</button>
+  <p class="page-title">Weekly Overview</p>
+  <div class="week-nav">
+    <button class="week-btn" onclick="changeWeek(-1)">← Prev</button>
+    <span class="week-label" id="week-label"></span>
+    <button class="week-btn" onclick="changeWeek(1)">Next →</button>
+  </div>
+  <div class="week-grid" id="week-grid"></div>
+  <div class="week-stats" id="week-stats"></div>
+</div>
+
+<!-- TEMPLATES VIEW (hidden from bottom nav, accessible via More) -->
+<div id="view-templates" class="view">
+  <button class="back-btn" onclick="showView('more',document.querySelector('[data-view=more]'))">← Back</button>
+  <div class="templates-top">
+    <div><p class="page-title">Workout Templates</p><p class="page-sub" style="margin-bottom:0">Save routines and load them in one tap</p></div>
+    <button class="btn-primary" onclick="openTplModal()">+ New Template</button>
+  </div>
+  <div id="templates-list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   EXERCISE DATABASE
+══════════════════════════════════════════════════ */
+const BUILT_IN = {
+  chest:[
+    {name:"Barbell Bench Press",emoji:"🏋️",tags:["Compound","Barbell"],muscles:["Pectoralis Major","Anterior Deltoid","Triceps"],equipment:["Barbell","Weight Plates","Flat Bench","Rack"],steps:["Lie flat on the bench, feet firmly planted. Squeeze shoulder blades together and down.","Grip bar slightly wider than shoulder-width, overhand. Unrack over your chest.","Lower the bar in a controlled arc to your lower chest/sternum, elbows at 45–75° from torso.","Touch bar to chest, then drive it back up to lockout.","Keep core braced and glutes on bench throughout."],tips:"Never bounce the bar off your chest. Use a spotter when going heavy. Lower to your lower chest, not your neck."},
+    {name:"Incline Bench Press",emoji:"📐",tags:["Compound","Barbell","Upper Chest"],muscles:["Upper Pectoralis Major","Anterior Deltoid","Triceps"],equipment:["Barbell","Weight Plates","Incline Bench","Rack"],steps:["Set bench to 30–45°. Lie back and grip bar slightly wider than shoulder-width.","Retract your shoulder blades firmly.","Unrack and lower bar to your upper chest, just below the clavicle.","Press bar back up and slightly back. Keep elbows at 45–75°.","Control the descent."],tips:"A 30° incline maximizes upper chest activation while minimizing shoulder strain. Squeeze the upper pecs at the top."},
+    {name:"Dumbbell Chest Fly",emoji:"🦋",tags:["Isolation","Dumbbells"],muscles:["Pectoralis Major","Anterior Deltoid"],equipment:["Dumbbells","Flat Bench"],steps:["Lie flat, dumbbells pressed overhead with palms facing each other.","Maintain a slight, fixed bend in elbows throughout.","Slowly lower arms out to sides in a wide arc until you feel a deep chest stretch.","Reverse the motion, squeezing chest hard at top.","Think 'hugging a barrel'."],tips:"Keep elbow angle constant throughout. Focus on the stretch at the bottom and the squeeze at the top."},
+    {name:"Cable Crossover",emoji:"✂️",tags:["Isolation","Cable Machine"],muscles:["Pectoralis Major","Anterior Deltoid"],equipment:["Cable Machine with high pulleys","D-ring handles"],steps:["Set both pulleys to the highest position. Attach D-ring handles.","Stand in center, grab a handle each hand. Step forward one foot.","With a slight forward lean and soft elbow bend, pull cables down and together in front of your hips.","Squeeze chest at the bottom. Cross hands slightly for extra contraction.","Return slowly to start."],tips:"Cables keep constant tension through the full range unlike dumbbells."},
+    {name:"Push-Ups",emoji:"🤸",tags:["Bodyweight","No Equipment"],muscles:["Pectoralis Major","Anterior Deltoid","Triceps","Core"],equipment:["None (bodyweight)"],steps:["High plank position, hands slightly wider than shoulder-width.","Body in straight line head to heels. Brace core and squeeze glutes.","Lower chest to just above the ground, elbows at 45° from body.","Press back up explosively. Fully extend arms at the top.","Keep hips level."],tips:"Elevate feet for decline push-ups. Add a weight vest for overload."},
+    {name:"Chest Dips",emoji:"⬇️",tags:["Compound","Bodyweight","Lower Chest"],muscles:["Lower Pectoralis Major","Triceps","Anterior Deltoid"],equipment:["Dip Bars or Parallel Bars"],steps:["Grip parallel bars and lock arms out.","Lean torso forward at 30–45°.","Lower by bending elbows, flaring them slightly out.","Descend until upper arms are roughly parallel to the floor.","Push back to start, squeezing chest at the top."],tips:"The forward lean is crucial — upright dips hit the triceps more. Add a dip belt for progressive overload."},
+    {name:"Decline Bench Press",emoji:"📉",tags:["Compound","Barbell","Lower Chest"],muscles:["Lower Pectoralis Major","Triceps","Anterior Deltoid"],equipment:["Barbell","Weight Plates","Decline Bench","Rack"],steps:["Set bench to 15–30° decline. Hook ankles under foot pads.","Grip bar slightly wider than shoulder-width. Unrack over your chest.","Lower bar to lower chest/sternum in a controlled manner.","Press back up to lockout. Keep shoulder blades retracted.","Focus on squeezing the lower chest at the top."],tips:"You can typically lift more weight on decline than flat bench. Great for targeting lower pecs."}
+  ],
+  back:[
+    {name:"Conventional Deadlift",emoji:"🏗️",tags:["Compound","Barbell","Full Body"],muscles:["Erector Spinae","Lats","Traps","Glutes","Hamstrings"],equipment:["Barbell","Weight Plates","Belt (optional)"],steps:["Feet hip-width apart, bar over mid-foot. Grip just outside your legs.","Hinge at hips and bend knees until shins touch bar. Chest up, back flat.","Deep breath, brace core hard. Drive through your heels.","Push the floor away while keeping the bar dragging up your shins and thighs.","Stand tall at top, hips fully extended. Lower by hinging at hips first."],tips:"Never round your lower back under load. Think 'push the floor away'. Start lighter than you think — form is everything."},
+    {name:"Pull-Ups",emoji:"🔝",tags:["Compound","Bodyweight","Lat Width"],muscles:["Latissimus Dorsi","Biceps","Rear Deltoid","Rhomboids"],equipment:["Pull-Up Bar"],steps:["Grip bar just wider than shoulder-width, palms facing away. Hang fully extended.","Depress your shoulder blades before pulling.","Drive elbows down and back toward your hips while pulling chest up to bar.","Pull until chin clears the bar or chest touches it.","Lower slowly until arms fully extend."],tips:"Pull-ups activate lats 120% more than lat pulldowns per EMG research. Use a resistance band or do negatives to build up."},
+    {name:"Barbell Bent-Over Row",emoji:"🚣",tags:["Compound","Barbell","Back Thickness"],muscles:["Latissimus Dorsi","Rhomboids","Middle Traps","Rear Deltoid","Biceps"],equipment:["Barbell","Weight Plates"],steps:["Feet shoulder-width apart. Hinge at hips until torso is 45–70° to floor.","Grip bar slightly wider than shoulder-width overhand.","Initiate by squeezing shoulder blades together, then row bar toward lower chest/upper abdomen.","Squeeze back muscles hard at the top.","Lower with control. Maintain neutral spine throughout."],tips:"Don't use so much weight you have to jerk and swing. Slight knee bend protects your lower back."},
+    {name:"Lat Pulldown",emoji:"📡",tags:["Compound","Cable Machine","Lat Width"],muscles:["Latissimus Dorsi","Teres Major","Biceps","Rear Deltoid"],equipment:["Cable Machine","Wide-Grip Bar Attachment"],steps:["Adjust thigh pad to secure legs. Grab bar slightly wider than shoulder-width, overhand.","Sit upright or lean back slightly. Depress shoulder blades before pulling.","Pull bar toward your upper chest, driving elbows down and back.","At the bottom, squeeze lats as if trying to touch elbows to your hips.","Control the return — let arms fully extend to stretch the lats."],tips:"Don't pull behind your head — it strains the cervical spine."},
+    {name:"Single-Arm Dumbbell Row",emoji:"🤲",tags:["Unilateral","Dumbbell"],muscles:["Latissimus Dorsi","Rhomboids","Lower Traps","Biceps"],equipment:["Dumbbell","Flat Bench"],steps:["Left knee and hand on bench for support. Right foot on floor.","Hold dumbbell in right hand, hanging at arm's length.","Row dumbbell up toward your hip, elbow close to torso.","At the top, squeeze your back.","Lower slowly. Switch sides after all reps."],tips:"Training each side independently reveals and corrects imbalances. Row heavy."},
+    {name:"Seated Cable Row",emoji:"🪑",tags:["Compound","Cable Machine"],muscles:["Middle Back","Rhomboids","Lats","Biceps","Rear Deltoid"],equipment:["Cable Machine","V-Bar or Row Handle"],steps:["Sit at cable row machine, feet on platform, knees slightly bent.","Grab handle with both hands, arms extended. Sit up tall.","Row handle toward your lower abdomen by driving elbows back.","Squeeze shoulder blades together hard at the end.","Slowly extend arms back to start."],tips:"Keep upper body still — power comes from your back, not momentum."},
+    {name:"Face Pulls",emoji:"😤",tags:["Isolation","Cable Machine","Shoulder Health"],muscles:["Rear Deltoids","External Rotators","Rhomboids","Middle Traps"],equipment:["Cable Machine","Rope Attachment"],steps:["Set cable pulley to roughly face height. Attach a rope.","Grip rope with both hands, thumbs pointing back.","Pull rope toward your face, separating the ends. Elbows flare wide.","Hands end up at ear level, upper arms parallel to floor.","Hold for a beat, squeeze, then return."],tips:"Essential for shoulder health. High reps (15–25). Counteracts internal rotation from bench pressing."}
+  ],
+  shoulders:[
+    {name:"Overhead Press (Barbell)",emoji:"☝️",tags:["Compound","Barbell"],muscles:["Anterior Deltoid","Lateral Deltoid","Triceps","Upper Traps"],equipment:["Barbell","Weight Plates","Squat Rack"],steps:["Set bar at upper-chest height in rack. Grip just outside shoulder-width.","Unrack bar, rest on upper chest. Brace core and glutes.","Press bar straight up. Once clear of forehead, push your head slightly through.","Fully extend arms overhead.","Lower bar back to collarbone with control."],tips:"The barbell OHP is the king of shoulder movements. A slight hip lean is natural."},
+    {name:"Dumbbell Lateral Raise",emoji:"🦅",tags:["Isolation","Dumbbells","Side Delts"],muscles:["Lateral Deltoid","Supraspinatus"],equipment:["Dumbbells"],steps:["Stand feet shoulder-width, dumbbells at sides, palms facing in.","Slight, fixed bend in elbows. Brace core.","Raise both arms out to sides until roughly parallel to the floor.","Think about leading with pinkies slightly — like pouring a pitcher.","Slowly lower back to sides. No momentum, no shrugging."],tips:"Go lighter than you think — incredibly effective even at light weights. Leaning forward 10–20° increases range of motion."},
+    {name:"Seated Dumbbell Press",emoji:"💺",tags:["Compound","Dumbbells"],muscles:["Anterior Deltoid","Lateral Deltoid","Triceps"],equipment:["Dumbbells","Adjustable Bench (upright)"],steps:["Set bench to 90°. Sit with a dumbbell in each hand at shoulder height.","Start with palms facing forward, elbows at roughly 90°.","Press dumbbells up overhead until arms are fully extended.","Lower back to shoulder height with control.","Keep core tight."],tips:"Dumbbells allow each arm to press independently, fixing imbalances."},
+    {name:"Front Raise",emoji:"⬆️",tags:["Isolation","Dumbbells","Front Delts"],muscles:["Anterior Deltoid","Pectoralis Major (clavicular head)"],equipment:["Dumbbells (or barbell, or plates)"],steps:["Stand feet shoulder-width, dumbbells in front of thighs, palms facing your body.","Slight bend in elbows. Brace core.","Raise both arms straight in front until shoulder height.","Hold for a count, then lower slowly.","Can be done alternating or both at once."],tips:"If you bench press a lot, your front delts already get plenty of work. Use as a finishing move."},
+    {name:"Rear Delt Fly",emoji:"🦋",tags:["Isolation","Dumbbells","Rear Delts"],muscles:["Posterior Deltoid","Rhomboids","Middle Traps"],equipment:["Dumbbells","Flat Bench"],steps:["Sit at end of bench and hinge forward so chest nearly rests on thighs.","Hold dumbbells below with palms facing each other.","Raise arms out to sides until parallel to the floor, slight elbow bend.","Squeeze rear delts and rhomboids at the top.","Lower slowly."],tips:"The rear delt is one of the most neglected muscles and a major contributor to shoulder health and posture."},
+    {name:"Arnold Press",emoji:"🤜",tags:["Compound","Dumbbells","All 3 Heads"],muscles:["All 3 Deltoid Heads","Triceps","Upper Traps"],equipment:["Dumbbells","Adjustable Bench (upright)"],steps:["Sit with dumbbells at shoulder height, palms facing YOU.","As you press up, rotate palms to face forward by the time arms are extended.","Continue pressing until fully overhead, then reverse rotation as you lower.","Palms face you again by the time you return to start.","Rotation is smooth and continuous."],tips:"Invented by Arnold Schwarzenegger. Hits all 3 heads of the deltoid. Great for building overall shoulder roundness."}
+  ],
+  arms:[
+    {name:"Barbell Curl",emoji:"💪",tags:["Compound","Barbell","Bicep Mass"],muscles:["Biceps Brachii","Brachialis","Brachioradialis"],equipment:["Barbell","Weight Plates (or EZ bar)"],steps:["Stand feet shoulder-width, grip bar underhand slightly wider than hips.","Bar hangs at arm's length. Elbows pinned to sides.","Curl the bar up by flexing at the elbows — upper arms stay stationary.","Curl until forearms are just past vertical. Squeeze hard at the top.","Lower slowly back to full extension."],tips:"Best progressive overload for biceps. An EZ-bar is easier on the wrists. Avoid swinging."},
+    {name:"Hammer Curl",emoji:"🔨",tags:["Isolation","Dumbbells"],muscles:["Brachialis","Brachioradialis","Biceps Brachii"],equipment:["Dumbbells"],steps:["Stand, dumbbells at sides, palms facing each other (neutral grip).","Upper arms pinned to sides.","Curl both dumbbells up simultaneously keeping the neutral grip.","Bring to shoulder height, then lower slowly.","Don't rotate wrists."],tips:"Targets the brachialis — it lies under the biceps and pushes the bicep up to look bigger. Also builds forearm thickness."},
+    {name:"Preacher Curl",emoji:"🙏",tags:["Isolation","Peak Contraction"],muscles:["Biceps Brachii (long head)","Brachialis"],equipment:["Preacher Curl Bench","EZ-bar or Dumbbells"],steps:["Set up at preacher bench. Upper arms flat against the angled pad.","Grip EZ-bar underhand, arms nearly fully extended.","Curl the weight up by flexing at the elbow.","Curl until forearms are vertical. Squeeze hard at top.","Lower slowly back to near full extension."],tips:"The preacher bench eliminates all ability to cheat. Great for building the peak. Don't go to full lockout at the bottom."},
+    {name:"Tricep Pushdown",emoji:"📉",tags:["Isolation","Cable Machine"],muscles:["Triceps Brachii (all 3 heads)","Anconeus"],equipment:["Cable Machine","Straight Bar or Rope"],steps:["Set cable pulley to highest position. Grip bar overhand, hands shoulder-width.","Upper arms pinned to sides, elbows bent at 90°.","Push bar straight down until arms are fully extended.","Slowly allow bar to return to start.","Core engaged."],tips:"Cable keeps constant tension on triceps throughout. Triceps make up about 2/3 of upper arm mass."},
+    {name:"Skull Crushers",emoji:"💀",tags:["Isolation","Barbell/EZ-bar"],muscles:["Triceps Brachii (long head)","Anconeus"],equipment:["EZ-bar or Barbell","Weight Plates","Flat Bench"],steps:["Lie on flat bench holding EZ-bar overhead, arms extended perpendicular to chest.","Upper arms pointed straight up and stationary.","Slowly lower the bar toward your forehead by bending only at the elbows.","Stop just before touching your forehead, then press back to start.","Keep elbows shoulder-width apart throughout."],tips:"One of the best exercises for the tricep long head. Go slow. Can also lower behind your head for a greater stretch."},
+    {name:"Overhead Tricep Extension",emoji:"🙌",tags:["Isolation","Dumbbell"],muscles:["Triceps Brachii (long head)","Anconeus"],equipment:["Single Dumbbell or Cable with Rope"],steps:["Hold a single dumbbell with both hands clasped around the handle.","Raise dumbbell overhead. Upper arms beside your head, pointing straight up.","Lower dumbbell behind your head by bending at the elbows.","Lower until you feel a deep stretch in your triceps.","Extend back up to start, squeezing the triceps at the top."],tips:"Working the tricep overhead puts the long head in a maximally lengthened position — greater growth stimulus."},
+    {name:"Close-Grip Bench Press",emoji:"🤝",tags:["Compound","Barbell"],muscles:["Triceps Brachii","Anterior Deltoid","Inner Pectoralis Major"],equipment:["Barbell","Weight Plates","Flat Bench","Rack"],steps:["Set up like a regular bench press. Grip the bar shoulder-width.","Elbows tucked close (30–45° from torso).","Lower bar to lower chest/sternum with elbows tucked.","Press back up to start.","Avoid going too narrow — shoulder-width is fine."],tips:"Allows heavy progressive overload for triceps. Also hits the inner chest."}
+  ],
+  legs:[
+    {name:"Barbell Back Squat",emoji:"🏔️",tags:["Compound","Barbell","King of Legs"],muscles:["Quadriceps","Glutes","Hamstrings","Erector Spinae","Core"],equipment:["Barbell","Weight Plates","Squat Rack"],steps:["Set bar at upper-chest height in rack. Rest across upper traps or rear delts.","Step out, feet slightly wider than shoulder-width, toes turned out 15–30°.","Brace core like you're about to get hit. Take a deep breath.","Descend by pushing knees out and sitting back and down. Thighs at least parallel to floor.","Drive back up through heels, pushing knees out. Exhale at the top."],tips:"Squatting below parallel is safe for healthy knees. Keep chest up. Start light and master form."},
+    {name:"Leg Press",emoji:"🦾",tags:["Compound","Machine"],muscles:["Quadriceps","Glutes","Hamstrings"],equipment:["Leg Press Machine"],steps:["Adjust seat so knees form 90° when platform is in start position.","Release safety handles. Lower back and glutes stay in contact with seat.","Slowly lower platform by bending knees past parallel.","Press weight back up. Don't fully lock out knees.","Control the descent."],tips:"Foot position changes emphasis: higher = more glute/hamstring, lower = more quad. Great for high volume after squats."},
+    {name:"Romanian Deadlift (RDL)",emoji:"🦴",tags:["Compound","Hamstrings & Glutes"],muscles:["Hamstrings","Glutes","Erector Spinae","Adductors"],equipment:["Barbell or Dumbbells"],steps:["Hold bar at hip level, hip-width grip overhand. Stand tall with soft knees.","Push hips back while keeping back perfectly flat. Bar slides down thighs.","Lower bar until you feel a deep hamstring stretch.","Drive hips forward to return to standing. Squeeze glutes hard.","Think 'hinge, not squat' — knees stay relatively straight."],tips:"The best exercise for hamstring development. The stretch at the bottom is key for hypertrophy."},
+    {name:"Walking Lunges",emoji:"🚶",tags:["Compound","Unilateral"],muscles:["Quadriceps","Glutes","Hamstrings","Hip Flexors"],equipment:["Dumbbells (optional)","Open Space"],steps:["Stand hip-width apart, dumbbells at sides.","Step forward with right foot, landing heel first.","Lower back knee toward the floor, just above it. Front thigh parallel to floor.","Push off front heel and bring back foot forward to step into the next lunge.","Alternate legs. Keep torso upright."],tips:"Longer steps = more glute activation. Shorter steps = more quad."},
+    {name:"Leg Curl (Machine)",emoji:"🦿",tags:["Isolation","Machine","Hamstrings"],muscles:["Hamstrings"],equipment:["Seated or Lying Leg Curl Machine"],steps:["Adjust machine so pad rests just above heels.","Grip handles or hold bench. Core braced.","Flex knees, curling legs up against resistance.","Squeeze hamstrings hard at the top.","Lower slowly with complete control. Full extension at bottom."],tips:"Only pure isolation exercise for hamstrings. Best done after compound movements."},
+    {name:"Leg Extension (Machine)",emoji:"🦵",tags:["Isolation","Machine","Quadriceps"],muscles:["Quadriceps"],equipment:["Leg Extension Machine"],steps:["Adjust machine: shin pad just above ankles, knees aligned with machine's pivot.","Grip handles. Core engaged.","Extend legs to straighten them out. Drive toes slightly toward you.","Fully extend until legs are straight. Hold and squeeze quads hard.","Lower slowly."],tips:"Great for building the 'teardrop' shape above the knee. A 2-second pause at the top dramatically increases activation."},
+    {name:"Standing Calf Raise",emoji:"👟",tags:["Isolation","Calves"],muscles:["Gastrocnemius","Soleus"],equipment:["Standing Calf Raise Machine or Step + Dumbbells"],steps:["Stand on a step with balls of feet on the edge, heels hanging off.","Lower heels as far as comfortable for a full calf stretch.","Rise up onto toes as high as possible.","Hold at top for 1–2 seconds, then lower slowly.","Slight knee bend for gastrocnemius; bent knee more for soleus."],tips:"Calves respond well to high volume (15–25 reps). Notoriously slow to grow — consistency and progressive overload is key."}
+  ],
+  core:[
+    {name:"Plank",emoji:"🧱",tags:["Isometric","Bodyweight"],muscles:["Transverse Abdominis","Rectus Abdominis","Obliques","Glutes","Erector Spinae"],equipment:["Exercise Mat (optional)"],steps:["Get into push-up position on forearms, elbows under shoulders.","Form a straight line from head to heels. Don't let hips sag or pike up.","Brace your core — pull belly button toward spine. Squeeze glutes.","Keep neck neutral.","Hold the position while breathing normally."],tips:"Once you can hold 60 seconds with perfect form, make it harder: add weight on your back or progress to single-leg planks."},
+    {name:"Hanging Knee/Leg Raise",emoji:"🏗️",tags:["Bodyweight","Lower Abs"],muscles:["Rectus Abdominis (lower)","Hip Flexors","Obliques"],equipment:["Pull-Up Bar"],steps:["Hang from a pull-up bar overhand, arms fully extended.","Brace your core. Slowly raise knees toward your chest.","Curl your hips underneath as knees come up.","Pause at top with maximum contraction, then lower slowly.","For leg raises: keep legs straighter."],tips:"Avoid swinging. Posteriorly tilt your pelvis at the top (curl hips under). Progressions: bent-knee → straight-leg → toes-to-bar."},
+    {name:"Cable Crunch",emoji:"🔩",tags:["Weighted","Cable Machine"],muscles:["Rectus Abdominis","Obliques"],equipment:["Cable Machine","Rope Attachment"],steps:["Set cable pulley high, attach rope. Kneel facing machine.","Hold rope at sides of head with elbows bent.","Crunch rib cage toward pelvis — round your spine, don't just bend at hip.","Stop when you feel maximum abdominal contraction.","Slowly return to start, feeling the abs stretch."],tips:"Best way to add progressive overload to ab training. Think 'crushing your ribs to your hips'."},
+    {name:"Ab Wheel Rollout",emoji:"⚙️",tags:["Anti-Extension","Advanced"],muscles:["Rectus Abdominis","Transverse Abdominis","Obliques","Lats"],equipment:["Ab Wheel"],steps:["Kneel with ab wheel in front of you. Grip handles.","Brace your core extremely hard.","Roll wheel forward slowly, extending body toward the floor.","Extend as far as you can while maintaining core tension.","Use your abs to pull the wheel back."],tips:"One of the hardest bodyweight core exercises. If your lower back collapses, shorten the range."},
+    {name:"Russian Twist",emoji:"🌀",tags:["Rotation","Obliques"],muscles:["Obliques","Rectus Abdominis","Hip Flexors"],equipment:["Plate, Dumbbell, or Medicine Ball (optional)"],steps:["Sit on floor, knees bent. Lean torso back to 45°.","Hold weight at chest or clasp hands. Feet raised for more difficulty.","Rotate torso to the right, touching weight to the floor beside your hip.","Rotate back through center and to the left. Right + Left = 1 rep.","Rotate from the waist, not the shoulders."],tips:"Move at the waist, not the shoulders. Adding weight increases the challenge."},
+    {name:"Dead Bug",emoji:"🐛",tags:["Anti-Rotation","Core Stability"],muscles:["Transverse Abdominis","Rectus Abdominis","Hip Flexors"],equipment:["Exercise Mat"],steps:["Lie on back with arms pointing straight up and knees bent at 90° above hips.","Press lower back firmly into the floor — maintain this the entire time.","Slowly lower right arm overhead and left leg toward floor simultaneously.","Stop just before they touch the floor, then return to start.","Alternate sides."],tips:"Your lower back must stay flat against the floor the whole time. If it arches, shorten your range of motion."}
+  ]
+};
+
+const PART_LABELS = {chest:'Chest',back:'Back',shoulders:'Shoulders',arms:'Arms',legs:'Legs',core:'Core'};
+const CUSTOM_EMOJIS = ['🏋️','💪','🔥','⚡','🎯','🏆','🦾','🔱','💥','🤸','🏃','🧘','🤼','🏇','🥊','🎽','🦵','🦴','🤲','🙌'];
+
+let currentBodyPart=null,currentExercise=null,setCount=0,weekOffset=0;
+let tplSelectedExercises=[],tplCurrentBodyPart='chest';
+let selectedCustomEmoji='🏋️';
+
+/* ── STORAGE ── */
+function getTodayKey(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function getWorkouts(k){try{const r=localStorage.getItem('workouts_'+k);return r?JSON.parse(r):[]}catch{return[];}}
+function saveWorkout(k,entry){const l=getWorkouts(k);l.push(entry);localStorage.setItem('workouts_'+k,JSON.stringify(l));}
+function deleteWorkout(k,i){const l=getWorkouts(k);l.splice(i,1);localStorage.setItem('workouts_'+k,JSON.stringify(l));}
+function getTemplates(){try{const r=localStorage.getItem('ironlog_templates');return r?JSON.parse(r):[]}catch{return[];}}
+function saveTemplates(t){localStorage.setItem('ironlog_templates',JSON.stringify(t));}
+function getCustomExercises(){try{const r=localStorage.getItem('ironlog_custom_exercises');return r?JSON.parse(r):[]}catch{return[];}}
+function saveCustomExercises(arr){localStorage.setItem('ironlog_custom_exercises',JSON.stringify(arr));}
+function getWeightLogs(){try{const r=localStorage.getItem('ironlog_weight_logs');return r?JSON.parse(r):[]}catch{return[];}}
+function saveWeightLogs(arr){localStorage.setItem('ironlog_weight_logs',JSON.stringify(arr));}
+function getGoalWeight(){return parseFloat(localStorage.getItem('ironlog_goal_weight'))||null;}
+function setGoalWeight(v){if(v)localStorage.setItem('ironlog_goal_weight',v);else localStorage.removeItem('ironlog_goal_weight');}
+
+/* Merge built-in + custom exercises for a body part */
+function getExercisesForPart(part){
+  const custom=getCustomExercises().filter(e=>e.category===part).map(e=>({...e,isCustom:true}));
+  return [...BUILT_IN[part],...custom];
+}
+
+/* ── NAVIGATION ── */
+function showView(v,btn){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(v==='today')renderToday();
+  if(v==='progress'){initProgress();renderBodyWeightSection();}
+  if(v==='goals'){renderGoals();}
+  if(v==='week'){renderWeek();}
+  if(v==='templates'){renderTemplates();}
+
+}
+
+/* ── WORKOUTS ── */
+function updateBodyCounts(){
+  Object.keys(PART_LABELS).forEach(part=>{
+    const el=document.getElementById('count-'+part);
+    if(el){const n=getExercisesForPart(part).length;el.textContent=n+' exercise'+(n!==1?'s':'');}
+  });
+}
+
+
+function showYogaSubView(){
+  document.getElementById('bodypart-screen').style.display='none';
+  document.getElementById('exercise-screen').style.display='none';
+  document.getElementById('running-screen').style.display='none';
+  document.getElementById('yoga-screen').style.display='block';
+  renderYogaView();
+}
+
+function showRunSubView(){
+  document.getElementById('bodypart-screen').style.display='none';
+  document.getElementById('exercise-screen').style.display='none';
+  document.getElementById('yoga-screen').style.display='none';
+  document.getElementById('running-screen').style.display='block';
+  renderRunView();
+}
+
+function showExercises(part){
+  currentBodyPart=part;
+  document.getElementById('bodypart-screen').style.display='none';
+  document.getElementById('exercise-screen').style.display='block';
+  document.getElementById('ex-screen-title').textContent=PART_LABELS[part]+' Exercises';
+  renderExerciseList(part);
+}
+
+function renderExerciseList(part){
+  const list=document.getElementById('exercise-list');list.innerHTML='';
+  const exercises=getExercisesForPart(part);
+  exercises.forEach((ex,i)=>{
+    const div=document.createElement('div');
+    div.className='exercise-item'+(ex.isCustom?' custom-ex':'');
+    div.innerHTML=`<div class="ex-left"><div class="ex-emoji">${ex.emoji||'🏋️'}</div><div><div class="ex-name">${ex.name}</div><div class="ex-tags">${(ex.tags||[]).map(t=>`<span class="tag${t==='Custom'?' custom-tag':''}">${t}</span>`).join('')}</div></div></div><div class="ex-right">${ex.isCustom?`<button class="ex-del-btn" onclick="deleteCustomEx(event,'${ex.name.replace(/'/g,"\\'")}')">🗑</button>`:''}<span style="color:var(--text3);font-size:18px">›</span></div>`;
+    div.addEventListener('click',function(e){if(!e.target.closest('.ex-del-btn'))openModal(part,i);});
+    list.appendChild(div);
+  });
+}
+
+function showBodyParts(){
+  document.getElementById('bodypart-screen').style.display='block';
+  document.getElementById('exercise-screen').style.display='none';
+  document.getElementById('yoga-screen').style.display='none';
+  document.getElementById('running-screen').style.display='none';
+  currentBodyPart=null;
+  updateBodyCounts();
+}
+
+/* ── EXERCISE MODAL ── */
+function openModal(part,index){
+  const ex=getExercisesForPart(part)[index];
+  currentExercise={...ex,bodyPart:PART_LABELS[part]};
+  document.getElementById('modal-title').textContent=ex.name;
+  document.getElementById('modal-emoji').textContent=ex.emoji||'🏋️';
+
+  const muscles=ex.muscles||[];
+  document.getElementById('modal-muscles').innerHTML=muscles.length?muscles.map(m=>`<span class="muscle-tag">${m}</span>`).join(''):'<span style="color:var(--text3);font-size:13px">Not specified</span>';
+
+  const equip=ex.equipment||[];
+  const equipSec=document.getElementById('modal-equip-section');
+  if(equip.length){equipSec.style.display='';document.getElementById('modal-equipment').innerHTML=equip.map(e=>`<span class="equip-tag">🔧 ${e}</span>`).join('');}
+  else equipSec.style.display='none';
+
+  const steps=ex.steps||[];
+  const stepsSec=document.getElementById('modal-steps-section');
+  if(steps.length){stepsSec.style.display='';document.getElementById('modal-steps').innerHTML=steps.map((s,i)=>`<li><span class="step-num">${i+1}</span><span>${s}</span></li>`).join('');}
+  else stepsSec.style.display='none';
+
+  const tipEl=document.getElementById('modal-tips');const tipSec=document.getElementById('modal-tips-section');
+  if(ex.tips){tipSec.style.display='';tipEl.textContent=ex.tips;}else tipSec.style.display='none';
+
+  setCount=0;document.getElementById('set-rows').innerHTML='';
+  addSetRow();addSetRow();addSetRow();
+  document.getElementById('modal').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+function addSetRow(){
+  setCount++;
+  const row=document.createElement('div');row.className='set-row';
+  row.innerHTML=`<span class="set-label">Set ${setCount}</span><input class="set-input" type="number" placeholder="Reps" min="0"/><input class="set-input" type="number" placeholder="lbs" min="0" step="2.5"/><input class="set-input" type="number" placeholder="1–10" min="1" max="10"/><button class="del-btn" onclick="removeSet(this)">×</button>`;
+  document.getElementById('set-rows').appendChild(row);
+}
+function removeSet(btn){
+  btn.closest('.set-row').remove();
+  document.querySelectorAll('#set-rows .set-row').forEach((r,i)=>r.querySelector('.set-label').textContent='Set '+(i+1));
+  setCount=document.querySelectorAll('#set-rows .set-row').length;
+}
+function logWorkout(){
+  const sets=[];
+  document.querySelectorAll('#set-rows .set-row').forEach(row=>{
+    const inp=row.querySelectorAll('.set-input');
+    const reps=inp[0].value,weight=inp[1].value,rpe=inp[2].value;
+    if(reps||weight)sets.push({reps:reps||'—',weight:weight||'0',rpe:rpe||'—'});
+  });
+  if(!sets.length){showToast('⚠️ Add at least one set with reps or weight!');return;}
+  saveWorkout(getTodayKey(),{name:currentExercise.name,emoji:currentExercise.emoji||'🏋️',bodyPart:currentExercise.bodyPart,sets,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
+  closeModal();showToast(`✅ ${currentExercise.name} saved!`);
+}
+
+/* ── CUSTOM EXERCISE ── */
+function openCustomModal(presetPart){
+  document.getElementById('cust-name').value='';
+  document.getElementById('cust-equipment').value='';
+  document.getElementById('cust-muscles').value='';
+  document.getElementById('cust-steps').value='';
+  document.getElementById('cust-tips').value='';
+  if(presetPart)document.getElementById('cust-category').value=presetPart;
+  selectedCustomEmoji='🏋️';
+  const pickRow=document.getElementById('emoji-pick-row');
+  pickRow.innerHTML=CUSTOM_EMOJIS.map(e=>`<span class="emoji-opt${e===selectedCustomEmoji?' selected':''}" onclick="pickEmoji('${e}')">${e}</span>`).join('');
+  document.getElementById('custom-modal').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeCustomModal(){document.getElementById('custom-modal').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('custom-modal').addEventListener('click',function(e){if(e.target===this)closeCustomModal();});
+
+function pickEmoji(e){
+  selectedCustomEmoji=e;
+  document.querySelectorAll('.emoji-opt').forEach(el=>{el.classList.toggle('selected',el.textContent===e);});
+}
+
+function saveCustomExercise(){
+  const name=document.getElementById('cust-name').value.trim();
+  if(!name){showToast('⚠️ Exercise name is required!');return;}
+  const category=document.getElementById('cust-category').value;
+  const equipmentRaw=document.getElementById('cust-equipment').value;
+  const musclesRaw=document.getElementById('cust-muscles').value;
+  const stepsRaw=document.getElementById('cust-steps').value;
+  const tips=document.getElementById('cust-tips').value.trim();
+  const equipment=equipmentRaw?equipmentRaw.split(',').map(s=>s.trim()).filter(Boolean):[];
+  const muscles=musclesRaw?musclesRaw.split(',').map(s=>s.trim()).filter(Boolean):[];
+  const steps=stepsRaw?stepsRaw.split('\n').map(s=>s.replace(/^\d+\.\s*/,'').trim()).filter(Boolean):[];
+  const custom=getCustomExercises();
+  custom.push({name,emoji:selectedCustomEmoji,category,tags:['Custom'],muscles,equipment,steps,tips,isCustom:true});
+  saveCustomExercises(custom);
+  closeCustomModal();
+  updateBodyCounts();
+  if(currentBodyPart===category)renderExerciseList(category);
+  showToast(`✅ "${name}" added to ${PART_LABELS[category]}!`);
+}
+
+function deleteCustomEx(e,name){
+  e.stopPropagation();
+  if(!confirm(`Delete "${name}"?`))return;
+  const custom=getCustomExercises().filter(ex=>ex.name!==name);
+  saveCustomExercises(custom);
+  renderExerciseList(currentBodyPart);
+  updateBodyCounts();
+  showToast('🗑 Exercise deleted');
+}
+
+/* ── TODAY ── */
+function renderToday(){
+  const key=getTodayKey(),workouts=getWorkouts(key);
+document.getElementById('today-date-label').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const sa=document.getElementById('today-summary-area'),la=document.getElementById('today-log-area');
+  if(!workouts.length){sa.innerHTML='';la.innerHTML=`<div class="today-empty"><div class="big">🏋️</div><p>No workouts logged today.<br>Head to <strong>Workouts</strong> to get started!</p></div>`;return;}
+  const totalSets=workouts.reduce((a,w)=>a+w.sets.length,0);
+  const totalVol=workouts.reduce((a,w)=>a+w.sets.reduce((b,s)=>b+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0),0),0);
+  sa.innerHTML=`<div class="today-summary"><div class="summary-stat"><div class="summary-num">${workouts.length}</div><div class="summary-lbl">Exercises</div></div><div class="summary-stat"><div class="summary-num">${totalSets}</div><div class="summary-lbl">Total Sets</div></div><div class="summary-stat"><div class="summary-num">${totalVol>=1000?(totalVol/1000).toFixed(1)+'k':totalVol.toFixed(0)||'—'}</div><div class="summary-lbl">Volume (lbs)</div></div></div>`;
+  la.innerHTML=workouts.map((w,i)=>`<div class="today-exercise-card"><div class="tec-header"><div class="tec-name">${w.emoji} ${w.name}</div><div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap"><span class="tec-body">${w.bodyPart}</span><span style="color:var(--text3);font-size:11px">${w.time}</span><button class="del-log-btn" onclick="deleteLog('${key}',${i})">🗑</button></div></div><table class="tec-table"><thead><tr><th>Set</th><th>Reps</th><th>Weight</th><th>RPE</th><th>Volume</th></tr></thead><tbody>${w.sets.map((s,j)=>{const vol=(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0);return`<tr><td>${j+1}</td><td class="num">${s.reps}</td><td class="num">${s.weight} lbs</td><td>${s.rpe}</td><td>${vol>0?vol.toFixed(0)+' lbs':'—'}</td></tr>`;}).join('')}</tbody></table></div>`).join('');
+}
+function deleteLog(key,index){if(!confirm('Delete this exercise from today?'))return;deleteWorkout(key,index);renderToday();}
+
+/* ── WEEK ── */
+function renderWeek(){
+  const today=new Date(),dow=today.getDay(),mOff=dow===0?-6:1-dow;
+  const monday=new Date(today);monday.setDate(today.getDate()+mOff+weekOffset*7);
+  const sunday=new Date(monday);sunday.setDate(monday.getDate()+6);
+  document.getElementById('week-label').textContent=monday.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+sunday.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const todayKey=getTodayKey(),DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let totEx=0,totSets=0,totVol=0,activeDays=0;
+  const grid=document.getElementById('week-grid');grid.innerHTML='';
+  for(let d=0;d<7;d++){
+    const date=new Date(monday);date.setDate(monday.getDate()+d);
+    const key=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    const workouts=getWorkouts(key),isToday=key===todayKey;
+    const dayVol=workouts.reduce((a,w)=>a+w.sets.reduce((b,s)=>b+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0),0),0);
+    const daySets=workouts.reduce((a,w)=>a+w.sets.length,0);
+    totEx+=workouts.length;totSets+=daySets;totVol+=dayVol;if(workouts.length>0)activeDays++;
+    const col=document.createElement('div');col.className='day-col'+(isToday?' today-col':'');
+    col.innerHTML=`<div class="day-name">${DAYS[d]}</div><div class="day-date">${date.getDate()}</div>${workouts.slice(0,4).map(w=>`<div class="day-exercise-pill" title="${w.name}">${w.emoji} ${w.name}</div>`).join('')}${workouts.length>4?`<div class="day-total">+${workouts.length-4} more</div>`:''}${workouts.length?`<div class="day-total" style="margin-top:3px;color:var(--accent3)">${daySets} sets · ${dayVol>=1000?(dayVol/1000).toFixed(1)+'k':dayVol.toFixed(0)} lbs</div>`:''}`;
+    grid.appendChild(col);
+  }
+  document.getElementById('week-stats').innerHTML=`<div class="week-stat-card"><div class="week-stat-num">${activeDays}</div><div class="week-stat-lbl">Active Days</div></div><div class="week-stat-card"><div class="week-stat-num">${totEx}</div><div class="week-stat-lbl">Exercises Logged</div></div><div class="week-stat-card"><div class="week-stat-num">${totSets}</div><div class="week-stat-lbl">Total Sets</div></div><div class="week-stat-card"><div class="week-stat-num">${totVol>=1000?(totVol/1000).toFixed(1)+'k':totVol.toFixed(0)}</div><div class="week-stat-lbl">Total Volume (lbs)</div></div>`;
+}
+function changeWeek(dir){weekOffset+=dir;renderWeek();}
+
+/* ── TEMPLATES ── */
+function renderTemplates(){
+  const templates=getTemplates(),el=document.getElementById('templates-list');
+  if(!templates.length){el.innerHTML=`<div class="templates-empty"><div style="font-size:46px;margin-bottom:12px">📂</div><p>No templates yet.<br>Create one to save your favorite routines!</p></div>`;return;}
+  el.innerHTML=`<div class="templates-grid">${templates.map((t,i)=>`<div class="template-card"><div class="tc-name">${t.name}</div><div class="tc-count">${t.exercises.length} exercise${t.exercises.length!==1?'s':''}</div><div class="tc-exercises">${t.exercises.slice(0,5).map(e=>`<div class="tc-ex-row"><span style="font-size:15px">${e.emoji||'🏋️'}</span><span>${e.name}</span><span style="color:var(--text3);font-size:11px;margin-left:auto">${e.bodyPart}</span></div>`).join('')}${t.exercises.length>5?`<div style="color:var(--text3);font-size:12px">+${t.exercises.length-5} more…</div>`:''}</div><div class="tc-actions"><button class="btn-load" onclick="loadTemplate(${i})">▶ Load Today</button><button class="btn-danger" onclick="deleteTemplate(${i})">Delete</button></div></div>`).join('')}</div>`;
+}
+function loadTemplate(index){
+  const t=getTemplates()[index];
+  const tab=document.querySelector('[data-view="today"]');showView('today',tab);renderToday();
+  const key=getTodayKey(),existing=getWorkouts(key);
+  if(!existing.length){
+    const guide=document.createElement('div');
+    guide.style.cssText='background:rgba(108,99,255,.08);border:1px solid rgba(108,99,255,.2);border-radius:14px;padding:16px;margin-bottom:12px';
+    guide.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:10px">📂 Template: ${t.name}</div><div style="color:var(--text2);font-size:13px;margin-bottom:10px">Go to <strong>Workouts</strong> to log these exercises:</div>${t.exercises.map(e=>`<div style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:5px">${e.emoji||'🏋️'} <strong>${e.name}</strong> <span style="color:var(--text3);font-size:11px">${e.bodyPart}</span></div>`).join('')}`;
+    document.getElementById('today-log-area').prepend(guide);
+  }
+  showToast(`📂 "${t.name}" loaded!`);
+}
+function deleteTemplate(index){
+  if(!confirm('Delete this template?'))return;
+  const templates=getTemplates();templates.splice(index,1);saveTemplates(templates);renderTemplates();showToast('🗑 Template deleted');
+}
+
+function openTplModal(){
+  tplSelectedExercises=[];tplCurrentBodyPart='chest';
+  document.getElementById('tpl-name-input').value='';
+  renderTplBodyTabs();renderTplExList();renderTplSelected();
+  document.getElementById('tpl-modal').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeTplModal(){document.getElementById('tpl-modal').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('tpl-modal').addEventListener('click',function(e){if(e.target===this)closeTplModal();});
+
+function renderTplBodyTabs(){
+  document.getElementById('tpl-body-tabs').innerHTML=Object.entries(PART_LABELS).map(([k,l])=>`<button class="tpl-body-tab${tplCurrentBodyPart===k?' active':''}" onclick="switchTplPart('${k}')">${l}</button>`).join('');
+}
+function switchTplPart(part){tplCurrentBodyPart=part;renderTplBodyTabs();renderTplExList();}
+function renderTplExList(){
+  const exercises=getExercisesForPart(tplCurrentBodyPart);
+  document.getElementById('tpl-ex-list').innerHTML=exercises.map((ex,i)=>{
+    const sel=tplSelectedExercises.some(s=>s.name===ex.name);
+    const isCustom=!!ex.isCustom;
+    return`<div class="tpl-ex-item${sel?' selected':''}" onclick="toggleTplExercise('${tplCurrentBodyPart}',${i})"><div class="tpl-ex-check">${sel?'✓':''}</div><span style="font-size:17px">${ex.emoji||'🏋️'}</span><span style="font-size:13px">${ex.name}</span>${isCustom?'<span style="font-size:10px;color:var(--accent4);margin-left:auto">Custom</span>':''}</div>`;
+  }).join('');
+}
+function toggleTplExercise(part,index){
+  const ex=getExercisesForPart(part)[index];
+  const existing=tplSelectedExercises.findIndex(s=>s.name===ex.name);
+  if(existing>=0)tplSelectedExercises.splice(existing,1);
+  else tplSelectedExercises.push({name:ex.name,emoji:ex.emoji||'🏋️',bodyPart:PART_LABELS[part]});
+  renderTplExList();renderTplSelected();
+}
+function renderTplSelected(){
+  const el=document.getElementById('tpl-selected-list');
+  if(!tplSelectedExercises.length){el.innerHTML=`<div style="color:var(--text3);font-size:13px;padding:6px 0">No exercises selected yet</div>`;return;}
+  el.innerHTML=tplSelectedExercises.map((e,i)=>`<div class="tpl-selected-pill"><span>${e.emoji} ${e.name} <span style="color:var(--text3);font-size:11px">${e.bodyPart}</span></span><button class="tpl-remove-btn" onclick="removeTplEx(${i})">×</button></div>`).join('');
+}
+function removeTplEx(i){tplSelectedExercises.splice(i,1);renderTplExList();renderTplSelected();}
+function saveTemplate(){
+  const name=document.getElementById('tpl-name-input').value.trim();
+  if(!name){showToast('⚠️ Give your template a name!');return;}
+  if(!tplSelectedExercises.length){showToast('⚠️ Add at least one exercise!');return;}
+  const templates=getTemplates();
+  templates.push({name,exercises:[...tplSelectedExercises],created:Date.now()});
+  saveTemplates(templates);closeTplModal();renderTemplates();showToast(`✅ "${name}" saved!`);
+}
+
+/* ── BODY WEIGHT TRACKER ── */
+function saveGoalWeight(){
+  const v=document.getElementById('goal-weight-input').value;
+  setGoalWeight(v?parseFloat(v):null);
+  renderBodyWeightSection();
+}
+
+function logBodyWeight(){
+  const val=parseFloat(document.getElementById('todays-weight-input').value);
+  if(!val||isNaN(val)){showToast('⚠️ Enter a valid weight!');return;}
+  const key=getTodayKey();
+  const logs=getWeightLogs();
+  const existing=logs.findIndex(l=>l.date===key);
+  if(existing>=0)logs[existing].weight=val;
+  else logs.push({date:key,weight:val});
+  logs.sort((a,b)=>a.date.localeCompare(b.date));
+  saveWeightLogs(logs);
+  document.getElementById('todays-weight-input').value='';
+  renderBodyWeightSection();
+  showToast(`✅ Weight logged: ${val} lbs`);
+}
+
+function renderBodyWeightSection(){
+  const logs=getWeightLogs();
+  const goal=getGoalWeight();
+  const goalInput=document.getElementById('goal-weight-input');
+  if(goal&&!goalInput.value)goalInput.value=goal;
+
+  const statsRow=document.getElementById('bw-stats-row');
+  const goalBar=document.getElementById('bw-goal-bar');
+  const chartWrap=document.getElementById('bw-weight-chart-wrap');
+  const tableWrap=document.getElementById('bw-log-table-wrap');
+
+  if(!logs.length){
+    statsRow.innerHTML='<div style="color:var(--text3);font-size:13px">Log your first weight above to start tracking!</div>';
+    goalBar.innerHTML='';chartWrap.innerHTML='';tableWrap.innerHTML='';
+    return;
+  }
+
+  const todayKey=getTodayKey();
+  const todayLog=logs.find(l=>l.date===todayKey);
+  const lastLog=logs[logs.length-1];
+  const prevLog=logs.length>=2?logs[logs.length-2]:null;
+  const currentWeight=todayLog?todayLog.weight:lastLog.weight;
+  const startWeight=logs[0].weight;
+
+  let changeHTML='<span class="bw-stat-val bw-change-zero">—</span>';
+  if(prevLog){
+    const diff=(currentWeight-prevLog.weight).toFixed(1);
+    const diffNum=parseFloat(diff);
+    if(diffNum>0)changeHTML=`<span class="bw-stat-val bw-change-pos">+${diff} lbs</span>`;
+    else if(diffNum<0)changeHTML=`<span class="bw-stat-val bw-change-neg">${diff} lbs</span>`;
+    else changeHTML=`<span class="bw-stat-val bw-change-zero">No change</span>`;
+  }
+
+  const totalChange=currentWeight-startWeight;
+  const totalChangeStr=(totalChange>=0?'+':'')+totalChange.toFixed(1);
+
+  statsRow.innerHTML=`
+    <div class="bw-stat-box"><div class="bw-stat-val" style="color:var(--accent)">${currentWeight} lbs</div><div class="bw-stat-lbl">${todayLog?'Today':'Latest'}</div></div>
+    <div class="bw-stat-box">${changeHTML}<div class="bw-stat-lbl">vs. Previous</div></div>
+    <div class="bw-stat-box"><div class="bw-stat-val" style="color:var(--text2)">${totalChangeStr} lbs</div><div class="bw-stat-lbl">Total Change</div></div>
+    ${goal?`<div class="bw-stat-box"><div class="bw-stat-val" style="color:var(--accent4)">${Math.abs(currentWeight-goal).toFixed(1)} lbs</div><div class="bw-stat-lbl">${currentWeight>goal?'To Lose':'To Gain'}</div></div>`:''}
+  `;
+
+  if(goal){
+    const start=logs[0].weight;
+    const totalNeeded=Math.abs(start-goal);
+    const totalMoved=Math.abs(currentWeight-start);
+    const pct=totalNeeded>0?Math.min(100,(totalMoved/totalNeeded)*100):100;
+    goalBar.innerHTML=`<div class="goal-bar-wrap">
+      <div class="goal-bar-labels"><span>Start: ${start} lbs</span><span>Goal: ${goal} lbs</span></div>
+      <div class="goal-bar-track"><div class="goal-bar-fill" style="width:${pct.toFixed(1)}%"></div></div>
+      <div style="text-align:center;font-size:12px;color:var(--text3);margin-top:5px">${pct.toFixed(0)}% of the way to goal</div>
+    </div>`;
+  } else {
+    goalBar.innerHTML='';
+  }
+
+  // Chart
+  if(logs.length>=2){
+    chartWrap.innerHTML='';
+    setTimeout(()=>drawLineChart('bw-weight-chart-wrap',logs,'weight','#fbbf24','lbs'),30);
+  } else {
+    chartWrap.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:10px 0">Log at least 2 entries to see the chart</div>';
+  }
+
+  // Log table (newest first)
+  const sorted=[...logs].reverse().slice(0,30);
+  tableWrap.innerHTML=`<table class="bw-log-table"><thead><tr><th>Date</th><th>Weight</th><th>Change</th><th></th></tr></thead><tbody>${sorted.map((l,ri)=>{
+    const origIdx=logs.findIndex(x=>x.date===l.date);
+    const prev=origIdx>0?logs[origIdx-1]:null;
+    let badge='';
+    if(prev){
+      const diff=(l.weight-prev.weight).toFixed(1);
+      const n=parseFloat(diff);
+      if(n>0)badge=`<span class="change-badge badge-up">+${diff}</span>`;
+      else if(n<0)badge=`<span class="change-badge badge-down">${diff}</span>`;
+      else badge=`<span class="change-badge badge-same">—</span>`;
+    }
+    const dateDisp=new Date(l.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const isToday=l.date===todayKey;
+    return`<tr><td style="${isToday?'color:var(--accent);font-weight:700':''}'">${dateDisp}${isToday?' 📍':''}</td><td class="num">${l.weight} lbs</td><td>${badge}</td><td><button onclick="deleteWeightLog('${l.date}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:2px 4px" title="Delete">🗑</button></td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+
+function deleteWeightLog(dateKey){
+  if(!confirm('Delete this weight entry?'))return;
+  const logs=getWeightLogs().filter(l=>l.date!==dateKey);
+  saveWeightLogs(logs);renderBodyWeightSection();showToast('🗑 Entry deleted');
+}
+
+/* ── STRENGTH PROGRESS ── */
+function initProgress(){
+  updateExSelect();
+  renderBodyWeightSection();
+  const sel=document.getElementById('prog-ex-select');
+  if(sel.value)renderProgress();
+}
+function updateExSelect(){
+  const bp=document.getElementById('prog-body-select').value;
+  const exSel=document.getElementById('prog-ex-select');
+  exSel.innerHTML='<option value="">— Select Exercise —</option>';
+  const parts=bp?[bp]:Object.keys(EXERCISES||BUILT_IN);
+  parts.forEach(p=>getExercisesForPart(p).forEach(ex=>{
+    const opt=document.createElement('option');
+    opt.value=ex.name;opt.textContent=ex.name+(bp?'':` (${PART_LABELS[p]})`);exSel.appendChild(opt);
+  }));
+  document.getElementById('progress-content').innerHTML='<div class="no-data">👆 Select an exercise to see your progress</div>';
+}
+function getAllHistoryForExercise(exName){
+  const results=[];
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(!key.startsWith('workouts_'))continue;
+    const dateStr=key.replace('workouts_','');
+    const workouts=getWorkouts(dateStr);
+    const match=workouts.find(w=>w.name===exName);
+    if(match){
+      const maxWeight=Math.max(...match.sets.map(s=>parseFloat(s.weight)||0));
+      const totalVolume=match.sets.reduce((a,s)=>(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0)+a,0);
+      results.push({date:dateStr,maxWeight,totalVolume,sets:match.sets});
+    }
+  }
+  return results.sort((a,b)=>a.date.localeCompare(b.date));
+}
+function renderProgress(){
+  const exName=document.getElementById('prog-ex-select').value;
+  if(!exName){document.getElementById('progress-content').innerHTML='<div class="no-data">👆 Select an exercise to see your progress</div>';return;}
+  const history=getAllHistoryForExercise(exName);
+  const content=document.getElementById('progress-content');
+  if(!history.length){content.innerHTML=`<div class="no-data">📭 No data yet for <strong>${exName}</strong>.<br>Log some workouts and come back!</div>`;return;}
+  const maxWeightEver=Math.max(...history.map(h=>h.maxWeight));
+  const maxVolEver=Math.max(...history.map(h=>h.totalVolume));
+  const avgWeight=history.reduce((a,h)=>a+h.maxWeight,0)/history.length;
+  const chartData=history.length===1?[{...history[0],date:shiftDate(history[0].date,-7)},...history]:history;
+  content.innerHTML=`<div class="prog-stats-row"><div class="prog-stat"><div class="prog-stat-num">${maxWeightEver>0?maxWeightEver.toFixed(0)+' lbs':'—'}</div><div class="prog-stat-lbl">All-Time Max Weight</div></div><div class="prog-stat"><div class="prog-stat-num">${history.length}</div><div class="prog-stat-lbl">Sessions Logged</div></div><div class="prog-stat"><div class="prog-stat-num">${avgWeight.toFixed(0)} lbs</div><div class="prog-stat-lbl">Avg Max Weight</div></div><div class="prog-stat"><div class="prog-stat-num">${maxVolEver>=1000?(maxVolEver/1000).toFixed(1)+'k':maxVolEver.toFixed(0)}</div><div class="prog-stat-lbl">Best Session Volume</div></div></div><div class="chart-card"><div class="chart-title">Max Weight Per Session — <span>${exName}</span></div><div class="chart-wrap" id="weight-chart-wrap-s"></div></div><div class="chart-card"><div class="chart-title">Total Volume Per Session (reps × weight) — <span>${exName}</span></div><div class="chart-wrap" id="volume-chart-wrap-s"></div></div>`;
+  setTimeout(()=>{drawLineChart('weight-chart-wrap-s',chartData,'maxWeight','#6c63ff','lbs');drawLineChart('volume-chart-wrap-s',chartData,'totalVolume','#43e97b','lbs');},50);
+}
+
+/* ── CHART ENGINE ── */
+function shiftDate(dateStr,days){const d=new Date(dateStr);d.setDate(d.getDate()+days);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function drawLineChart(containerId,data,field,color,unit){
+  const container=document.getElementById(containerId);if(!container)return;
+  const W=Math.max(container.clientWidth||600,360),H=190;
+  const PAD={top:16,right:16,bottom:34,left:50};
+  const innerW=W-PAD.left-PAD.right,innerH=H-PAD.top-PAD.bottom;
+  const values=data.map(d=>d[field]||0);
+  const minVal=Math.min(...values)*0.88,maxVal=Math.max(...values)*1.1||1;
+  const xScale=i=>PAD.left+(i/(data.length-1||1))*innerW;
+  const yScale=v=>PAD.top+innerH-((v-minVal)/(maxVal-minVal||1))*innerH;
+  const points=data.map((d,i)=>`${xScale(i).toFixed(1)},${yScale(d[field]||0).toFixed(1)}`).join(' ');
+  const areaPoints=`${PAD.left},${PAD.top+innerH} `+data.map((d,i)=>`${xScale(i).toFixed(1)},${yScale(d[field]||0).toFixed(1)}`).join(' ')+` ${xScale(data.length-1)},${PAD.top+innerH}`;
+  let yLabels='';
+  for(let i=0;i<=4;i++){
+    const v=minVal+(maxVal-minVal)*i/4,y=yScale(v);
+    const label=v>=1000?(v/1000).toFixed(1)+'k':Math.round(v).toString();
+    yLabels+=`<text x="${PAD.left-6}" y="${y+4}" fill="#6666aa" font-size="10" text-anchor="end">${label}</text>`;
+    yLabels+=`<line x1="${PAD.left}" y1="${y}" x2="${PAD.left+innerW}" y2="${y}" stroke="#2e2e45" stroke-width="1"/>`;
+  }
+  let xLabels='';
+  const maxL=Math.min(data.length,7),step=Math.ceil(data.length/maxL);
+  for(let i=0;i<data.length;i+=step){
+    const x=xScale(i),d2=new Date((data[i].date||'')+'T12:00:00');
+    const label=isNaN(d2)?'':(`${d2.getMonth()+1}/${d2.getDate()}`);
+    xLabels+=`<text x="${x}" y="${H-5}" fill="#6666aa" font-size="10" text-anchor="middle">${label}</text>`;
+  }
+  const dots=data.map((d,i)=>{
+    const v=d[field]||0,label=v>=1000?(v/1000).toFixed(1)+'k':v.toFixed?v.toFixed(1):v;
+    return`<circle cx="${xScale(i).toFixed(1)}" cy="${yScale(v).toFixed(1)}" r="4" fill="${color}" stroke="var(--bg)" stroke-width="2" class="chart-dot"><title>${data[i].date}: ${label} ${unit}</title></circle>`;
+  }).join('');
+  container.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g${containerId.replace(/[^a-z]/gi,'')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.32"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>${yLabels}${xLabels}<polygon points="${areaPoints}" fill="url(#g${containerId.replace(/[^a-z]/gi,'')})"/><polyline points="${points}" class="chart-line" stroke="${color}"/>${dots}</svg>`;
+}
+
+/* ── TOAST ── */
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ── INIT ── */
+updateBodyCounts();
+
+/* ══════════════════════════════════════════════════
+   YOGA DATA
+══════════════════════════════════════════════════ */
+const YOGA_CATEGORIES = [
+  {id:'all',label:'All Poses'},
+  {id:'standing',label:'Standing'},
+  {id:'seated',label:'Seated & Floor'},
+  {id:'backbend',label:'Backbends'},
+  {id:'core',label:'Core & Balance'},
+  {id:'restorative',label:'Restorative'}
+];
+
+const YOGA_POSES = [
+  /* ── STANDING ── */
+  {name:'Mountain Pose',sanskrit:'Tadasana',emoji:'🏔️',category:'standing',difficulty:'beginner',focus:'Foundation',
+   desc:'The foundation of all standing poses. Mountain Pose teaches proper alignment and posture — it looks simple but requires active engagement of the entire body from feet to crown of head.',
+   benefits:['Improves posture','Strengthens thighs, knees & ankles','Firms abdomen & buttocks','Relieves sciatica','Increases body awareness'],
+   steps:['Stand with feet together or hip-width apart, weight evenly distributed.','Engage your thigh muscles and lift your kneecaps. Firm the inner arches.','Lengthen your tailbone toward the floor and lift the pubis toward the navel.','Roll your shoulders back and down. Open your chest. Arms hang naturally.','Lengthen through the top of your skull. Breathe slowly and hold for 5–10 breaths.'],
+   mods:'Use a wall for balance support. Place a block between your thighs to feel inner leg engagement.'},
+  {name:'Warrior I',sanskrit:'Virabhadrasana I',emoji:'⚔️',category:'standing',difficulty:'beginner',focus:'Strength',
+   desc:'A powerful standing pose that builds strength in the legs and core while opening the chest, hip flexors, and shoulders. Named after the mythical warrior Virabhadra.',
+   benefits:['Strengthens legs, glutes & core','Stretches hip flexors & chest','Improves balance & stability','Builds confidence & focus','Opens shoulders'],
+   steps:['Start in Mountain Pose. Step your left foot back 3–4 feet. Turn back foot out 45°.','Bend your front knee to 90° directly over your front ankle.','Square your hips toward the front of the mat.','Inhale and sweep arms overhead, palms facing each other or touching.','Hold for 5 breaths, gaze forward or slightly up. Repeat on other side.'],
+   mods:'Shorten your stance if balance is challenging. Keep arms at shoulder height if shoulders are tight.'},
+  {name:'Warrior II',sanskrit:'Virabhadrasana II',emoji:'🗡️',category:'standing',difficulty:'beginner',focus:'Strength',
+   desc:'A wide-legged standing pose with arms extended in opposite directions. Warrior II builds incredible leg strength and stamina while opening the hips and chest.',
+   benefits:['Strengthens legs & core','Opens hips & groin','Improves stamina','Stretches inner thighs','Builds focus'],
+   steps:['Step feet wide apart (4–5 feet). Turn right foot out 90°, left foot in slightly.','Bend right knee over right ankle — thigh parallel to floor.','Extend arms out to the sides at shoulder height, palms down.','Turn your head to gaze over your right fingertips.','Hold for 5–10 breaths. Keep the front knee tracking over the pinky toe.'],
+   mods:'Lower your back heel slightly if you feel strain. Place a block under your front thigh for support.'},
+  {name:'Warrior III',sanskrit:'Virabhadrasana III',emoji:'🦅',category:'standing',difficulty:'intermediate',focus:'Balance',
+   desc:'A powerful one-legged standing pose that challenges balance, coordination, and core strength. The entire body forms a T-shape parallel to the floor.',
+   benefits:['Strengthens ankles, legs & core','Improves balance & coordination','Tones the abdomen','Stretches hamstrings','Builds full-body integration'],
+   steps:['Start in Warrior I with right foot forward.','Lean forward, shifting weight onto right foot.','Lift left leg behind you while lowering torso forward.','Both hips should be level — imagine headlights on your hips shining straight ahead.','Extend arms forward or alongside body. Hold 3–5 breaths then switch sides.'],
+   mods:'Keep hands on hips for easier balance. Use a wall for support. Keep a slight bend in the standing knee.'},
+  {name:'Triangle Pose',sanskrit:'Trikonasana',emoji:'📐',category:'standing',difficulty:'beginner',focus:'Flexibility',
+   desc:'A foundational pose that creates a long, lateral stretch through the torso while strengthening the legs. Opens the chest and improves overall mobility.',
+   benefits:['Stretches inner thighs, hamstrings & hips','Strengthens knees, ankles & thighs','Opens chest & shoulders','Reduces back pain','Improves digestion'],
+   steps:['Step feet wide apart (4 feet). Turn right foot out 90°, left foot in slightly.','Extend arms out to sides at shoulder height.','Hinge at the right hip, extending torso over right leg. Keep both sides of torso long.','Rest right hand on shin, ankle, or floor. Extend left arm straight up.','Turn head to gaze at left hand. Hold 5 breaths. Repeat other side.'],
+   mods:'Use a block under your bottom hand. Keep a slight bend in the front knee.'},
+  {name:'Tree Pose',sanskrit:'Vrksasana',emoji:'🌳',category:'standing',difficulty:'beginner',focus:'Balance',
+   desc:'A classic balancing pose that develops concentration and inner calm. Like a tree, you root down through your standing foot while growing tall through the crown.',
+   benefits:['Improves balance & coordination','Strengthens thighs, calves & spine','Opens hips','Builds focus & concentration','Improves posture'],
+   steps:['Start in Mountain Pose. Fix your gaze on a still point (drishti).','Shift weight into right foot. Bend left knee and place left foot on inner right thigh or calf (avoid the knee).','Bring hands to prayer at heart or raise overhead.','Engage core and breathe steadily. Hold for 5–10 breaths.','Release and repeat on other side.'],
+   mods:'Keep toes of raised foot on the floor for balance. Use a wall for support.'},
+  {name:'Chair Pose',sanskrit:'Utkatasana',emoji:'🪑',category:'standing',difficulty:'beginner',focus:'Strength',
+   desc:'Called "fierce pose" in Sanskrit, Chair Pose is a powerful squat that challenges the thighs, core, and back. It generates tremendous heat in the body.',
+   benefits:['Strengthens thighs, calves & spine','Stretches chest & shoulders','Stimulates the heart','Reduces flat feet','Builds heat and stamina'],
+   steps:['Start in Mountain Pose. Inhale and raise arms overhead, palms facing each other.','Exhale and bend knees as if sitting in a chair. Keep knees over toes.','Lower thighs as parallel to floor as possible. Keep chest lifted.','Shift weight slightly into heels. Draw shoulder blades together.','Hold for 5–10 breaths, pressing feet into the floor.'],
+   mods:'Keep a more shallow squat if knees are sensitive. Hold arms at shoulder height instead of overhead.'},
+  {name:'Extended Side Angle',sanskrit:'Utthita Parsvakonasana',emoji:'↗️',category:'standing',difficulty:'beginner',focus:'Flexibility',
+   desc:'A deep lateral stretch that creates length along the entire side of the body from the foot all the way through the fingertips. Also strengthens the lower body.',
+   benefits:['Stretches side body, hip & groin','Strengthens legs & core','Opens chest & shoulders','Improves endurance','Stimulates abdominal organs'],
+   steps:['Step feet wide apart. Turn right foot out 90°, left foot in 45°.','Bend right knee to 90° (Warrior II position).','Lower right forearm to right thigh (or place right hand on block/floor outside right foot).','Extend left arm overhead alongside left ear. Create one long diagonal line.','Hold 5 breaths, then repeat left side.'],
+   mods:'Rest forearm on thigh rather than reaching the floor. Use a block for the bottom hand.'},
+
+  /* ── SEATED & FLOOR ── */
+  {name:"Child's Pose",sanskrit:'Balasana',emoji:'🙇',category:'seated',difficulty:'beginner',focus:'Rest',
+   desc:'The ultimate resting and restorative pose. Child\'s Pose is a gentle forward fold that can be taken any time during practice. It releases the lower back, hips, and shoulders while calming the nervous system.',
+   benefits:['Gently stretches hips, thighs & ankles','Releases lower back tension','Calms the mind & reduces stress','Relieves fatigue','Stretches shoulders'],
+   steps:["Start on hands and knees. Bring big toes together, knees wide apart.","Sink hips back toward heels. Extend arms forward on the mat.","Rest forehead on the mat. Let your belly sink between your thighs.","Breathe slowly and deeply, releasing tension with each exhale.","Hold for 5–20 breaths or as long as needed."],
+   mods:'Place a blanket between thighs and calves if hips don\'t reach heels. A folded blanket under the forehead supports the neck.'},
+  {name:'Pigeon Pose',sanskrit:'Eka Pada Rajakapotasana',emoji:'🕊️',category:'seated',difficulty:'intermediate',focus:'Hip Opening',
+   desc:'One of the most effective hip openers in yoga. Pigeon Pose creates a deep stretch in the glutes, hip rotators, and hip flexors on both sides simultaneously.',
+   benefits:['Deep hip flexor & glute stretch','Releases piriformis tension (helps sciatica)','Opens the chest','Reduces lower back pain','Releases stored emotions held in the hips'],
+   steps:["Start in Downward Dog. Bring right knee forward to right wrist, right ankle toward left wrist.","Lower left knee to the floor, extending left leg straight back, toes pointed.","Square your hips toward the front of the mat.","Walk hands forward and lower torso over front leg. Rest on forearms or forehead.","Hold for 10–20 breaths, then switch sides."],
+   mods:'Place a folded blanket under the front hip if it doesn\'t reach the floor. Try figure-four pose on your back as a gentler alternative.'},
+  {name:'Seated Forward Fold',sanskrit:'Paschimottanasana',emoji:'🤸',category:'seated',difficulty:'beginner',focus:'Flexibility',
+   desc:'A classic seated hamstring and back stretch. This pose stretches the entire posterior chain from heels to the crown of the head and promotes a calming effect on the nervous system.',
+   benefits:['Stretches hamstrings, spine & lower back','Calms anxiety & reduces stress','Improves digestion','Relieves menstrual discomfort','Therapeutic for insomnia'],
+   steps:["Sit with legs extended straight in front of you. Flex your feet, pressing through the heels.","Sit tall, lengthening through the spine. Inhale and raise arms overhead.","Exhale and hinge forward from the hips (not the waist), leading with your chest.","Walk hands forward along legs, reaching for feet, ankles, or shins.","Hold for 10–20 breaths. With each exhale, soften deeper into the stretch."],
+   mods:'Use a strap around your feet if you can\'t reach them. Sit on a folded blanket to tilt the pelvis forward more easily.'},
+  {name:'Butterfly Pose',sanskrit:'Baddha Konasana',emoji:'🦋',category:'seated',difficulty:'beginner',focus:'Hip Opening',
+   desc:'A seated groin and inner thigh opener. Butterfly Pose is excellent for loosening tight hips and improving hip mobility. The flapping of the legs like butterfly wings gives the pose its name.',
+   benefits:['Opens hips & inner thighs','Stretches groin & knees','Stimulates heart & circulatory system','Soothes menstrual discomfort','Improves hip flexibility'],
+   steps:["Sit on the floor with a tall spine. Bend both knees and bring soles of feet together.","Let knees drop open to the sides like butterfly wings.","Hold your feet with both hands. Sit up straight, lengthening through the spine.","On each exhale, gently press knees closer to the floor.","For a forward fold variation, hinge forward from hips over your feet."],
+   mods:'Sit on a blanket or block to elevate hips. Place blocks under knees if there\'s strain in inner thighs.'},
+  {name:'Supine Twist',sanskrit:'Supta Matsyendrasana',emoji:'🌀',category:'seated',difficulty:'beginner',focus:'Twist',
+   desc:'A gentle reclining twist that detoxifies the organs, releases the back muscles, and restores spinal mobility. An essential pose for recovery and unwinding after exercise.',
+   benefits:['Releases spinal tension','Massages abdominal organs','Stretches outer hips & IT band','Reduces lower back pain','Calms the nervous system'],
+   steps:["Lie on your back. Hug right knee to chest, then draw it across the body to the left.","Extend right arm to the right at shoulder height. Turn head to gaze right (optional).","Left hand can rest on right knee to encourage the twist.","Both shoulders should stay grounded. Breathe into the twist.","Hold 5–10 breaths, then switch sides."],
+   mods:'Place a folded blanket under the bent knee if it doesn\'t reach the floor.'},
+  {name:'Happy Baby',sanskrit:'Ananda Balasana',emoji:'👶',category:'seated',difficulty:'beginner',focus:'Rest',
+   desc:'A joyful, playful pose that deeply opens the hips and groin. Named for the way babies naturally grab their feet, Happy Baby gently decompresses the spine and releases tension.',
+   benefits:['Opens hips & groin','Gently stretches inner thighs','Decompresses the spine','Calms the nervous system','Relieves lower back tension'],
+   steps:["Lie on your back. On an exhale, bend knees into your belly.","Inhale and grip the outsides of your feet with your hands. Open knees wider than your torso.","Flex your feet so soles face the ceiling. Press feet up into hands while pulling down.","Keep the spine long — lower back presses into the mat. Rock gently side to side.","Hold for 5–15 breaths."],
+   mods:'Hold your ankles or behind your thighs if you can\'t reach your feet. A strap around your feet also works well.'},
+
+  /* ── BACKBENDS ── */
+  {name:'Cobra Pose',sanskrit:'Bhujangasana',emoji:'🐍',category:'backbend',difficulty:'beginner',focus:'Backbend',
+   desc:'A gentle backbend that opens the chest, stretches the abdominals, and strengthens the spine. Cobra is part of the classic Sun Salutation sequence and is excellent for counteracting desk posture.',
+   benefits:['Strengthens spine & back muscles','Opens chest & lungs','Stretches abs & hip flexors','Improves posture','Therapeutic for lower back pain'],
+   steps:["Lie on your belly, forehead on mat, legs extended behind you.","Place hands under shoulders, elbows hugging toward body.","Inhale and slowly lift your chest off the floor. Elbows remain slightly bent.","Keep lower body on the floor. Roll shoulders back and down, chest forward.","Hold 5–10 breaths. Lower on exhale."],
+   mods:'Keep elbows bent and lift only a few inches for a gentler version. Full cobra straightens the arms for a deeper backbend.'},
+  {name:'Upward-Facing Dog',sanskrit:'Urdhva Mukha Svanasana',emoji:'🐕',category:'backbend',difficulty:'intermediate',focus:'Backbend',
+   desc:'A stronger backbend than Cobra where the thighs and knees lift off the floor. Upward Dog opens the chest deeply and is a key pose in the Sun Salutation vinyasa flow.',
+   benefits:['Strengthens spine, arms & wrists','Opens chest & lungs deeply','Stretches abs & hip flexors','Improves posture','Energizes the body'],
+   steps:["Lie on belly with tops of feet on floor and hands under shoulders.","Press into your hands and the tops of your feet. Lift chest, thighs, and knees all off the floor.","Straighten arms fully. Keep hips low and engage glutes slightly.","Roll shoulders back, chest forward. Head neutral or slightly lifted.","Hold 3–5 breaths. Avoid compressing the lower back by engaging core."],
+   mods:'Keep knees on the floor to reduce intensity. This is a step up from Cobra Pose.'},
+  {name:'Bridge Pose',sanskrit:'Setu Bandha Sarvangasana',emoji:'🌉',category:'backbend',difficulty:'beginner',focus:'Backbend',
+   desc:'A versatile backbend that strengthens the back body and opens the front body. Bridge Pose can be held for strength or used as a restorative pose supported on a block.',
+   benefits:['Strengthens back, glutes & hamstrings','Stretches chest, neck & spine','Stimulates thyroid & lungs','Reduces anxiety','Therapeutic for osteoporosis'],
+   steps:["Lie on your back with knees bent, feet flat on the floor hip-width apart.","Place arms flat alongside your body, palms down.","Press feet firmly into the floor. Inhale and lift hips toward the ceiling.","Clasp hands below pelvis, pressing into the floor to open the chest further.","Hold 5–10 breaths. Lower vertebra by vertebra on exhale."],
+   mods:'Place a block under your sacrum for a restorative version. Keep hips lower if there\'s lower back sensitivity.'},
+  {name:'Camel Pose',sanskrit:'Ustrasana',emoji:'🐪',category:'backbend',difficulty:'intermediate',focus:'Backbend',
+   desc:'A deep kneeling backbend that creates an intense opening through the entire front body. Camel Pose is both exhilarating and humbling — it is powerful and accessible with modifications.',
+   benefits:['Opens chest, abs & hip flexors deeply','Strengthens back muscles','Improves posture','Stimulates nervous system','Counteracts forward-bending postures'],
+   steps:["Kneel on the floor, knees hip-width apart, thighs perpendicular to floor.","Place hands on hips. Inhale and lift the chest. Press hips forward slightly.","Slowly lower hands toward heels (use blocks at shin height if needed).","Keep hips over knees and engage the glutes. Let the head drop back gently.","Hold 3–5 breaths. Come out slowly by bringing hands to hips and leading with the chest."],
+   mods:'Keep hands on lower back/hips rather than reaching the heels. Curl toes under to raise the heel height.'},
+  {name:'Bow Pose',sanskrit:'Dhanurasana',emoji:'🏹',category:'backbend',difficulty:'intermediate',focus:'Backbend',
+   desc:'A prone backbend that opens the entire front body while strengthening the back. The body forms the shape of a bow with arms acting as the bowstring.',
+   benefits:['Opens chest, abs & hip flexors','Strengthens back, glutes & hamstrings','Improves posture','Stimulates digestive organs','Energizes the body'],
+   steps:["Lie on your belly with arms alongside body.","Bend knees and bring heels toward buttocks. Reach back and hold ankles (not feet).","Inhale and lift chest and thighs off the floor simultaneously.","Look forward and breathe. The body rocks on the belly.","Hold for 5 breaths. Lower on exhale and repeat 2–3 times."],
+   mods:'Use a strap around your ankles if you can\'t reach them. Lift only slightly if your back is sensitive.'},
+  {name:'Wheel Pose',sanskrit:'Urdhva Dhanurasana',emoji:'🎡',category:'backbend',difficulty:'advanced',focus:'Backbend',
+   desc:'The full wheel or upward bow is one of yoga\'s most iconic poses. It creates an intense opening through the entire front body while requiring significant shoulder and spinal flexibility.',
+   benefits:['Strengthens arms, wrists, legs & spine','Opens chest & hip flexors deeply','Stimulates thyroid & pituitary glands','Increases energy','Therapeutic for depression & anxiety'],
+   steps:["Lie on back, knees bent, feet flat on floor hip-width apart.","Place hands beside ears, fingertips pointing toward shoulders.","Press into hands and feet. Lift hips up and place crown of head on mat.","Straighten arms and legs to lift into a full arch.","Hold for 3–10 breaths. Come down slowly with control."],
+   mods:'Practice Bridge Pose first. Use a wall for support. Ensure adequate shoulder flexibility before attempting.'},
+
+  /* ── CORE & BALANCE ── */
+  {name:'Downward-Facing Dog',sanskrit:'Adho Mukha Svanasana',emoji:'🐶',category:'core',difficulty:'beginner',focus:'Full Body',
+   desc:'The quintessential yoga pose. Downward Dog is part rest, part strength, part stretch. It decompresses the spine, stretches the entire posterior chain, and builds upper body strength.',
+   benefits:['Strengthens arms, shoulders & core','Stretches hamstrings, calves & spine','Energizes the body','Improves circulation','Relieves back pain & stiffness'],
+   steps:["Start on hands and knees. Hands shoulder-width apart, knees hip-width apart.","Curl toes under. Exhale and lift knees off the floor, hips toward the ceiling.","Press firmly through all ten fingers. Straighten arms fully.","Work toward straightening legs (slight bend in knees is fine for tight hamstrings).","Head hangs between upper arms, ears in line with arms. Hold 5–10 breaths."],
+   mods:'Keep knees bent to lengthen the spine more. Pedal the feet alternately to warm up the hamstrings.'},
+  {name:'Plank Pose',sanskrit:'Phalakasana',emoji:'🏋️',category:'core',difficulty:'beginner',focus:'Core Strength',
+   desc:'A foundational full-body strength pose. Yoga plank is identical to the top of a push-up position and is one of the best poses for building core stability and upper body strength.',
+   benefits:['Strengthens arms, wrists & core','Tones the abdomen','Improves posture','Builds shoulder stability','Strengthens entire back chain'],
+   steps:["Start in Downward Dog. Shift forward until shoulders are over wrists.","Body forms a straight line from head to heels. Don't let hips sag or pike.","Engage core strongly. Squeeze inner thighs and press through the floor.","Press firmly through all ten fingers. Keep neck neutral.","Hold for 5–30 breaths. Build duration gradually."],
+   mods:'Drop knees to the floor for a modified plank. Forearm plank reduces wrist strain.'},
+  {name:'Side Plank',sanskrit:'Vasisthasana',emoji:'↙️',category:'core',difficulty:'intermediate',focus:'Core Strength',
+   desc:'A challenging lateral balance that strengthens the obliques, shoulders, and arms while improving overall body coordination and lateral stability.',
+   benefits:['Strengthens arms, wrists & core','Tones obliques & waist','Improves balance','Strengthens shoulders','Builds whole-body integration'],
+   steps:["Start in Plank Pose. Shift weight to right hand and outer right foot.","Stack left foot on top of right. Lift left arm straight up toward ceiling.","Form a straight diagonal line from head to heels. Don't let hips drop.","Engage core and glutes. Press into the right palm and right foot.","Hold 5 breaths, then switch sides."],
+   mods:'Drop the bottom knee to the floor. Stack feet with bottom knee down for an easier variation.'},
+  {name:'Boat Pose',sanskrit:'Navasana',emoji:'⛵',category:'core',difficulty:'intermediate',focus:'Core Strength',
+   desc:'An intense core strengthener where the body balances on the sitting bones in a V-shape. Boat Pose directly targets the deep core muscles including the hip flexors and abdomen.',
+   benefits:['Strengthens core & hip flexors','Tones the abdomen','Improves digestion','Strengthens spine','Builds concentration & balance'],
+   steps:["Sit on the floor with knees bent, feet flat. Lean back slightly, lengthening the spine.","Lift feet off the floor, bringing shins parallel to floor. Balance on sitting bones.","Extend arms forward alongside legs at thigh height, palms up.","For full boat, straighten legs into a V-shape. Keep chest lifted.","Hold for 5–10 breaths, breathing deeply."],
+   mods:'Keep knees bent (half boat) if hamstrings are tight. Hold behind the thighs for support.'},
+  {name:'Crow Pose',sanskrit:'Bakasana',emoji:'🦅',category:'core',difficulty:'intermediate',focus:'Balance',
+   desc:'An arm balance where the knees rest on the upper arms while the body lifts off the ground. Crow Pose builds upper body strength, core stability, and the courage to lean forward.',
+   benefits:['Strengthens arms, wrists & core','Opens groins & inner thighs','Improves balance & coordination','Builds mental focus','Tones the abdomen'],
+   steps:["Stand with feet together, squat deeply. Knees point out to the sides.","Place hands flat on the floor shoulder-width apart. Fingers spread wide.","Bend elbows, creating a shelf. Place bent knees on upper arms (near armpits).","Lean forward, shifting weight into hands. Look forward, not down.","Lift one foot then the other off the floor. Balance for 3–5 breaths."],
+   mods:'Practice with a block under your feet. Start by lifting one foot at a time. Place a folded blanket in front in case you tip.'},
+  {name:'Cat-Cow Pose',sanskrit:'Marjaryasana-Bitilasana',emoji:'🐄',category:'core',difficulty:'beginner',focus:'Mobility',
+   desc:'A flowing movement between two poses that warms up the spine and increases mobility. Cat-Cow is a fundamental movement that coordinates breath with motion.',
+   benefits:['Increases spinal flexibility','Massages abdominal organs','Warms up the spine','Relieves back pain','Calms the mind & reduces stress'],
+   steps:["Start on hands and knees (tabletop position). Wrists under shoulders, knees under hips.","Cow: Inhale, let belly drop toward floor. Lift chest and tailbone, gaze up.","Cat: Exhale, press floor away, round spine toward ceiling. Tuck chin and tailbone.","Flow between the two poses with breath: inhale = cow, exhale = cat.","Repeat 10–15 times, moving at whatever speed feels good."],
+   mods:'Perform seated in a chair by placing hands on knees. Slow the flow if the back is sensitive.'},
+
+  /* ── RESTORATIVE ── */
+  {name:'Corpse Pose',sanskrit:'Savasana',emoji:'💀',category:'restorative',difficulty:'beginner',focus:'Relaxation',
+   desc:'Often considered the most important yoga pose, Savasana is the final resting pose that allows the body and mind to integrate all the benefits of the practice. It looks easy but requires complete surrender.',
+   benefits:['Deeply relaxes body & mind','Reduces blood pressure','Releases tension','Improves sleep quality','Reduces anxiety & stress'],
+   steps:["Lie flat on your back. Let feet fall open naturally. Arms resting alongside body, palms up.","Close your eyes. Let your body sink into the floor.","Soften every part of the body: face, jaw, shoulders, hands, feet.","Focus on natural breath without controlling it. Let thoughts pass like clouds.","Stay for 5–20 minutes. To exit: deepen breath, wiggle fingers and toes, roll to one side."],
+   mods:'Place a folded blanket under the head or knees. Cover with a blanket for warmth. Use an eye pillow to block light.'},
+  {name:'Legs Up the Wall',sanskrit:'Viparita Karani',emoji:'🦵',category:'restorative',difficulty:'beginner',focus:'Recovery',
+   desc:'A deeply restorative inversion where the legs rest up the wall. This pose reverses the effects of gravity on the legs, promotes circulation, and has a profoundly calming effect on the nervous system.',
+   benefits:['Relieves tired legs & feet','Reduces swelling in ankles','Calms the nervous system','Relieves lower back tension','Helps with headaches & insomnia'],
+   steps:["Sit sideways next to a wall. Swing legs up the wall as you lower torso to the floor.","Position hips as close to the wall as comfortable.","Legs can be straight up the wall or slightly bent.","Arms rest alongside body or in cactus position. Palms face up.","Stay for 5–20 minutes, breathing slowly."],
+   mods:'Place a folded blanket under hips for elevation. If hamstrings are tight, move hips further from wall.'},
+  {name:'Reclining Bound Angle',sanskrit:'Supta Baddha Konasana',emoji:'♾️',category:'restorative',difficulty:'beginner',focus:'Hip Opening',
+   desc:'A restorative hip opener done lying down. This pose gently opens the inner thighs and groin while the body is fully supported, making it excellent for stress relief and deep release.',
+   benefits:['Opens hips & inner thighs','Stimulates abdominal organs','Reduces anxiety & mild depression','Relieves menstrual discomfort','Deeply relaxing'],
+   steps:["Lie on your back. Bend knees and bring soles of feet together.","Let knees fall open to the sides. Rest hands on belly or alongside body.","If inner thighs are tense, place blocks or blankets under each knee for support.","Close eyes and breathe deeply. Let gravity do the work.","Stay for 5–15 minutes, then press knees together with hands to exit."],
+   mods:'Support knees with blocks, blankets, or bolsters for a completely passive hold.'},
+  {name:'Standing Forward Fold',sanskrit:'Uttanasana',emoji:'🙏',category:'restorative',difficulty:'beginner',focus:'Stretch',
+   desc:'A standing forward fold that stretches the hamstrings and back while calming the nervous system. The inversion aspect helps shift the body from stress mode to rest-and-digest.',
+   benefits:['Stretches hamstrings, calves & hips','Strengthens thighs & knees','Reduces anxiety','Relieves headaches','Calms the mind'],
+   steps:["Stand in Mountain Pose. Exhale and hinge forward from the hips (not the waist).","Let the crown of your head hang toward the floor. Bend knees slightly if needed.","Hold elbows and let upper body hang completely. Sway gently.","Press feet into floor to feel an energetic lift against the pull of gravity.","Hold for 10–20 breaths. Rise slowly, stacking vertebrae."],
+   mods:'Bend knees generously. Place hands on blocks to reduce the depth of the fold. Half forward fold (hands on shins) is a gentler option.'},
+  {name:'Supported Fish Pose',sanskrit:'Matsyasana (supported)',emoji:'🐟',category:'restorative',difficulty:'beginner',focus:'Chest Opening',
+   desc:'A gentle heart-opener often done at the end of practice. Fish Pose counters the forward bending done throughout a session and opens the chest and throat.',
+   benefits:['Opens chest & lungs','Stretches throat & neck','Strengthens upper back','Stimulates thyroid','Counteracts forward bending'],
+   steps:["Lie on your back. Place a folded blanket or block under the middle back at shoulder blade level.","Let head drop back if comfortable. Arms can rest alongside body or extend out in cactus shape.","If using a block, prop it under the shoulder blades, not the lower back.","Let the chest expand with every inhale. Stay passive and breathe deeply.","Hold for 2–5 minutes. Remove support and hug knees to chest as a counter-pose."],
+   mods:'Use a rolled blanket instead of a block. Reduce head-drop if there is neck sensitivity.'}
+];
+
+let currentYogaCategory = 'all';
+let currentYogaPose = null;
+
+/* ── YOGA FUNCTIONS ── */
+function renderYogaView(){
+  const cats = document.getElementById('yoga-cats');
+  cats.innerHTML = YOGA_CATEGORIES.map(c =>
+    `<button class="yoga-cat-btn${currentYogaCategory===c.id?' active':''}" onclick="filterYoga('${c.id}')">${c.label}</button>`
+  ).join('');
+  const filtered = currentYogaCategory === 'all' ? YOGA_POSES : YOGA_POSES.filter(p => p.category === currentYogaCategory);
+  const grid = document.getElementById('yoga-grid');
+  grid.innerHTML = filtered.map((p, i) => {
+    const globalIdx = YOGA_POSES.indexOf(p);
+    return `<div class="yoga-card" onclick="openYogaModal(${globalIdx})">
+      <div class="yoga-card-icon">${p.emoji}</div>
+      <div class="yoga-card-name">${p.name}</div>
+      <div class="yoga-card-sanskrit">${p.sanskrit}</div>
+      <div class="yoga-card-meta">
+        <span class="yoga-diff diff-${p.difficulty}">${p.difficulty.charAt(0).toUpperCase()+p.difficulty.slice(1)}</span>
+        <span class="yoga-focus-tag">${p.focus}</span>
+      </div>
+    </div>`;
+  }).join('');
+  renderYogaToday();
+}
+
+function filterYoga(cat){
+  currentYogaCategory = cat;
+  renderYogaView();
+}
+
+function openYogaModal(index){
+  const pose = YOGA_POSES[index];
+  currentYogaPose = pose;
+  document.getElementById('yoga-modal-title').textContent = pose.name;
+  document.getElementById('yoga-modal-icon').textContent = pose.emoji;
+  document.getElementById('yoga-modal-sanskrit').textContent = pose.sanskrit;
+  document.getElementById('yoga-modal-tags').innerHTML =
+    `<span class="yoga-diff diff-${pose.difficulty}">${pose.difficulty.charAt(0).toUpperCase()+pose.difficulty.slice(1)}</span>` +
+    `<span class="yoga-focus-tag">${pose.focus}</span>`;
+  document.getElementById('yoga-modal-desc').textContent = pose.desc;
+  document.getElementById('yoga-modal-benefits').innerHTML = pose.benefits.map(b=>`<span class="benefit-pill">✓ ${b}</span>`).join('');
+  document.getElementById('yoga-modal-steps').innerHTML = pose.steps.map((s,i)=>`<li><span class="step-num">${i+1}</span><span>${s}</span></li>`).join('');
+  const modEl = document.getElementById('yoga-modal-mods');
+  const modSec = document.getElementById('yoga-modal-mod-section');
+  if(pose.mods){modSec.style.display='';modEl.textContent=pose.mods;}else modSec.style.display='none';
+  // Clear inputs
+  ['yoga-sets','yoga-reps','yoga-hold','yoga-weight'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('yoga-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeYogaModal(){
+  document.getElementById('yoga-modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function logYogaPose(){
+  if(!currentYogaPose){return;}
+  const sets = document.getElementById('yoga-sets').value;
+  const reps = document.getElementById('yoga-reps').value;
+  const hold = document.getElementById('yoga-hold').value;
+  const weight = document.getElementById('yoga-weight').value;
+  if(!sets && !reps && !hold){showToast('⚠️ Enter at least sets, reps, or hold time!');return;}
+  const entry = {
+    type:'yoga', name:currentYogaPose.name, emoji:currentYogaPose.emoji,
+    sanskrit:currentYogaPose.sanskrit, category:'Yoga',
+    sets:sets||'—', reps:reps||'—', hold:hold?hold+'s':'—', weight:weight?weight+' lbs':'—',
+    time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+  };
+  const key = getTodayKey();
+  const logs = getWorkouts(key);
+  logs.push(entry);
+  localStorage.setItem('workouts_'+key, JSON.stringify(logs));
+  closeYogaModal();
+  renderYogaToday();
+  showToast(`🧘 ${currentYogaPose.name} saved!`);
+}
+
+function renderYogaToday(){
+  const key = getTodayKey();
+  const all = getWorkouts(key);
+  const yogaLogs = all.filter(w=>w.type==='yoga');
+  const sec = document.getElementById('yoga-today-section');
+  if(!yogaLogs.length){sec.innerHTML='';return;}
+  sec.innerHTML = `<div style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--text2)">Today's Yoga Practice</div>` +
+    yogaLogs.map(l=>`<div class="yoga-today-card">
+      <div class="yoga-today-name">${l.emoji} ${l.name} <span style="font-size:11px;color:var(--text3);font-style:italic">${l.sanskrit||''}</span></div>
+      <div class="yoga-today-stats">
+        ${l.sets!=='—'?`<div class="yoga-stat-chip">Sets: <strong>${l.sets}</strong></div>`:''}
+        ${l.reps!=='—'?`<div class="yoga-stat-chip">Reps: <strong>${l.reps}</strong></div>`:''}
+        ${l.hold!=='—'?`<div class="yoga-stat-chip">Hold: <strong>${l.hold}</strong></div>`:''}
+        ${l.weight!=='—'?`<div class="yoga-stat-chip">Weight: <strong>${l.weight}</strong></div>`:''}
+        <div class="yoga-stat-chip" style="margin-left:auto;color:var(--text3)">${l.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+document.getElementById('yoga-modal').addEventListener('click',function(e){if(e.target===this)closeYogaModal();});
+
+/* ── RUNNING FUNCTIONS ── */
+let runType = 'run';
+let runEnv = 'outdoor';
+
+function setRunType(t){
+  runType = t;
+  document.getElementById('btn-run').className='run-type-btn'+(t==='run'?' active':'');
+  document.getElementById('btn-walk').className='run-type-btn'+(t==='walk'?' walk-active':'');
+  updatePaceDisplay();
+}
+
+function setRunEnv(e){
+  runEnv = e;
+  document.getElementById('btn-outdoor').className='run-type-btn'+(e==='outdoor'?' outdoor-active':'');
+  document.getElementById('btn-indoor').className='run-type-btn'+(e==='indoor'?' indoor-active':'');
+}
+
+function updatePaceDisplay(){
+  const hrs = parseFloat(document.getElementById('run-hours').value)||0;
+  const mins = parseFloat(document.getElementById('run-minutes').value)||0;
+  const miles = parseFloat(document.getElementById('run-miles').value)||0;
+  const el = document.getElementById('pace-display');
+  if(miles > 0 && (hrs > 0 || mins > 0)){
+    const totalMins = hrs*60 + mins;
+    const paceDecimal = totalMins / miles;
+    const paceMins = Math.floor(paceDecimal);
+    const paceSecs = Math.round((paceDecimal - paceMins) * 60);
+    el.innerHTML = `<div class="run-pace-val">${paceMins}:${String(paceSecs).padStart(2,'0')}</div><div class="run-pace-lbl">min / mile</div>`;
+  } else {
+    el.innerHTML = `<div class="run-pace-val">—</div><div class="run-pace-lbl">Estimated Pace (min/mile)</div>`;
+  }
+}
+
+function getRunLogs(){try{const r=localStorage.getItem('ironlog_run_logs');return r?JSON.parse(r):[]}catch{return[];}}
+function saveRunLogs(arr){localStorage.setItem('ironlog_run_logs',JSON.stringify(arr));}
+
+function logRun(){
+  const hrs = parseFloat(document.getElementById('run-hours').value)||0;
+  const mins = parseFloat(document.getElementById('run-minutes').value)||0;
+  const miles = parseFloat(document.getElementById('run-miles').value)||0;
+  const notes = document.getElementById('run-notes').value.trim();
+  if(hrs===0 && mins===0){showToast('⚠️ Enter a duration!');return;}
+  if(miles===0){showToast('⚠️ Enter distance in miles!');return;}
+  const totalMins = hrs*60+mins;
+  const paceDecimal = totalMins/miles;
+  const paceMins = Math.floor(paceDecimal);
+  const paceSecs = Math.round((paceDecimal-paceMins)*60);
+  const entry = {
+    date: getTodayKey(),
+    type: runType,
+    env: runEnv,
+    hours: hrs,
+    minutes: mins,
+    totalMins,
+    miles,
+    pace: `${paceMins}:${String(paceSecs).padStart(2,'0')}`,
+    paceDecimal,
+    notes,
+    logTime: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+  };
+  const logs = getRunLogs();
+  logs.push(entry);
+  saveRunLogs(logs);
+  document.getElementById('run-hours').value='';
+  document.getElementById('run-minutes').value='';
+  document.getElementById('run-miles').value='';
+  document.getElementById('run-notes').value='';
+  updatePaceDisplay();
+  renderRunView();
+  showToast(`✅ ${runType==='run'?'Run':'Walk'} logged — ${miles} mi in ${totalMins} min!`);
+}
+
+function renderRunView(){
+  const logs = getRunLogs();
+  renderRunWeekStats(logs);
+  renderRunHistory(logs);
+}
+
+function renderRunWeekStats(logs){
+  const today = new Date();
+  const dow = today.getDay();
+  const mondayOffset = dow===0?-6:1-dow;
+  const monday = new Date(today);monday.setDate(today.getDate()+mondayOffset);
+  const weekKeys = [];
+  for(let d=0;d<7;d++){const dt=new Date(monday);dt.setDate(monday.getDate()+d);weekKeys.push(`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`);}
+  const weekLogs = logs.filter(l=>weekKeys.includes(l.date));
+  const totalMiles = weekLogs.reduce((a,l)=>a+l.miles,0);
+  const totalTime = weekLogs.reduce((a,l)=>a+l.totalMins,0);
+  const runs = weekLogs.filter(l=>l.type==='run').length;
+  const walks = weekLogs.filter(l=>l.type==='walk').length;
+  const bestPace = weekLogs.filter(l=>l.type==='run'&&l.paceDecimal).reduce((a,l)=>a===0||l.paceDecimal<a?l.paceDecimal:a,0);
+  const bpMins=Math.floor(bestPace),bpSecs=Math.round((bestPace-bpMins)*60);
+  document.getElementById('run-week-stats').innerHTML=`
+    <div class="run-stat-card"><div class="run-stat-num">${totalMiles.toFixed(1)}</div><div class="run-stat-lbl">Miles This Week</div></div>
+    <div class="run-stat-card"><div class="run-stat-num">${runs+walks}</div><div class="run-stat-lbl">Activities (${runs} runs, ${walks} walks)</div></div>
+    <div class="run-stat-card"><div class="run-stat-num">${Math.floor(totalTime/60)}h ${totalTime%60}m</div><div class="run-stat-lbl">Total Time This Week</div></div>
+    <div class="run-stat-card"><div class="run-stat-num">${bestPace>0?bpMins+':'+String(bpSecs).padStart(2,'0'):'—'}</div><div class="run-stat-lbl">Best Pace This Week</div></div>
+  `;
+}
+
+function renderRunHistory(logs){
+  const el = document.getElementById('run-history-list');
+  if(!logs.length){el.innerHTML='<div class="no-data">No activities logged yet. Start tracking above!</div>';return;}
+  const sorted=[...logs].reverse().slice(0,30);
+  el.innerHTML = sorted.map((l,i)=>{
+    const origIdx = logs.length-1-i;
+    const typeLabel = l.type==='run'?'🏃 Run':'🚶 Walk';
+    const envLabel = l.env==='outdoor'?'🌤 Outdoor':'🏠 Indoor';
+    const dur = l.hours>0?`${l.hours}h ${l.minutes}m`:`${Math.round(l.totalMins)} min`;
+    const dateDisp = new Date(l.date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    const typeColor = l.type==='run'?'var(--accent)':'var(--accent3)';
+    const envColor = l.env==='outdoor'?'var(--accent4)':'var(--back)';
+    return `<div class="run-entry">
+      <div class="run-entry-icon">${l.type==='run'?'🏃':'🚶'}</div>
+      <div class="run-entry-main">
+        <div class="run-entry-type">
+          <span style="color:${typeColor}">${typeLabel}</span>
+          <span style="color:var(--text3);font-size:11px;margin:0 6px">·</span>
+          <span style="color:${envColor};font-size:12px">${envLabel}</span>
+          <span style="color:var(--text3);font-size:11px;margin-left:8px">${dateDisp}</span>
+        </div>
+        <div class="run-entry-stats">
+          <span class="run-entry-stat">📍 <strong>${l.miles} mi</strong></span>
+          <span class="run-entry-stat">⏱ <strong>${dur}</strong></span>
+          ${l.notes?`<span class="run-entry-stat" style="color:var(--text3);font-style:italic">"${l.notes.slice(0,40)}${l.notes.length>40?'…':''}"</span>`:''}
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="run-entry-pace">${l.pace}</div>
+        <div class="run-entry-pace-lbl">min/mile</div>
+      </div>
+      <button onclick="deleteRunLog(${origIdx})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:4px" title="Delete">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+function deleteRunLog(index){
+  if(!confirm('Delete this activity?'))return;
+  const logs=getRunLogs();logs.splice(index,1);saveRunLogs(logs);renderRunView();showToast('🗑 Activity deleted');
+}
+
+document.getElementById('today-date-label').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+const savedGoal=getGoalWeight();
+if(savedGoal)document.getElementById('goal-weight-input').value=savedGoal;
+
+/* ══════════════════════════════════════════════════
+   GOALS
+══════════════════════════════════════════════════ */
+const CAT_ICONS = {strength:'💪',cardio:'🏃',weight:'⚖️',yoga:'🧘',habit:'🔥',other:'⭐'};
+let currentGoalFilter = 'all';
+
+function getGoals(){try{return JSON.parse(localStorage.getItem('ironlog_goals')||'[]');}catch{return[];}}
+function saveGoals(g){localStorage.setItem('ironlog_goals',JSON.stringify(g));}
+
+function addGoal(){
+  const text = document.getElementById('goal-text-input').value.trim();
+  const date = document.getElementById('goal-date-input').value;
+  const cat  = document.getElementById('goal-cat-input').value;
+  if(!text){showToast('⚠️ Please enter a goal!');return;}
+  if(!date){showToast('⚠️ Please pick a target date!');return;}
+  const goals = getGoals();
+  goals.push({id:Date.now(),text,cat,date,created:getTodayKey(),done:false});
+  saveGoals(goals);
+  document.getElementById('goal-text-input').value='';
+  document.getElementById('goal-date-input').value='';
+  renderGoals();
+  showToast('🎯 Goal added!');
+}
+
+function setGoalFilter(f){
+  currentGoalFilter=f;
+  ['all','active','done','overdue'].forEach(id=>{
+    document.getElementById('gf-'+id).classList.toggle('active',id===f);
+  });
+  renderGoalsList();
+}
+
+function markGoalDone(id){
+  const goals=getGoals();
+  const g=goals.find(x=>x.id===id);
+  if(g){g.done=!g.done;saveGoals(goals);renderGoals();}
+}
+
+function deleteGoal(id){
+  if(!confirm('Delete this goal?'))return;
+  const goals=getGoals().filter(x=>x.id!==id);
+  saveGoals(goals);renderGoals();showToast('🗑 Goal deleted');
+}
+
+function getGoalStatus(g){
+  if(g.done)return'done';
+  const today=new Date();today.setHours(0,0,0,0);
+  const end=new Date(g.date+'T00:00:00');
+  return end<today?'overdue':'active';
+}
+
+function getDaysRemaining(dateStr){
+  const today=new Date();today.setHours(0,0,0,0);
+  const end=new Date(dateStr+'T00:00:00');
+  return Math.round((end-today)/(1000*60*60*24));
+}
+
+function renderGoals(){
+  renderGoalsStats();
+  renderGoalsList();
+}
+
+function renderGoalsStats(){
+  const goals=getGoals();
+  const active=goals.filter(g=>getGoalStatus(g)==='active').length;
+  const done=goals.filter(g=>g.done).length;
+  const overdue=goals.filter(g=>getGoalStatus(g)==='overdue').length;
+  const el=document.getElementById('goals-stats-row');
+  if(!el)return;
+  el.innerHTML=`
+    <div class="goal-stat-box"><div class="goal-stat-num">${active}</div><div class="goal-stat-lbl">Active</div></div>
+    <div class="goal-stat-box"><div class="goal-stat-num" style="color:var(--accent3)">${done}</div><div class="goal-stat-lbl">Completed</div></div>
+    <div class="goal-stat-box"><div class="goal-stat-num" style="color:var(--accent2)">${overdue}</div><div class="goal-stat-lbl">Overdue</div></div>
+  `;
+}
+
+function renderGoalsList(){
+  const el=document.getElementById('goals-list');if(!el)return;
+  let goals=getGoals();
+  if(!goals.length){
+    el.innerHTML='<div class="goals-empty"><div class="big">🎯</div><p>No goals yet.<br>Add your first goal above!</p></div>';
+    return;
+  }
+  const f=currentGoalFilter;
+  const filtered=goals.filter(g=>{
+    const s=getGoalStatus(g);
+    if(f==='all')return true;
+    return s===f;
+  });
+  // Sort: active first (by date), then done, then overdue
+  filtered.sort((a,b)=>{
+    const sa=getGoalStatus(a),sb=getGoalStatus(b);
+    if(sa===sb)return new Date(a.date)-new Date(b.date);
+    const order={active:0,overdue:1,done:2};
+    return order[sa]-order[sb];
+  });
+  if(!filtered.length){
+    el.innerHTML='<div class="goals-empty"><div class="big">✅</div><p>No goals in this category.</p></div>';
+    return;
+  }
+  el.innerHTML=filtered.map(g=>{
+    const status=getGoalStatus(g);
+    const days=getDaysRemaining(g.date);
+    const created=new Date(g.created+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const target=new Date(g.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    let daysHtml='';
+    if(g.done){
+      daysHtml='<span class="goal-days-remaining days-done">✅ Completed!</span>';
+    } else if(status==='overdue'){
+      daysHtml=`<span class="goal-days-remaining days-over">⚠️ ${Math.abs(days)} day${Math.abs(days)!==1?'s':''} overdue</span>`;
+    } else if(days<=7){
+      daysHtml=`<span class="goal-days-remaining days-warn">⏰ ${days} day${days!==1?'s':''} left</span>`;
+    } else {
+      daysHtml=`<span class="goal-days-remaining days-ok">📅 ${days} days left</span>`;
+    }
+    const badgeClass=status==='done'?'badge-done':status==='overdue'?'badge-overdue':'badge-active';
+    const badgeText=status==='done'?'Done':status==='overdue'?'Overdue':'Active';
+    const icon=CAT_ICONS[g.cat]||'⭐';
+    return `<div class="goal-card status-${status}">
+      <div class="goal-card-top">
+        <div class="goal-card-left">
+          <div class="goal-title-row">
+            <span class="goal-card-title${g.done?' done-title':''}">${icon} ${g.text}</span>
+            <span class="goal-status-badge ${badgeClass}">${badgeText}</span>
+          </div>
+        </div>
+      </div>
+      <div class="goal-card-footer">
+        <div class="goal-date-info">
+          <div class="goal-date-row">Added: <strong>${created}</strong></div>
+          <div class="goal-date-row">Target: <strong>${target}</strong></div>
+          ${daysHtml}
+        </div>
+        <div class="goal-actions">
+          <button class="btn-goal-done" onclick="markGoalDone(${g.id})">${g.done?'↩ Reopen':'✓ Done'}</button>
+          <button class="btn-goal-del" onclick="deleteGoal(${g.id})">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+</script>
+</body>
+</html>

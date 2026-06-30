@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wood Project Quoting Tool</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --wood-dark:#4a2c0a;--wood-mid:#7a4a1e;--wood-light:#c8843c;--wood-pale:#f0d9b5;
+  --wood-cream:#fdf6ec;--accent:#2d6a4f;--accent-light:#52b788;--danger:#c0392b;
+  --gray-100:#f4f4f4;--gray-200:#e0e0e0;--gray-400:#aaa;--gray-700:#444;
+  --shadow:0 2px 8px rgba(0,0,0,.12);--radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--wood-cream);color:var(--gray-700);min-height:100vh}
+#app{display:flex;min-height:100vh}
+nav{width:220px;background:var(--wood-dark);color:#fff;display:flex;flex-direction:column;flex-shrink:0}
+nav .logo{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+nav .logo h1{font-size:1.1rem;font-weight:700;line-height:1.2}
+nav .logo p{font-size:.72rem;color:var(--wood-pale);margin-top:3px}
+nav ul{list-style:none;padding:12px 0;flex:1}
+nav ul li a{display:flex;align-items:center;gap:10px;padding:11px 20px;color:rgba(255,255,255,.8);text-decoration:none;font-size:.88rem;transition:background .15s;cursor:pointer}
+nav ul li a:hover,nav ul li a.active{background:rgba(255,255,255,.12);color:#fff}
+nav ul li a .icon{font-size:1.1rem;width:20px;text-align:center}
+nav .version{padding:14px 20px;font-size:.7rem;color:rgba(255,255,255,.35);border-top:1px solid rgba(255,255,255,.08)}
+main{flex:1;overflow-y:auto;padding:28px 32px}
+.page{display:none}.page.active{display:block}
+.page-header{margin-bottom:24px}
+.page-header h2{font-size:1.5rem;font-weight:700;color:var(--wood-dark)}
+.page-header p{color:var(--gray-400);font-size:.88rem;margin-top:4px}
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:20px}
+.card h3{font-size:1rem;font-weight:600;color:var(--wood-dark);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--wood-pale)}
+.card h3 .subtitle{font-size:.75rem;font-weight:400;color:var(--gray-400);margin-left:8px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.form-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.form-grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.span2{grid-column:span 2}.form-group.span3{grid-column:span 3}
+label{font-size:.78rem;font-weight:600;color:var(--wood-mid);text-transform:uppercase;letter-spacing:.4px}
+input,select,textarea{border:1.5px solid var(--gray-200);border-radius:7px;padding:9px 12px;font-size:.9rem;color:var(--gray-700);background:#fff;width:100%;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--wood-light)}
+input[type=number]{-moz-appearance:textfield}
+textarea{resize:vertical;min-height:70px}
+.input-suffix{position:relative}
+.input-suffix input{padding-right:40px}
+.input-suffix span{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--gray-400);font-size:.82rem;pointer-events:none}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;font-size:.88rem;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--wood-dark);color:#fff}.btn-primary:hover{background:var(--wood-mid)}
+.btn-success{background:var(--accent);color:#fff}.btn-success:hover{background:#1e4d38}
+.btn-outline{background:transparent;border:1.5px solid var(--wood-mid);color:var(--wood-mid)}.btn-outline:hover{background:var(--wood-pale)}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#a93226}
+.btn-sm{padding:5px 12px;font-size:.8rem}
+.btn-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:600}
+.badge-wood{background:var(--wood-pale);color:var(--wood-dark)}
+.badge-green{background:#d8f3dc;color:var(--accent)}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-orange{background:#fff3cd;color:#7a4a00}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;border-left:4px solid var(--wood-light)}
+.stat-card .label{font-size:.75rem;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.stat-card .value{font-size:1.7rem;font-weight:700;color:var(--wood-dark);margin-top:4px}
+.stat-card .sub{font-size:.78rem;color:var(--gray-400);margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{text-align:left;padding:10px 12px;background:var(--wood-pale);color:var(--wood-dark);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.4px}
+td{padding:10px 12px;border-bottom:1px solid var(--gray-100)}
+tr:hover td{background:#fafafa}
+.quote-summary{background:linear-gradient(135deg,var(--wood-dark),var(--wood-mid));color:#fff;border-radius:var(--radius);padding:22px}
+.quote-summary h3{color:var(--wood-pale);font-size:.88rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.summary-line{display:flex;justify-content:space-between;padding:6px 0;font-size:.9rem}
+.summary-line.total{border-top:1px solid rgba(255,255,255,.3);margin-top:8px;padding-top:12px;font-size:1.15rem;font-weight:700}
+.summary-line .label{color:rgba(255,255,255,.75)}.summary-line .amount{font-weight:600}
+.summary-line.total .amount{color:var(--wood-pale);font-size:1.4rem}
+.info-box{background:#e8f5e9;border:1.5px solid var(--accent-light);border-radius:var(--radius);padding:16px}
+.info-box h4{color:var(--accent);font-size:.85rem;font-weight:700;margin-bottom:10px}
+.info-box.blue{background:#eff6ff;border-color:#93c5fd}
+.info-box.blue h4{color:#1d4ed8}
+.info-box.amber{background:#fffbeb;border-color:#fbbf24}
+.info-box.amber h4{color:#92400e}
+.yield-stat{display:flex;justify-content:space-between;font-size:.85rem;padding:3px 0}
+.yield-stat .val{font-weight:700;color:var(--accent)}
+.info-box.blue .yield-stat .val{color:#1d4ed8}
+.material-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--gray-100)}
+.material-row:last-child{border-bottom:none}
+.material-row.header{font-size:.75rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;letter-spacing:.4px;padding-bottom:8px}
+.custom-row{display:grid;grid-template-columns:2fr 1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--gray-100)}
+.custom-row.header{font-size:.75rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;letter-spacing:.4px}
+.library-filters{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.library-filters input,.library-filters select{max-width:220px}
+.quote-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;transition:box-shadow .15s;cursor:pointer}
+.quote-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.quote-card .meta{font-size:.78rem;color:var(--gray-400);margin-top:4px}
+.quote-card .name{font-weight:700;font-size:1rem;color:var(--wood-dark)}
+.quote-card .tags{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
+.quote-card .price{font-size:1.3rem;font-weight:700;color:var(--wood-dark);text-align:right}
+.quote-card .price-sub{font-size:.75rem;color:var(--gray-400);text-align:right}
+.similar-panel{border:1.5px solid var(--wood-pale);border-radius:var(--radius);padding:14px;background:#fffdf8;margin-top:14px}
+.similar-panel h4{font-size:.82rem;font-weight:700;color:var(--wood-mid);margin-bottom:10px}
+.similar-item{padding:8px 10px;border-radius:6px;margin-bottom:6px;background:#fff;border:1px solid var(--gray-200);font-size:.83rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.similar-item:hover{background:var(--wood-pale)}
+.species-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.species-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;border-left:4px solid var(--wood-light)}
+.species-card .name{font-weight:700;font-size:.95rem;color:var(--wood-dark)}
+.species-card .prices{margin-top:10px;font-size:.83rem;color:var(--gray-700);display:flex;flex-direction:column;gap:4px}
+.species-card .prices .row{display:flex;justify-content:space-between}
+.species-card .prices .row .val{font-weight:700;color:var(--wood-mid)}
+.species-card .actions{margin-top:12px;display:flex;gap:8px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,.2);padding:28px;width:90%;max-width:620px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:1.1rem;color:var(--wood-dark);margin-bottom:18px}
+.alert{padding:12px 16px;border-radius:7px;font-size:.88rem;margin-bottom:14px}
+.alert-info{background:#dbeafe;color:#1d4ed8}
+.alert-success{background:#d8f3dc;color:var(--accent)}
+.alert-warning{background:#fff3cd;color:#7a4a00}
+.panel-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:10px}
+.panel-table th{background:var(--wood-pale);color:var(--wood-dark);padding:7px 10px;text-align:left;font-size:.72rem;text-transform:uppercase}
+.panel-table td{padding:7px 10px;border-bottom:1px solid var(--gray-100)}
+.panel-table tr:last-child td{border-bottom:none;font-weight:700;background:#f9f9f9}
+.detail-section{margin-bottom:16px}
+.detail-section h4{font-size:.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.detail-row{display:flex;justify-content:space-between;font-size:.88rem;padding:4px 0;border-bottom:1px solid var(--gray-100)}
+.detail-row .lbl{color:var(--gray-400)}
+.toggle-btn{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:20px;font-size:.82rem;font-weight:600;cursor:pointer;border:1.5px solid var(--wood-pale);background:#fff;transition:all .2s}
+.toggle-btn.active{background:var(--wood-dark);color:#fff;border-color:var(--wood-dark)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--wood-pale);border-radius:3px}
+@media(max-width:768px){nav{width:60px}nav .logo h1,nav .logo p,nav ul li a span:not(.icon),nav .version{display:none}main{padding:16px}.stats-row{grid-template-columns:repeat(2,1fr)}.form-grid-3{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <h1>🪵 WoodQuote</h1>
+    <p>Custom Project Pricing</p>
+  </div>
+  <ul>
+    <li><a onclick="showPage('dashboard')" id="nav-dashboard" class="active"><span class="icon">📊</span><span>Dashboard</span></a></li>
+    <li><a onclick="showPage('newquote')" id="nav-newquote"><span class="icon">➕</span><span>New Quote</span></a></li>
+    <li><a onclick="showPage('library')" id="nav-library"><span class="icon">📁</span><span>Project Library</span></a></li>
+    <li><a onclick="showPage('pricelist')" id="nav-pricelist"><span class="icon">💰</span><span>Price List</span></a></li>
+  </ul>
+  <div class="version">v2.0 · Wood Quoting</div>
+</nav>
+
+<main>
+
+<!-- ═══ DASHBOARD ═══════════════════════════════════════════════════════ -->
+<div id="page-dashboard" class="page active">
+  <div class="page-header"><h2>Dashboard</h2><p>Overview of your quoting activity</p></div>
+  <div class="stats-row" id="dashboard-stats"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div class="card">
+      <h3>Recent Quotes</h3>
+      <div id="recent-quotes-list"></div>
+    </div>
+    <div class="card">
+      <h3>Cost Breakdown <span class="subtitle">avg last 10 quotes</span></h3>
+      <canvas id="breakdownChart" height="200"></canvas>
+      <div id="chart-empty" style="display:none;text-align:center;padding:20px;color:var(--gray-400)">No quotes yet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ NEW QUOTE ════════════════════════════════════════════════════════ -->
+<div id="page-newquote" class="page">
+  <div class="page-header"><h2>New Quote</h2><p>Build a detailed project quote with yield-optimized pricing</p></div>
+
+  <!-- 1 · PROJECT INFO -->
+  <div class="card">
+    <h3>Project Information</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Project Name</label>
+        <input type="text" id="q-name" placeholder="e.g. Pine Gift Box 6×4×3" />
+      </div>
+      <div class="form-group">
+        <label>Client / Job #</label>
+        <input type="text" id="q-client" placeholder="Client name or job number" />
+      </div>
+      <div class="form-group">
+        <label>Project Type</label>
+        <select id="q-type" onchange="renderSimilarPanel()">
+          <option>Box / Crate</option>
+          <option>Packaging</option>
+          <option>Furniture</option>
+          <option>Decorative / Gift</option>
+          <option>Custom</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Quantity (units)</label>
+        <input type="number" id="q-qty" value="1" min="1" oninput="updateAll()" />
+      </div>
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="q-date" />
+      </div>
+      <div class="form-group">
+        <label>Woodchuck USA Box Template</label>
+        <select id="box-template" onchange="loadTemplate()">
+          <option value="">— Load a template —</option>
+          <optgroup label="Gift Boxes (Woodchuck USA)">
+            <option value="gift3">3" Gift Box · ~3×3×2" int · $18</option>
+            <option value="gift6">6" Gift Box · ~5×4×2.5" int · $28</option>
+            <option value="gift8">8" Large Gift Box · ~7×5×3" int · $38</option>
+          </optgroup>
+          <optgroup label="Wine / Spirit Boxes (Woodchuck USA)">
+            <option value="wine1">Wine Box (1 btl) · ~4×4×13" int · $46</option>
+            <option value="wine2">Wine Box (2 btl) · ~9×4×13" int · $62</option>
+            <option value="tequila">Tequila / Spirit Box · ~5×5×14" int · $68</option>
+          </optgroup>
+          <optgroup label="Packaging">
+            <option value="shipper">Shipper / Crate · ~12×10×6" int</option>
+            <option value="display">Display / Retail Box · ~8×6×4" int</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label>Notes</label>
+      <input type="text" id="q-notes" placeholder="Optional project notes" />
+    </div>
+  </div>
+
+  <!-- 2 · BOX CONFIGURATION -->
+  <div class="card">
+    <h3>Box Configuration <span class="subtitle">dimensions &amp; lid</span></h3>
+
+    <div style="display:flex;gap:10px;margin-bottom:18px">
+      <button class="toggle-btn active" id="btn-interior" onclick="setDimMode('interior')">📦 Interior Dimensions</button>
+      <button class="toggle-btn" id="btn-parts" onclick="setDimMode('parts')">🔩 Manual Part Dims</button>
+    </div>
+
+    <!-- INTERIOR MODE -->
+    <div id="interior-mode">
+      <div class="alert alert-info">Enter the <strong>inside</strong> dimensions of the box. The tool will calculate all panel sizes, exterior dimensions, and material needed based on your material thickness below.</div>
+      <div class="form-grid-3" style="margin-bottom:14px">
+        <div class="form-group">
+          <label>Interior Length (in)</label>
+          <input type="number" id="int-L" placeholder="e.g. 6" step="0.125" oninput="calcBoxPanels();updateAll()" />
+        </div>
+        <div class="form-group">
+          <label>Interior Width (in)</label>
+          <input type="number" id="int-W" placeholder="e.g. 4" step="0.125" oninput="calcBoxPanels();updateAll()" />
+        </div>
+        <div class="form-group">
+          <label>Interior Height (in)</label>
+          <input type="number" id="int-H" placeholder="e.g. 3" step="0.125" oninput="calcBoxPanels();updateAll()" />
+        </div>
+      </div>
+      <div class="form-grid-3" style="margin-bottom:14px">
+        <div class="form-group">
+          <label>Material Thickness (in)</label>
+          <input type="number" id="mat-T" value="0.25" step="0.0625" oninput="calcBoxPanels();updateAll()" />
+        </div>
+        <div class="form-group">
+          <label>Top / Lid Type</label>
+          <select id="lid-type" onchange="calcBoxPanels();updateAll()">
+            <option value="none">No top — open box</option>
+            <option value="fixed">Fixed / Glued lid</option>
+            <option value="hinged">Hinged lid (clamshell)</option>
+            <option value="sliding">Sliding lid (grooved)</option>
+            <option value="liftoff">Lift-off lid (separate)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Joinery Style</label>
+          <select id="joinery" onchange="calcBoxPanels();updateAll()">
+            <option value="butt">Butt joints (simplest)</option>
+            <option value="rabbet">Rabbet joints</option>
+            <option value="finger">Finger / box joints</option>
+            <option value="miter">Miter joints</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Panel breakdown -->
+      <div id="panel-breakdown-wrap" style="display:none">
+        <div class="info-box" style="margin-bottom:12px">
+          <h4>📐 Panel Breakdown</h4>
+          <div id="exterior-dims" style="font-size:.85rem;margin-bottom:10px;color:var(--wood-dark)"></div>
+          <table class="panel-table" id="panel-table">
+            <thead><tr><th>Panel</th><th>Dimensions</th><th>Qty/box</th><th>Total (×units)</th></tr></thead>
+            <tbody id="panel-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANUAL PARTS MODE -->
+    <div id="parts-mode" style="display:none">
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label>Part Length (in)</label>
+          <input type="number" id="w-partL" placeholder="12" oninput="updateAll()" />
+        </div>
+        <div class="form-group">
+          <label>Part Width (in)</label>
+          <input type="number" id="w-partW" placeholder="8" oninput="updateAll()" />
+        </div>
+        <div class="form-group">
+          <label>Material Thickness (in)</label>
+          <input type="number" id="w-partT" value="0.25" step="0.0625" oninput="updateAll()" />
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:12px;max-width:200px">
+        <label>Parts per unit</label>
+        <input type="number" id="w-partsPerUnit" value="1" min="1" oninput="updateAll()" />
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 · WOOD / STOCK MATERIAL -->
+  <div class="card">
+    <h3>Wood &amp; Stock Material</h3>
+    <div class="form-grid-2" style="margin-bottom:14px">
+      <div class="form-group">
+        <label>Species / Material</label>
+        <select id="w-species" onchange="loadSpeciesPrice()">
+          <option value="">— Select Species —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Pricing Method</label>
+        <select id="w-pricingMethod" onchange="togglePricingMethod();updateAll()">
+          <option value="sheet">Per Sheet / Panel / Piece</option>
+          <option value="bf">Per Board Foot</option>
+          <option value="lnft">Per Linear Foot</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- SHEET FIELDS -->
+    <div id="sheet-fields">
+      <div class="form-grid-3" style="margin-bottom:14px">
+        <div class="form-group">
+          <label>Stock Length (in)</label>
+          <input type="number" id="w-sheetL" value="24" oninput="updateAll()" />
+        </div>
+        <div class="form-group">
+          <label>Stock Width (in)</label>
+          <input type="number" id="w-sheetW" value="6" oninput="updateAll()" />
+        </div>
+        <div class="form-group">
+          <label>Price / Piece ($)</label>
+          <div class="input-suffix">
+            <input type="number" id="w-sheetPrice" placeholder="0.00" step="0.01" oninput="updateAll()" />
+            <span>$</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BF FIELDS -->
+    <div id="bf-fields" style="display:none">
+      <div class="form-grid-3" style="margin-bottom:14px">
+        <div class="form-group">
+          <label>Board Length (in)</label>
+          <input type="number" id="w-boardL" value="96" oninput="updateAll()" />
+        </div>
+        <div class="form-group">
+          <label>Board Width (in)</label>
+          <input type="number" id="w-boardW" value="6" oninput="updateAll()" />
+        </div>
+        <div class="form-group">
+          <label>Price / Board Foot ($)</label>
+          <div class="input-suffix">
+            <input type="number" id="w-bfPrice" placeholder="0.00" step="0.01" oninput="updateAll()" />
+            <span>$</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LNFT FIELDS -->
+    <div id="lnft-fields" style="display:none">
+      <div class="form-grid-2" style="margin-bottom:14px">
+        <div class="form-group">
+          <label>Stock Length (in)</label>
+          <input type="number" id="w-lnftL" value="96" oninput="updateAll()" />
+        </div>
+        <div class="form-group">
+          <label>Price / Linear Foot ($)</label>
+          <div class="input-suffix">
+            <input type="number" id="w-lnftPrice" placeholder="0.00" step="0.01" oninput="updateAll()" />
+            <span>$</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KERF + WASTE -->
+    <div class="form-grid-3" style="margin-bottom:14px">
+      <div class="form-group">
+        <label>Saw Kerf (in)</label>
+        <input type="number" id="w-kerf" value="0.125" step="0.0625" oninput="updateAll()" />
+      </div>
+      <div class="form-group">
+        <label>Waste % (defects, miscuts)</label>
+        <div class="input-suffix">
+          <input type="number" id="w-waste" value="10" min="0" max="50" oninput="updateAll()" />
+          <span>%</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Large Qty? Override Price</label>
+        <select id="m-largequote" onchange="toggleCustomPrice()">
+          <option value="no">No — use calculated price</option>
+          <option value="yes">Yes — enter custom quote price</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group" id="custom-price-group" style="display:none;max-width:220px">
+      <label>Custom Quote Total Price ($)</label>
+      <div class="input-suffix">
+        <input type="number" id="m-customprice" placeholder="0.00" step="0.01" oninput="updateAll()" />
+        <span>$</span>
+      </div>
+    </div>
+
+    <!-- YIELD RESULTS -->
+    <div class="info-box" id="yield-box" style="margin-top:16px">
+      <h4>📊 Yield &amp; Sheet Optimization</h4>
+      <div id="yield-content"><p style="color:#666;font-size:.83rem">Enter dimensions above to see yield analysis.</p></div>
+    </div>
+
+    <!-- SIMILAR PROJECTS -->
+    <div id="similar-panel" class="similar-panel" style="display:none">
+      <h4>🔍 Similar Past Projects — use as reference</h4>
+      <div id="similar-list"></div>
+    </div>
+  </div>
+
+  <!-- 4 · ADDITIONAL MATERIALS -->
+  <div class="card">
+    <h3>Additional Materials <span class="subtitle">hardware, finish, consumables</span></h3>
+    <div class="material-row header">
+      <span>Item</span><span>Qty</span><span>Unit Cost</span><span>Total</span><span></span>
+    </div>
+    <div id="materials-list"></div>
+    <div class="btn-group" style="margin-top:10px">
+      <button class="btn btn-outline btn-sm" onclick="addMaterial()">+ Add Material</button>
+      <button class="btn btn-outline btn-sm" onclick="openPresetModal()">+ From Preset</button>
+    </div>
+  </div>
+
+  <!-- 5 · LABOR -->
+  <div class="card">
+    <h3>Labor &amp; Time</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Setup Time (hrs, one-time)</label>
+        <input type="number" id="l-setup" value="0.5" step="0.25" min="0" oninput="updateAll()" />
+      </div>
+      <div class="form-group">
+        <label>Cut Time / unit (hrs)</label>
+        <input type="number" id="l-cut" value="0" step="0.25" min="0" oninput="updateAll()" />
+      </div>
+      <div class="form-group">
+        <label>Assembly Time / unit (hrs)</label>
+        <input type="number" id="l-assembly" value="0" step="0.25" min="0" oninput="updateAll()" />
+      </div>
+      <div class="form-group">
+        <label>Finish Time / unit (hrs)</label>
+        <input type="number" id="l-finish" value="0" step="0.25" min="0" oninput="updateAll()" />
+      </div>
+      <div class="form-group">
+        <label>Other Time / unit (hrs)</label>
+        <input type="number" id="l-other" value="0" step="0.25" min="0" oninput="updateAll()" />
+      </div>
+      <div class="form-group">
+        <label>Hourly Rate ($/hr)</label>
+        <div class="input-suffix">
+          <input type="number" id="l-rate" value="65" step="5" oninput="updateAll()" />
+          <span>$</span>
+        </div>
+      </div>
+    </div>
+    <div class="info-box blue" style="margin-top:14px">
+      <h4>⏱ Labor Summary</h4>
+      <div id="labor-summary-content"></div>
+    </div>
+  </div>
+
+  <!-- 6 · CUSTOMIZATIONS -->
+  <div class="card">
+    <h3>Customizations &amp; Extras</h3>
+    <div class="custom-row header" style="padding-bottom:8px">
+      <span>Description</span><span>Cost ($)</span><span></span>
+    </div>
+    <div id="customs-list"></div>
+    <button class="btn btn-outline btn-sm" onclick="addCustom()" style="margin-top:10px">+ Add Customization</button>
+  </div>
+
+  <!-- 7 · OVERHEAD & MARKUP -->
+  <div class="card">
+    <h3>Overhead &amp; Markup</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Overhead % (on materials)</label>
+        <div class="input-suffix">
+          <input type="number" id="m-overhead" value="10" step="1" min="0" oninput="updateAll()" />
+          <span>%</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Profit Markup %</label>
+        <div class="input-suffix">
+          <input type="number" id="m-markup" value="30" step="5" min="0" oninput="updateAll()" />
+          <span>%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUOTE SUMMARY -->
+  <div class="quote-summary">
+    <h3>Quote Summary</h3>
+    <div id="quote-summary-lines"></div>
+  </div>
+
+  <div class="btn-group" style="margin-top:20px">
+    <button class="btn btn-success" onclick="saveQuote()">💾 Save to Library</button>
+    <button class="btn btn-outline" onclick="clearForm()" style="color:#fff;border-color:rgba(255,255,255,.4)">🗑 Clear Form</button>
+  </div>
+</div>
+
+<!-- ═══ LIBRARY ═══════════════════════════════════════════════════════════ -->
+<div id="page-library" class="page">
+  <div class="page-header"><h2>Project Library</h2><p>All saved quotes — search, compare, and reuse</p></div>
+  <div class="library-filters">
+    <input type="text" id="lib-search" placeholder="🔍 Search name, client, species…" oninput="renderLibrary()" />
+    <select id="lib-type" onchange="renderLibrary()">
+      <option value="">All Types</option>
+      <option>Box / Crate</option><option>Packaging</option><option>Furniture</option>
+      <option>Decorative / Gift</option><option>Custom</option>
+    </select>
+    <select id="lib-sort" onchange="renderLibrary()">
+      <option value="date-desc">Newest First</option>
+      <option value="date-asc">Oldest First</option>
+      <option value="price-desc">Highest Price</option>
+      <option value="price-asc">Lowest Price</option>
+    </select>
+    <button class="btn btn-outline btn-sm" onclick="exportLibrary()">⬇ Export CSV</button>
+  </div>
+  <div id="library-list"></div>
+  <div id="library-empty" style="display:none;text-align:center;padding:40px;color:var(--gray-400)">
+    <p style="font-size:2rem">📁</p>
+    <p>No saved quotes yet.</p>
+    <button class="btn btn-primary" onclick="showPage('newquote')" style="margin-top:12px">New Quote</button>
+  </div>
+</div>
+
+<!-- ═══ PRICE LIST ═════════════════════════════════════════════════════════ -->
+<div id="page-pricelist" class="page">
+  <div class="page-header"><h2>Price List</h2><p>Wood species &amp; materials — pre-loaded from <strong>Ocooch Hardwoods</strong> (ocoochhardwoods.com/scroll-saw-lumber) at 1/8"×6"×24" reference prices</p></div>
+  <div class="card">
+    <h3>Add / Update Species or Material</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Name</label><input type="text" id="pl-name" placeholder="e.g. Maple, Baltic Birch Ply" /></div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="pl-cat">
+          <option>Hardwood</option><option>Softwood</option><option>Sheet Good / Plywood</option>
+          <option>MDF / Particle Board</option><option>Hardware</option><option>Finish / Coating</option><option>Consumable</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Price / Sheet or Piece ($)</label><input type="number" id="pl-sheet" placeholder="0.00" step="0.01" /></div>
+      <div class="form-group"><label>Price / Board Foot ($)</label><input type="number" id="pl-bf" placeholder="0.00" step="0.01" /></div>
+      <div class="form-group"><label>Price / Linear Foot ($)</label><input type="number" id="pl-lnft" placeholder="0.00" step="0.01" /></div>
+      <div class="form-group"><label>Large Qty Threshold (units)</label><input type="number" id="pl-threshold" placeholder="e.g. 50" /></div>
+    </div>
+    <div class="form-group" style="margin-top:10px"><label>Notes (supplier, grade, dimensions)</label><input type="text" id="pl-notes" placeholder="e.g. 24×6×1/8 from Ocooch Hardwoods" /></div>
+    <div class="btn-group"><button class="btn btn-primary" onclick="addSpecies()">Save to Price List</button></div>
+  </div>
+  <div class="species-grid" id="species-grid"></div>
+</div>
+
+</main>
+</div>
+
+<!-- MODAL: Quote Detail -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <h3 id="detail-title">Quote Detail</h3>
+      <button class="btn btn-sm btn-outline" onclick="closeModal('detail-modal')">✕ Close</button>
+    </div>
+    <div id="detail-body"></div>
+    <div class="btn-group">
+      <button class="btn btn-primary btn-sm" id="detail-clone-btn">Clone as New Quote</button>
+      <button class="btn btn-danger btn-sm" id="detail-delete-btn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Preset Materials -->
+<div class="modal-overlay" id="preset-modal">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <h3>Add Preset Material</h3>
+      <button class="btn btn-sm btn-outline" onclick="closeModal('preset-modal')">✕</button>
+    </div>
+    <div id="preset-list"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════
+// DATA STORE
+// ════════════════════════════════════════════════════════════════════════
+const DB={
+  get:k=>{try{return JSON.parse(localStorage.getItem('wq2_'+k))||null}catch{return null}},
+  set:(k,v)=>localStorage.setItem('wq2_'+k,JSON.stringify(v))
+};
+function s4(){return Math.random().toString(36).slice(2,10)}
+
+// ── DEFAULT SPECIES (Ocooch Hardwoods reference prices at 1/8"×6"×24") ──
+const OCOOCH_SPECIES=[
+  {name:'Alder',cat:'Hardwood',sheet:3.50,bf:null,lnft:null,threshold:100,notes:'Ocooch · 1/8"×6"×24" ref. · ocoochhardwoods.com'},
+  {name:'Ash',cat:'Hardwood',sheet:6.60,bf:null,lnft:null,threshold:50,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Aspen',cat:'Hardwood',sheet:4.05,bf:null,lnft:null,threshold:50,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Basswood',cat:'Hardwood',sheet:6.75,bf:null,lnft:null,threshold:50,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Beech',cat:'Hardwood',sheet:6.70,bf:null,lnft:null,threshold:50,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Black Limba',cat:'Hardwood',sheet:8.10,bf:null,lnft:null,threshold:30,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Bloodwood',cat:'Hardwood',sheet:7.80,bf:null,lnft:null,threshold:30,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Bubinga',cat:'Hardwood',sheet:14.55,bf:null,lnft:null,threshold:20,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Butternut',cat:'Hardwood',sheet:9.95,bf:null,lnft:null,threshold:30,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Canarywood',cat:'Hardwood',sheet:10.85,bf:null,lnft:null,threshold:30,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Cherry',cat:'Hardwood',sheet:6.90,bf:null,lnft:null,threshold:50,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Curly Maple',cat:'Hardwood',sheet:7.75,bf:null,lnft:null,threshold:30,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Hard Maple',cat:'Hardwood',sheet:6.90,bf:null,lnft:null,threshold:50,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Leopardwood',cat:'Hardwood',sheet:12.35,bf:null,lnft:null,threshold:20,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Mahogany',cat:'Hardwood',sheet:8.75,bf:null,lnft:null,threshold:30,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Padauk',cat:'Hardwood',sheet:10.75,bf:null,lnft:null,threshold:30,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Poplar',cat:'Hardwood',sheet:4.00,bf:null,lnft:null,threshold:100,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Purpleheart',cat:'Hardwood',sheet:11.95,bf:null,lnft:null,threshold:20,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Qtr Sawn White Oak',cat:'Hardwood',sheet:9.50,bf:null,lnft:null,threshold:30,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Red Cedar (Aromatic)',cat:'Softwood',sheet:4.35,bf:null,lnft:null,threshold:50,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Red Oak',cat:'Hardwood',sheet:6.70,bf:null,lnft:null,threshold:50,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Spanish Cedar',cat:'Hardwood',sheet:7.95,bf:null,lnft:null,threshold:30,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Tigerwood',cat:'Hardwood',sheet:8.85,bf:null,lnft:null,threshold:30,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Walnut',cat:'Hardwood',sheet:8.98,bf:null,lnft:null,threshold:30,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Wenge',cat:'Hardwood',sheet:12.40,bf:null,lnft:null,threshold:20,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'White Oak',cat:'Hardwood',sheet:7.70,bf:null,lnft:null,threshold:30,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Yellowheart',cat:'Hardwood',sheet:12.15,bf:null,lnft:null,threshold:20,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Zebrawood',cat:'Hardwood',sheet:15.20,bf:null,lnft:null,threshold:20,notes:'Ocooch · 1/8"×6"×24" ref.'},
+  {name:'Baltic Birch Ply 3/4"',cat:'Sheet Good / Plywood',sheet:null,bf:null,lnft:null,threshold:20,notes:'4×8 sheet — enter sheet price manually'},
+  {name:'MDF 3/4"',cat:'MDF / Particle Board',sheet:null,bf:null,lnft:null,threshold:40,notes:'4×8 sheet — enter price manually'},
+];
+
+let species = DB.get('species');
+if(!species){
+  species = OCOOCH_SPECIES.map(s=>({...s,id:s4()}));
+  DB.set('species',species);
+}
+
+let quotes = DB.get('quotes') || [];
+let materials = [];
+let customs = [];
+let dimMode = 'interior';
+let boxPanels = [];
+
+function saveSpecies(){DB.set('species',species)}
+function saveQuotes(){DB.set('quotes',quotes)}
+
+// ════════════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════════════════════
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  ['dashboard','newquote','library','pricelist'].forEach(p=>{
+    document.getElementById('nav-'+p)?.classList.remove('active');
+  });
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('nav-'+id)?.classList.add('active');
+  if(id==='dashboard')renderDashboard();
+  if(id==='library')renderLibrary();
+  if(id==='pricelist')renderSpeciesGrid();
+  if(id==='newquote'){populateSpeciesSelect();updateAll();}
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// DIMENSION MODE
+// ════════════════════════════════════════════════════════════════════════
+function setDimMode(mode){
+  dimMode=mode;
+  document.getElementById('interior-mode').style.display=mode==='interior'?'':'none';
+  document.getElementById('parts-mode').style.display=mode==='parts'?'':'none';
+  document.getElementById('btn-interior').classList.toggle('active',mode==='interior');
+  document.getElementById('btn-parts').classList.toggle('active',mode==='parts');
+  updateAll();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// WOODCHUCK USA TEMPLATES
+// ════════════════════════════════════════════════════════════════════════
+const TEMPLATES={
+  gift3:  {name:'3" Gift Box',type:'Decorative / Gift',intL:3,intW:3,intH:2,T:0.25,lid:'fixed',joinery:'butt'},
+  gift6:  {name:'6" Gift Box',type:'Decorative / Gift',intL:5,intW:4,intH:2.5,T:0.25,lid:'hinged',joinery:'butt'},
+  gift8:  {name:'8" Large Gift Box',type:'Decorative / Gift',intL:7,intW:5,intH:3,T:0.25,lid:'hinged',joinery:'butt'},
+  wine1:  {name:'Wine Box (1 Bottle)',type:'Packaging',intL:4,intW:4,intH:13,T:0.375,lid:'sliding',joinery:'butt'},
+  wine2:  {name:'Wine Box (2 Bottles)',type:'Packaging',intL:9,intW:4,intH:13,T:0.375,lid:'sliding',joinery:'butt'},
+  tequila:{name:'Tequila / Spirit Box',type:'Packaging',intL:5,intW:5,intH:14,T:0.375,lid:'sliding',joinery:'butt'},
+  shipper:{name:'Shipper / Crate',type:'Box / Crate',intL:12,intW:10,intH:6,T:0.5,lid:'liftoff',joinery:'butt'},
+  display:{name:'Display / Retail Box',type:'Packaging',intL:8,intW:6,intH:4,T:0.25,lid:'fixed',joinery:'butt'},
+};
+
+function loadTemplate(){
+  const key=document.getElementById('box-template').value;
+  if(!key)return;
+  const t=TEMPLATES[key];
+  if(!t)return;
+  setDimMode('interior');
+  document.getElementById('q-name').value=t.name;
+  document.getElementById('q-type').value=t.type;
+  document.getElementById('int-L').value=t.intL;
+  document.getElementById('int-W').value=t.intW;
+  document.getElementById('int-H').value=t.intH;
+  document.getElementById('mat-T').value=t.T;
+  document.getElementById('lid-type').value=t.lid;
+  document.getElementById('joinery').value=t.joinery;
+  calcBoxPanels();
+  updateAll();
+  document.getElementById('box-template').value='';
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// BOX PANEL CALCULATOR
+// ════════════════════════════════════════════════════════════════════════
+function calcBoxPanels(){
+  const intL=parseFloat(document.getElementById('int-L').value)||0;
+  const intW=parseFloat(document.getElementById('int-W').value)||0;
+  const intH=parseFloat(document.getElementById('int-H').value)||0;
+  const T=parseFloat(document.getElementById('mat-T').value)||0;
+  const lid=document.getElementById('lid-type').value;
+  const qty=parseInt(document.getElementById('q-qty').value)||1;
+
+  const wrap=document.getElementById('panel-breakdown-wrap');
+  if(!intL||!intW||!intH||!T){boxPanels=[];wrap.style.display='none';return;}
+
+  // Standard butt-joint construction:
+  // Sides wrap the bottom. Front/Back are full exterior width.
+  const extL=intL+2*T;
+  const extW=intW+2*T;
+  // Exterior H depends on lid type
+  const extH=intH+T+(lid!=='none'?T:0);
+
+  // Side panel height = interior depth + 2× thickness (bottom panel below + lid/top panel above)
+  const sideH = intH + 2*T;
+
+  const panels=[];
+  panels.push({name:'Bottom',pL:intL,pW:intW,count:1});
+  panels.push({name:'Front / Back',pL:extL,pW:sideH,count:2});
+  panels.push({name:'Left / Right Sides',pL:intW,pW:sideH,count:2});
+
+  if(lid==='fixed'||lid==='hinged'){
+    panels.push({name:'Lid (top panel)',pL:intL,pW:intW,count:1});
+  } else if(lid==='sliding'){
+    // Sliding lid sits in grooves cut in front/back; panel is slightly narrower
+    panels.push({name:'Sliding Lid',pL:intL-(T*2),pW:intW,count:1});
+  } else if(lid==='liftoff'){
+    // Separate box lid that sits over the top
+    const lidWallH=T*1.5;
+    panels.push({name:'Lid Top Panel',pL:extL+T*2,pW:extW+T*2,count:1});
+    panels.push({name:'Lid Front / Back Walls',pL:extL,pW:lidWallH,count:2});
+    panels.push({name:'Lid Left / Right Walls',pL:extW,pW:lidWallH,count:2});
+  }
+
+  boxPanels=panels;
+
+  // Render exterior dimensions
+  document.getElementById('exterior-dims').innerHTML=
+    `<strong>Exterior:</strong> ${extL.toFixed(3)}" L × ${extW.toFixed(3)}" W × ${extH.toFixed(3)}" H &nbsp;|&nbsp; `+
+    `<strong>Material thickness:</strong> ${T}" &nbsp;|&nbsp; `+
+    `<strong>Lid:</strong> ${lid==='none'?'None':lid.charAt(0).toUpperCase()+lid.slice(1)}`;
+
+  // Render panel table
+  const tbody=document.getElementById('panel-tbody');
+  let totalPieces=0;
+  tbody.innerHTML=panels.map(p=>{
+    const total=p.count*qty;
+    totalPieces+=total;
+    return `<tr>
+      <td>${p.name}</td>
+      <td>${p.pL.toFixed(3)}" × ${p.pW.toFixed(3)}"</td>
+      <td>${p.count}</td>
+      <td>${total}</td>
+    </tr>`;
+  }).join('');
+  tbody.innerHTML+=`<tr><td colspan="2"><strong>TOTAL PANELS</strong></td><td>${panels.reduce((s,p)=>s+p.count,0)}</td><td><strong>${totalPieces}</strong></td></tr>`;
+
+  wrap.style.display='';
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// YIELD CALCULATOR — HYBRID NESTING (maximise parts per sheet)
+// ════════════════════════════════════════════════════════════════════════
+function bestFitInSheet(sL,sW,pL,pW,kerf){
+  if(!pL||!pW||!sL||!sW)return 0;
+  const eL=pL+kerf, eW=pW+kerf;
+  const rL=pW+kerf, rW=pL+kerf;
+  // 6 layouts
+  const cA=Math.floor(sL/eL),rA_=Math.floor(sW/eW);
+  const cB=Math.floor(sL/rL),rB_=Math.floor(sW/rW);
+  const pA=cA*rA_, pB=cB*rB_;
+  // Hybrid A-main + B strips
+  const remLA=sL-cA*eL, hybABr=pA+Math.floor(remLA/rL)*Math.floor(sW/rW);
+  const remWA=sW-rA_*eW, hybABb=pA+Math.floor(sL/rL)*Math.floor(remWA/rW);
+  // Hybrid B-main + A strips
+  const remLB=sL-cB*rL, hybBAr=pB+Math.floor(remLB/eL)*Math.floor(sW/eW);
+  const remWB=sW-rB_*rW, hybBAb=pB+Math.floor(sL/eL)*Math.floor(remWB/eW);
+  return Math.max(pA,pB,hybABr,hybABb,hybBAr,hybBAb,0);
+}
+
+function calcYield(){
+  const method=document.getElementById('w-pricingMethod').value;
+  const kerf=parseFloat(document.getElementById('w-kerf').value)||0;
+  const wastePct=parseFloat(document.getElementById('w-waste').value)||0;
+  const qty=parseInt(document.getElementById('q-qty').value)||1;
+
+  // In interior mode, we run per-panel calculations
+  if(dimMode==='interior'&&boxPanels.length>0){
+    return calcYieldBoxMode(method,kerf,wastePct,qty);
+  }
+
+  // Manual parts mode
+  const partL=parseFloat(document.getElementById('w-partL').value)||0;
+  const partW=parseFloat(document.getElementById('w-partW').value)||0;
+  const partsPerUnit=parseInt(document.getElementById('w-partsPerUnit').value)||1;
+  const partsNeeded=partsPerUnit*qty;
+
+  return calcYieldForPart(method,kerf,wastePct,partL,partW,partsNeeded,qty,'');
+}
+
+function calcYieldForPart(method,kerf,wastePct,pL,pW,partsNeeded,qty,label){
+  const empty={woodCostTotal:0,stockOrdered:0,details:{}};
+  if(!pL||!pW||partsNeeded<=0)return empty;
+
+  if(method==='sheet'){
+    const sL=parseFloat(document.getElementById('w-sheetL').value)||24;
+    const sW=parseFloat(document.getElementById('w-sheetW').value)||6;
+    const shPrice=parseFloat(document.getElementById('w-sheetPrice').value)||0;
+    if(!shPrice)return empty;
+    const perSheet=bestFitInSheet(sL,sW,pL,pW,kerf)||1;
+    const sheetsNet=Math.ceil(partsNeeded/perSheet);
+    const sheetsOrd=Math.ceil(sheetsNet*(1+wastePct/100));
+    const cost=sheetsOrd*shPrice;
+    const yieldEff=((partsNeeded/(perSheet*sheetsOrd))*100);
+    return{woodCostTotal:cost,stockOrdered:sheetsOrd,details:{method:'Sheet',perSheet,partsNeeded,sheetsNet,sheetsOrd,sheetSize:`${sL}"×${sW}"`,yieldEff,label}};
+  }
+  if(method==='bf'){
+    const boardL=parseFloat(document.getElementById('w-boardL').value)||96;
+    const boardW=parseFloat(document.getElementById('w-boardW').value)||6;
+    const bfPrice=parseFloat(document.getElementById('w-bfPrice').value)||0;
+    const partT=dimMode==='interior'?(parseFloat(document.getElementById('mat-T').value)||0):(parseFloat(document.getElementById('w-partT').value)||0);
+    if(!bfPrice||!partT)return empty;
+    const bfPerPart=(pL*pW*partT)/144;
+    const perBoard=bestFitInSheet(boardL,boardW,pL,pW,kerf)||1;
+    const boardsNet=Math.ceil(partsNeeded/perBoard);
+    const boardsOrd=Math.ceil(boardsNet*(1+wastePct/100));
+    const bfPerBoard=(boardL*boardW*partT)/144;
+    const totalBF=boardsOrd*bfPerBoard;
+    const cost=totalBF*bfPrice;
+    return{woodCostTotal:cost,stockOrdered:boardsOrd,details:{method:'Board Foot',bfPerPart:bfPerPart.toFixed(3),perBoard,partsNeeded,boardsOrd,totalBF:totalBF.toFixed(2),yieldEff:((partsNeeded/(perBoard*boardsOrd))*100),label}};
+  }
+  if(method==='lnft'){
+    const stockL=parseFloat(document.getElementById('w-lnftL').value)||96;
+    const lnftPrice=parseFloat(document.getElementById('w-lnftPrice').value)||0;
+    if(!lnftPrice)return empty;
+    const perStock=Math.floor(stockL/(pL+kerf))||1;
+    const stockNet=Math.ceil(partsNeeded/perStock);
+    const stockOrd=Math.ceil(stockNet*(1+wastePct/100));
+    const totalLF=stockOrd*(stockL/12);
+    const cost=totalLF*lnftPrice;
+    return{woodCostTotal:cost,stockOrdered:stockOrd,details:{method:'Linear Foot',perStock,partsNeeded,stockOrd,totalLF:totalLF.toFixed(2),yieldEff:((partsNeeded/(perStock*stockOrd))*100),label}};
+  }
+  return empty;
+}
+
+function calcYieldBoxMode(method,kerf,wastePct,qty){
+  // Run yield calc for each panel type, sum totals
+  const panelResults=boxPanels.map(p=>{
+    const partsNeeded=p.count*qty;
+    return{...calcYieldForPart(method,kerf,wastePct,p.pL,p.pW,partsNeeded,qty,p.name),panelName:p.name,pL:p.pL,pW:p.pW,partsNeeded};
+  });
+  const totalCost=panelResults.reduce((s,r)=>s+r.woodCostTotal,0);
+  const totalStock=panelResults.reduce((s,r)=>s+r.stockOrdered,0);
+  const avgYield=panelResults.length?panelResults.reduce((s,r)=>s+(r.details.yieldEff||0),0)/panelResults.length:0;
+  return{woodCostTotal:totalCost,stockOrdered:totalStock,details:{method:'Box Mode',panelResults,totalCost,totalStock,avgYield},isBoxMode:true};
+}
+
+function renderYield(r){
+  const el=document.getElementById('yield-content');
+  const d=r.details;
+  if(!d||!d.method){el.innerHTML='<p style="color:#666;font-size:.83rem">Enter dimensions and select a wood species to see yield analysis.</p>';return;}
+
+  if(r.isBoxMode){
+    let rows=d.panelResults.map(p=>{
+      const yld=p.details.yieldEff?p.details.yieldEff.toFixed(0)+'%':'—';
+      const stock=p.stockOrdered||0;
+      const method=d.method==='Box Mode'?(p.details.method||''):p.details.method;
+      const unit=method==='Sheet'?'pcs':method==='Board Foot'?'boards':'stock';
+      return`<div class="yield-stat">
+        <span>${p.panelName} (${p.pL.toFixed(2)}"×${p.pW.toFixed(2)}", ×${p.partsNeeded})</span>
+        <span class="val">${stock} ${unit} · yield ${yld} · $${p.woodCostTotal.toFixed(2)}</span>
+      </div>`;
+    }).join('');
+    rows+=`<div class="yield-stat" style="border-top:1px solid #aaa;margin-top:8px;padding-top:8px">
+      <span><strong>Total stock needed (conservative)</strong></span>
+      <span class="val"><strong>${d.totalStock} pieces · $${d.totalCost.toFixed(2)}</strong></span>
+    </div>
+    <div class="yield-stat"><span style="font-size:.75rem;color:#888">⚡ Note: actual nesting may reduce stock count by combining panels on the same sheet.</span></div>`;
+    el.innerHTML=rows;
+    return;
+  }
+
+  // Manual mode
+  let rows='';
+  if(d.method==='Sheet'){
+    rows=`<div class="yield-stat"><span>Stock size</span><span class="val">${d.sheetSize}</span></div>
+    <div class="yield-stat"><span>Parts per sheet (optimised)</span><span class="val">${d.perSheet}</span></div>
+    <div class="yield-stat"><span>Parts needed</span><span class="val">${d.partsNeeded}</span></div>
+    <div class="yield-stat"><span>Sheets (net)</span><span class="val">${d.sheetsNet}</span></div>
+    <div class="yield-stat"><span>Sheets ordered (+ ${document.getElementById('w-waste').value||0}% waste)</span><span class="val">${d.sheetsOrd}</span></div>
+    <div class="yield-stat"><span>Sheet yield efficiency</span><span class="val">${d.yieldEff.toFixed(1)}%</span></div>
+    <div class="yield-stat" style="border-top:1px solid #aaa;margin-top:6px;padding-top:6px"><span>Wood cost total</span><span class="val">$${r.woodCostTotal.toFixed(2)}</span></div>`;
+  } else if(d.method==='Board Foot'){
+    rows=`<div class="yield-stat"><span>BF per part</span><span class="val">${d.bfPerPart} BF</span></div>
+    <div class="yield-stat"><span>Parts per board (optimised)</span><span class="val">${d.perBoard}</span></div>
+    <div class="yield-stat"><span>Boards ordered</span><span class="val">${d.boardsOrd}</span></div>
+    <div class="yield-stat"><span>Total board feet</span><span class="val">${d.totalBF} BF</span></div>
+    <div class="yield-stat"><span>Yield efficiency</span><span class="val">${d.yieldEff.toFixed(1)}%</span></div>
+    <div class="yield-stat" style="border-top:1px solid #aaa;margin-top:6px;padding-top:6px"><span>Wood cost total</span><span class="val">$${r.woodCostTotal.toFixed(2)}</span></div>`;
+  } else if(d.method==='Linear Foot'){
+    rows=`<div class="yield-stat"><span>Parts per stock piece</span><span class="val">${d.perStock}</span></div>
+    <div class="yield-stat"><span>Stock pieces ordered</span><span class="val">${d.stockOrd}</span></div>
+    <div class="yield-stat"><span>Total linear feet</span><span class="val">${d.totalLF} LF</span></div>
+    <div class="yield-stat"><span>Yield efficiency</span><span class="val">${d.yieldEff.toFixed(1)}%</span></div>
+    <div class="yield-stat" style="border-top:1px solid #aaa;margin-top:6px;padding-top:6px"><span>Wood cost total</span><span class="val">$${r.woodCostTotal.toFixed(2)}</span></div>`;
+  }
+  el.innerHTML=rows;
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// SPECIES SELECT & PRICE LOADING
+// ════════════════════════════════════════════════════════════════════════
+function populateSpeciesSelect(){
+  const sel=document.getElementById('w-species');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— Select Species —</option>';
+  // Group by category
+  const cats={};
+  species.forEach(s=>{
+    if(!cats[s.cat])cats[s.cat]=[];
+    cats[s.cat].push(s);
+  });
+  Object.entries(cats).forEach(([cat,items])=>{
+    const grp=document.createElement('optgroup');
+    grp.label=cat;
+    items.forEach(s=>{
+      const opt=document.createElement('option');
+      opt.value=s.id;
+      opt.textContent=s.name;
+      grp.appendChild(opt);
+    });
+    sel.appendChild(grp);
+  });
+  if(cur)sel.value=cur;
+}
+
+function loadSpeciesPrice(){
+  const id=document.getElementById('w-species').value;
+  if(!id)return;
+  const sp=species.find(s=>s.id===id);
+  if(!sp)return;
+  if(sp.sheet){document.getElementById('w-pricingMethod').value='sheet';document.getElementById('w-sheetPrice').value=sp.sheet;}
+  else if(sp.bf){document.getElementById('w-pricingMethod').value='bf';document.getElementById('w-bfPrice').value=sp.bf;}
+  else if(sp.lnft){document.getElementById('w-pricingMethod').value='lnft';document.getElementById('w-lnftPrice').value=sp.lnft;}
+  togglePricingMethod();
+  // Large qty check
+  const qty=parseInt(document.getElementById('q-qty').value)||1;
+  if(sp.threshold&&qty>=sp.threshold){
+    document.getElementById('m-largequote').value='yes';
+    toggleCustomPrice();
+  }
+  updateAll();
+}
+
+function togglePricingMethod(){
+  const m=document.getElementById('w-pricingMethod').value;
+  document.getElementById('sheet-fields').style.display=m==='sheet'?'':'none';
+  document.getElementById('bf-fields').style.display=m==='bf'?'':'none';
+  document.getElementById('lnft-fields').style.display=m==='lnft'?'':'none';
+}
+
+function toggleCustomPrice(){
+  const show=document.getElementById('m-largequote').value==='yes';
+  document.getElementById('custom-price-group').style.display=show?'':'none';
+  updateAll();
+}
+document.getElementById('m-largequote').addEventListener('change',toggleCustomPrice);
+
+// ════════════════════════════════════════════════════════════════════════
+// MATERIALS
+// ════════════════════════════════════════════════════════════════════════
+function addMaterial(item='',qty=1,unitCost=0){
+  materials.push({id:s4(),item,qty,unitCost});
+  renderMaterials();updateAll();
+}
+function removeMaterial(id){
+  materials=materials.filter(m=>m.id!==id);
+  renderMaterials();updateAll();
+}
+function renderMaterials(){
+  const el=document.getElementById('materials-list');
+  if(!materials.length){el.innerHTML='<p style="font-size:.83rem;color:var(--gray-400);padding:8px 0">No materials added.</p>';return;}
+  el.innerHTML=materials.map(m=>`
+    <div class="material-row">
+      <input type="text" value="${m.item}" placeholder="e.g. Wood screws" onchange="updateMat('${m.id}','item',this.value)" style="font-size:.85rem;padding:6px 8px" />
+      <input type="number" value="${m.qty}" min="0" step="0.5" onchange="updateMat('${m.id}','qty',this.value)" style="font-size:.85rem;padding:6px 8px" />
+      <input type="number" value="${m.unitCost}" min="0" step="0.01" onchange="updateMat('${m.id}','unitCost',this.value)" style="font-size:.85rem;padding:6px 8px" />
+      <span style="font-weight:700;font-size:.9rem;color:var(--wood-dark)">$${(m.qty*m.unitCost).toFixed(2)}</span>
+      <button class="btn btn-sm" style="background:none;color:var(--danger);padding:4px 8px;font-size:1rem" onclick="removeMaterial('${m.id}')">✕</button>
+    </div>`).join('');
+}
+function updateMat(id,field,val){
+  const m=materials.find(x=>x.id===id);
+  if(m)m[field]=field==='item'?val:(parseFloat(val)||0);
+  updateAll();
+}
+function openPresetModal(){
+  const presets=[
+    {item:'Wood Screws #8 × 1.5"',qty:1,unitCost:6.50},
+    {item:'Brad Nails (box)',qty:1,unitCost:8.00},
+    {item:'Wood Glue (4 oz)',qty:1,unitCost:4.00},
+    {item:'Sandpaper Pack',qty:1,unitCost:5.00},
+    {item:'Stain (qt)',qty:1,unitCost:18.00},
+    {item:'Polyurethane (qt)',qty:1,unitCost:22.00},
+    {item:'Hinges (pair)',qty:1,unitCost:4.50},
+    {item:'Piano Hinge (12")',qty:1,unitCost:8.00},
+    {item:'Latch / Clasp',qty:1,unitCost:3.50},
+    {item:'Corner Brackets',qty:4,unitCost:0.80},
+    {item:'Foam Lining (sq ft)',qty:1,unitCost:3.00},
+    {item:'Velvet Lining (sq ft)',qty:1,unitCost:5.00},
+    {item:'Magnet Closure (pair)',qty:1,unitCost:2.00},
+    {item:'Laser Engraving Setup',qty:1,unitCost:15.00},
+  ];
+  const hw=species.filter(s=>['Hardware','Finish / Coating','Consumable'].includes(s.cat));
+  const all=[...presets,...hw.map(s=>({item:s.name,qty:1,unitCost:s.sheet||s.bf||s.lnft||0}))];
+  document.getElementById('preset-list').innerHTML=all.map(p=>`
+    <div class="similar-item" onclick="addMaterial('${p.item.replace(/'/g,"\\'")}',${p.qty},${p.unitCost});closeModal('preset-modal')">
+      <span>${p.item}</span>
+      <span style="font-weight:700;color:var(--wood-dark)">$${(p.qty*p.unitCost).toFixed(2)}</span>
+    </div>`).join('');
+  document.getElementById('preset-modal').classList.add('open');
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// CUSTOMIZATIONS
+// ════════════════════════════════════════════════════════════════════════
+function addCustom(desc='',cost=0){
+  customs.push({id:s4(),desc,cost});
+  renderCustoms();updateAll();
+}
+function removeCustom(id){
+  customs=customs.filter(c=>c.id!==id);
+  renderCustoms();updateAll();
+}
+function renderCustoms(){
+  const el=document.getElementById('customs-list');
+  if(!customs.length){el.innerHTML='<p style="font-size:.83rem;color:var(--gray-400);padding:8px 0">No customizations added.</p>';return;}
+  el.innerHTML=customs.map(c=>`
+    <div class="custom-row">
+      <input type="text" value="${c.desc}" placeholder="e.g. Laser engraving, custom stain" onchange="updateCustom('${c.id}','desc',this.value)" style="font-size:.85rem;padding:6px 8px" />
+      <input type="number" value="${c.cost}" min="0" step="0.50" onchange="updateCustom('${c.id}','cost',this.value)" style="font-size:.85rem;padding:6px 8px" />
+      <button class="btn btn-sm" style="background:none;color:var(--danger);padding:4px 8px;font-size:1rem" onclick="removeCustom('${c.id}')">✕</button>
+    </div>`).join('');
+}
+function updateCustom(id,field,val){
+  const c=customs.find(x=>x.id===id);
+  if(c)c[field]=field==='desc'?val:(parseFloat(val)||0);
+  updateAll();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// SIMILAR PROJECTS
+// ════════════════════════════════════════════════════════════════════════
+function renderSimilarPanel(){
+  if(quotes.length===0){document.getElementById('similar-panel').style.display='none';return;}
+  const type=document.getElementById('q-type').value;
+  const qty=parseInt(document.getElementById('q-qty').value)||1;
+  const intL=parseFloat(document.getElementById('int-L').value)||0;
+  const intW=parseFloat(document.getElementById('int-W').value)||0;
+  const similar=quotes.map(q=>{
+    let score=0;
+    if(q.type===type)score+=3;
+    if(Math.abs((q.qty||1)-qty)<=5)score+=2;
+    if(q.intL&&intL&&Math.abs(q.intL-intL)<2)score+=2;
+    if(q.intW&&intW&&Math.abs(q.intW-intW)<2)score+=2;
+    return{...q,score};
+  }).filter(q=>q.score>0).sort((a,b)=>b.score-a.score).slice(0,4);
+  const panel=document.getElementById('similar-panel');
+  if(!similar.length){panel.style.display='none';return;}
+  panel.style.display='';
+  document.getElementById('similar-list').innerHTML=similar.map(q=>`
+    <div class="similar-item" onclick="openDetail('${q.id}')">
+      <span>
+        <strong>${q.name}</strong>
+        <small style="color:var(--gray-400);margin-left:8px">${q.type} · qty ${q.qty||1}</small><br/>
+        <small>Hours: ${q.hoursPerUnit?q.hoursPerUnit.toFixed(1)+'h/unit':'—'} · ${q.intL?`Int. ${q.intL}"×${q.intW}"×${q.intH}"`:''} · Species: ${q.speciesName||'—'}</small>
+      </span>
+      <span style="font-weight:700;color:var(--wood-dark)">$${(q.totalPrice||0).toFixed(2)}</span>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// UPDATE ALL (live calc)
+// ════════════════════════════════════════════════════════════════════════
+function updateAll(){
+  const qty=parseInt(document.getElementById('q-qty').value)||1;
+
+  // Yield
+  const yieldR=calcYield();
+  renderYield(yieldR);
+
+  // Labor
+  const setup=parseFloat(document.getElementById('l-setup').value)||0;
+  const cut=parseFloat(document.getElementById('l-cut').value)||0;
+  const assembly=parseFloat(document.getElementById('l-assembly').value)||0;
+  const finish=parseFloat(document.getElementById('l-finish').value)||0;
+  const other=parseFloat(document.getElementById('l-other').value)||0;
+  const rate=parseFloat(document.getElementById('l-rate').value)||0;
+  const hoursPerUnit=cut+assembly+finish+other;
+  const totalHours=setup+hoursPerUnit*qty;
+  const laborCostTotal=totalHours*rate;
+
+  document.getElementById('labor-summary-content').innerHTML=`
+    <div class="yield-stat"><span>Setup (one-time)</span><span class="val">${setup}h</span></div>
+    <div class="yield-stat"><span>Per unit (cut+assembly+finish+other)</span><span class="val">${hoursPerUnit.toFixed(2)}h</span></div>
+    <div class="yield-stat"><span>Total hours (${qty} units)</span><span class="val">${totalHours.toFixed(2)}h</span></div>
+    <div class="yield-stat" style="border-top:1px solid #93c5fd;margin-top:6px;padding-top:6px"><span>Labor cost @ $${rate}/hr</span><span class="val">$${laborCostTotal.toFixed(2)}</span></div>`;
+
+  const matCostTotal=materials.reduce((s,m)=>s+(m.qty*m.unitCost),0);
+  const customTotal=customs.reduce((s,c)=>s+(c.cost||0),0);
+  const overhead=parseFloat(document.getElementById('m-overhead').value)||0;
+  const markup=parseFloat(document.getElementById('m-markup').value)||0;
+  const woodTotal=yieldR.woodCostTotal||0;
+  const subMat=woodTotal+matCostTotal;
+  const overheadAmt=subMat*(overhead/100);
+  const costBefore=subMat+overheadAmt+laborCostTotal+customTotal;
+  const markupAmt=costBefore*(markup/100);
+  const calcTotal=costBefore+markupAmt;
+  const useCustom=document.getElementById('m-largequote').value==='yes';
+  const finalTotal=useCustom?(parseFloat(document.getElementById('m-customprice').value)||0):calcTotal;
+  const perUnit=finalTotal/qty;
+
+  const lines=[
+    ['Wood / Material',woodTotal],
+    ['Additional Materials',matCostTotal],
+    [`Overhead (${overhead}%)`,overheadAmt],
+    ['Labor',laborCostTotal],
+    ['Customizations',customTotal],
+    [`Markup (${markup}%)`,markupAmt],
+  ];
+  let html=lines.map(([l,v])=>`<div class="summary-line"><span class="label">${l}</span><span class="amount">$${v.toFixed(2)}</span></div>`).join('');
+  if(useCustom)html+=`<div class="summary-line" style="font-style:italic;opacity:.7"><span class="label">⚡ Large Qty Override</span><span class="amount"></span></div>`;
+  html+=`<div class="summary-line total"><span class="label">TOTAL${useCustom?' (Custom Quote)':''}</span><span class="amount">$${finalTotal.toFixed(2)}</span></div>
+    <div class="summary-line"><span class="label" style="font-size:.82rem">Per unit</span><span class="amount" style="font-size:.9rem">$${perUnit.toFixed(2)}</span></div>`;
+  document.getElementById('quote-summary-lines').innerHTML=html;
+
+  renderSimilarPanel();
+  return{woodTotal,matCostTotal,laborCostTotal,customTotal,overheadAmt,markupAmt,finalTotal,perUnit,totalHours,hoursPerUnit,yieldR};
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// SAVE QUOTE
+// ════════════════════════════════════════════════════════════════════════
+function saveQuote(){
+  const name=document.getElementById('q-name').value.trim();
+  if(!name){alert('Please enter a project name.');return;}
+  const calc=updateAll();
+  const qty=parseInt(document.getElementById('q-qty').value)||1;
+  const spId=document.getElementById('w-species').value;
+  const sp=species.find(s=>s.id===spId);
+  const intL=parseFloat(document.getElementById('int-L').value)||0;
+  const intW=parseFloat(document.getElementById('int-W').value)||0;
+  const intH=parseFloat(document.getElementById('int-H').value)||0;
+  const matT=parseFloat(document.getElementById('mat-T').value)||0;
+
+  const quote={
+    id:s4(),name,
+    client:document.getElementById('q-client').value,
+    type:document.getElementById('q-type').value,
+    qty,date:document.getElementById('q-date').value||new Date().toISOString().slice(0,10),
+    notes:document.getElementById('q-notes').value,
+    dimMode,
+    intL,intW,intH,matT,
+    lidType:document.getElementById('lid-type').value,
+    joinery:document.getElementById('joinery').value,
+    panels:dimMode==='interior'?boxPanels:[],
+    speciesId:spId,speciesName:sp?sp.name:'',
+    pricingMethod:document.getElementById('w-pricingMethod').value,
+    yieldDetails:calc.yieldR.details,
+    woodCostTotal:calc.woodTotal,
+    matCostTotal:calc.matCostTotal,
+    laborCostTotal:calc.laborCostTotal,
+    customTotal:calc.customTotal,
+    overheadAmt:calc.overheadAmt,
+    markupAmt:calc.markupAmt,
+    totalPrice:calc.finalTotal,
+    pricePerUnit:calc.perUnit,
+    totalHours:calc.totalHours,
+    hoursPerUnit:calc.hoursPerUnit,
+    markup:parseFloat(document.getElementById('m-markup').value)||0,
+    overhead:parseFloat(document.getElementById('m-overhead').value)||0,
+    rate:parseFloat(document.getElementById('l-rate').value)||0,
+    largequote:document.getElementById('m-largequote').value==='yes',
+    materials:[...materials],
+    customs:[...customs],
+  };
+  quotes.unshift(quote);
+  saveQuotes();
+  alert(`✅ Quote "${name}" saved!`);
+  clearForm();
+  showPage('library');
+}
+
+function clearForm(){
+  ['q-name','q-client','q-notes','int-L','int-W','int-H'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('q-type').value='Box / Crate';
+  document.getElementById('q-qty').value=1;
+  document.getElementById('q-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('mat-T').value=0.25;
+  document.getElementById('lid-type').value='none';
+  document.getElementById('joinery').value='butt';
+  document.getElementById('w-species').value='';
+  document.getElementById('w-sheetPrice').value='';
+  document.getElementById('w-bfPrice').value='';
+  document.getElementById('l-setup').value=0.5;
+  document.getElementById('l-cut').value=0;
+  document.getElementById('l-assembly').value=0;
+  document.getElementById('l-finish').value=0;
+  document.getElementById('l-other').value=0;
+  document.getElementById('l-rate').value=65;
+  document.getElementById('m-overhead').value=10;
+  document.getElementById('m-markup').value=30;
+  document.getElementById('m-largequote').value='no';
+  document.getElementById('custom-price-group').style.display='none';
+  materials=[];customs=[];boxPanels=[];
+  document.getElementById('panel-breakdown-wrap').style.display='none';
+  renderMaterials();renderCustoms();
+  setDimMode('interior');
+  updateAll();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// LIBRARY
+// ════════════════════════════════════════════════════════════════════════
+function renderLibrary(){
+  const search=(document.getElementById('lib-search').value||'').toLowerCase();
+  const type=document.getElementById('lib-type').value;
+  const sort=document.getElementById('lib-sort').value;
+  let filtered=quotes.filter(q=>{
+    const mt=!type||q.type===type;
+    const ms=!search||q.name.toLowerCase().includes(search)||(q.client||'').toLowerCase().includes(search)||(q.speciesName||'').toLowerCase().includes(search)||(q.type||'').toLowerCase().includes(search);
+    return mt&&ms;
+  });
+  if(sort==='date-asc')filtered.sort((a,b)=>a.date.localeCompare(b.date));
+  else if(sort==='date-desc')filtered.sort((a,b)=>b.date.localeCompare(a.date));
+  else if(sort==='price-desc')filtered.sort((a,b)=>b.totalPrice-a.totalPrice);
+  else if(sort==='price-asc')filtered.sort((a,b)=>a.totalPrice-b.totalPrice);
+  const el=document.getElementById('library-list');
+  const empty=document.getElementById('library-empty');
+  if(!filtered.length){
+    el.innerHTML='';
+    empty.innerHTML=quotes.length===0
+      ?'<p style="font-size:2rem">📁</p><p>No saved quotes yet.</p><button class="btn btn-primary" onclick="showPage(\'newquote\')" style="margin-top:12px">New Quote</button>'
+      :'<p style="font-size:2rem">🔍</p><p>No quotes match your search.</p>';
+    empty.style.display='';return;
+  }
+  empty.style.display='none';
+  el.innerHTML=filtered.map(q=>`
+    <div class="quote-card" onclick="openDetail('${q.id}')">
+      <div>
+        <div class="name">${q.name}</div>
+        <div class="meta">${q.date} · ${q.client||'No client'} · Qty ${q.qty||1}</div>
+        <div class="tags">
+          <span class="badge badge-wood">${q.type}</span>
+          ${q.speciesName?`<span class="badge badge-green">${q.speciesName}</span>`:''}
+          ${q.hoursPerUnit?`<span class="badge badge-blue">⏱ ${q.hoursPerUnit.toFixed(1)}h/unit</span>`:''}
+          ${q.intL?`<span class="badge" style="background:#e0e7ff;color:#3730a3">Int. ${q.intL}"×${q.intW}"×${q.intH}"</span>`:''}
+          ${q.lidType&&q.lidType!=='none'?`<span class="badge badge-orange">${q.lidType} lid</span>`:''}
+          ${q.largequote?'<span class="badge badge-orange">Custom Quote</span>':''}
+        </div>
+      </div>
+      <div>
+        <div class="price">$${(q.totalPrice||0).toFixed(2)}</div>
+        <div class="price-sub">$${(q.pricePerUnit||0).toFixed(2)}/unit</div>
+      </div>
+    </div>`).join('');
+}
+
+function exportLibrary(){
+  const hdr=['Name','Client','Type','Date','Qty','Species','IntL','IntW','IntH','MatT','LidType','PricePerUnit','TotalPrice','HoursPerUnit','Notes'];
+  const rows=quotes.map(q=>[q.name,q.client||'',q.type,q.date,q.qty||1,q.speciesName||'',q.intL||'',q.intW||'',q.intH||'',q.matT||'',q.lidType||'',(q.pricePerUnit||0).toFixed(2),(q.totalPrice||0).toFixed(2),(q.hoursPerUnit||0).toFixed(2),q.notes||'']);
+  const csv=[hdr,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='wood-quotes-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// DETAIL MODAL
+// ════════════════════════════════════════════════════════════════════════
+function openDetail(id){
+  const q=quotes.find(x=>x.id===id);if(!q)return;
+  document.getElementById('detail-title').textContent=q.name;
+  const matRows=(q.materials||[]).map(m=>`<div class="detail-row"><span class="lbl">${m.item}</span><span>×${m.qty} @ $${m.unitCost} = $${(m.qty*m.unitCost).toFixed(2)}</span></div>`).join('')||'<div style="color:var(--gray-400);font-size:.83rem">None</div>';
+  const cusRows=(q.customs||[]).map(c=>`<div class="detail-row"><span class="lbl">${c.desc}</span><span>$${(c.cost||0).toFixed(2)}</span></div>`).join('')||'<div style="color:var(--gray-400);font-size:.83rem">None</div>';
+  const panelRows=(q.panels||[]).map(p=>`<div class="detail-row"><span class="lbl">${p.name}</span><span>${p.pL.toFixed(3)}"×${p.pW.toFixed(3)}" × ${p.count}</span></div>`).join('');
+
+  document.getElementById('detail-body').innerHTML=`
+    <div class="detail-section"><h4>Project Info</h4>
+      <div class="detail-row"><span class="lbl">Type</span><span>${q.type}</span></div>
+      <div class="detail-row"><span class="lbl">Client</span><span>${q.client||'—'}</span></div>
+      <div class="detail-row"><span class="lbl">Date</span><span>${q.date}</span></div>
+      <div class="detail-row"><span class="lbl">Quantity</span><span>${q.qty} units</span></div>
+      ${q.intL?`<div class="detail-row"><span class="lbl">Interior dims</span><span>${q.intL}"×${q.intW}"×${q.intH}"</span></div>`:''}
+      ${q.matT?`<div class="detail-row"><span class="lbl">Material thickness</span><span>${q.matT}"</span></div>`:''}
+      ${q.lidType?`<div class="detail-row"><span class="lbl">Lid type</span><span>${q.lidType}</span></div>`:''}
+      <div class="detail-row"><span class="lbl">Notes</span><span>${q.notes||'—'}</span></div>
+    </div>
+    ${panelRows?`<div class="detail-section"><h4>Panels</h4>${panelRows}</div>`:''}
+    <div class="detail-section"><h4>Material &amp; Yield</h4>
+      <div class="detail-row"><span class="lbl">Species</span><span>${q.speciesName||'—'}</span></div>
+      <div class="detail-row"><span class="lbl">Wood cost</span><span>$${(q.woodCostTotal||0).toFixed(2)}</span></div>
+    </div>
+    <div class="detail-section"><h4>Materials</h4>${matRows}</div>
+    <div class="detail-section"><h4>Labor</h4>
+      <div class="detail-row"><span class="lbl">Total hours</span><span>${(q.totalHours||0).toFixed(2)}h</span></div>
+      <div class="detail-row"><span class="lbl">Per unit</span><span>${(q.hoursPerUnit||0).toFixed(2)}h</span></div>
+      <div class="detail-row"><span class="lbl">Rate</span><span>$${q.rate||0}/hr</span></div>
+      <div class="detail-row"><span class="lbl">Labor cost</span><span>$${(q.laborCostTotal||0).toFixed(2)}</span></div>
+    </div>
+    <div class="detail-section"><h4>Customizations</h4>${cusRows}</div>
+    <div class="detail-section"><h4>Cost Summary</h4>
+      <div class="detail-row"><span class="lbl">Materials subtotal</span><span>$${((q.woodCostTotal||0)+(q.matCostTotal||0)).toFixed(2)}</span></div>
+      <div class="detail-row"><span class="lbl">Overhead (${q.overhead||0}%)</span><span>$${(q.overheadAmt||0).toFixed(2)}</span></div>
+      <div class="detail-row"><span class="lbl">Labor</span><span>$${(q.laborCostTotal||0).toFixed(2)}</span></div>
+      <div class="detail-row"><span class="lbl">Customizations</span><span>$${(q.customTotal||0).toFixed(2)}</span></div>
+      <div class="detail-row"><span class="lbl">Markup (${q.markup||0}%)</span><span>$${(q.markupAmt||0).toFixed(2)}</span></div>
+      <div class="detail-row" style="font-weight:700;color:var(--wood-dark)"><span class="lbl">TOTAL</span><span>$${(q.totalPrice||0).toFixed(2)}</span></div>
+      <div class="detail-row"><span class="lbl">Per unit</span><span>$${(q.pricePerUnit||0).toFixed(2)}</span></div>
+    </div>`;
+  document.getElementById('detail-clone-btn').onclick=()=>cloneQuote(id);
+  document.getElementById('detail-delete-btn').onclick=()=>deleteQuote(id);
+  document.getElementById('detail-modal').classList.add('open');
+}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+function cloneQuote(id){
+  const q=quotes.find(x=>x.id===id);if(!q)return;
+  closeModal('detail-modal');
+  showPage('newquote');
+  document.getElementById('q-name').value='Copy of '+q.name;
+  document.getElementById('q-client').value=q.client||'';
+  document.getElementById('q-type').value=q.type||'Box / Crate';
+  document.getElementById('q-qty').value=q.qty||1;
+  document.getElementById('q-notes').value=q.notes||'';
+  if(q.dimMode==='interior'){
+    setDimMode('interior');
+    document.getElementById('int-L').value=q.intL||'';
+    document.getElementById('int-W').value=q.intW||'';
+    document.getElementById('int-H').value=q.intH||'';
+    document.getElementById('mat-T').value=q.matT||0.25;
+    document.getElementById('lid-type').value=q.lidType||'none';
+    document.getElementById('joinery').value=q.joinery||'butt';
+    calcBoxPanels();
+  }
+  document.getElementById('l-rate').value=q.rate||65;
+  document.getElementById('m-markup').value=q.markup||30;
+  document.getElementById('m-overhead').value=q.overhead||10;
+  materials=(q.materials||[]).map(m=>({...m,id:s4()}));
+  customs=(q.customs||[]).map(c=>({...c,id:s4()}));
+  renderMaterials();renderCustoms();updateAll();
+}
+
+function deleteQuote(id){
+  if(!confirm('Delete this quote?'))return;
+  quotes=quotes.filter(q=>q.id!==id);
+  saveQuotes();closeModal('detail-modal');renderLibrary();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// PRICE LIST
+// ════════════════════════════════════════════════════════════════════════
+function addSpecies(){
+  const name=document.getElementById('pl-name').value.trim();
+  if(!name){alert('Enter a name.');return;}
+  species.push({
+    id:s4(),name,
+    cat:document.getElementById('pl-cat').value,
+    sheet:parseFloat(document.getElementById('pl-sheet').value)||null,
+    bf:parseFloat(document.getElementById('pl-bf').value)||null,
+    lnft:parseFloat(document.getElementById('pl-lnft').value)||null,
+    threshold:parseFloat(document.getElementById('pl-threshold').value)||null,
+    notes:document.getElementById('pl-notes').value,
+  });
+  saveSpecies();renderSpeciesGrid();populateSpeciesSelect();
+  ['pl-name','pl-sheet','pl-bf','pl-lnft','pl-threshold','pl-notes'].forEach(id=>document.getElementById(id).value='');
+}
+function deleteSpecies(id){
+  if(!confirm('Remove from price list?'))return;
+  species=species.filter(s=>s.id!==id);
+  saveSpecies();renderSpeciesGrid();populateSpeciesSelect();
+}
+function renderSpeciesGrid(){
+  const el=document.getElementById('species-grid');
+  if(!species.length){el.innerHTML='<p style="color:var(--gray-400)">No species added.</p>';return;}
+  el.innerHTML=species.map(s=>`
+    <div class="species-card">
+      <div class="name">${s.name}</div>
+      <div style="font-size:.72rem;color:var(--gray-400);margin-top:2px">${s.cat}</div>
+      <div class="prices">
+        ${s.sheet?`<div class="row"><span>Per piece/sheet</span><span class="val">$${s.sheet.toFixed(2)}</span></div>`:''}
+        ${s.bf?`<div class="row"><span>Per board foot</span><span class="val">$${s.bf.toFixed(2)}/BF</span></div>`:''}
+        ${s.lnft?`<div class="row"><span>Per linear foot</span><span class="val">$${s.lnft.toFixed(2)}/LF</span></div>`:''}
+        ${s.threshold?`<div class="row"><span>Large qty flag</span><span class="val">≥${s.threshold} units</span></div>`:''}
+        ${s.notes?`<div style="color:var(--gray-400);font-size:.72rem;margin-top:4px">${s.notes}</div>`:''}
+      </div>
+      <div class="actions">
+        <button class="btn btn-sm btn-danger" onclick="deleteSpecies('${s.id}');event.stopPropagation()">Remove</button>
+      </div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════════════════════════════════
+let breakdownChart=null;
+function renderDashboard(){
+  const total=quotes.length;
+  const rev=quotes.reduce((s,q)=>s+(q.totalPrice||0),0);
+  const avgH=total?(quotes.reduce((s,q)=>s+(q.hoursPerUnit||0),0)/total):0;
+  const withYield=quotes.filter(q=>q.yieldDetails?.avgYield||q.yieldDetails?.yieldEff);
+  const avgYield=withYield.length?(withYield.reduce((s,q)=>s+(q.yieldDetails.avgYield||q.yieldDetails.yieldEff||0),0)/withYield.length):0;
+
+  document.getElementById('dashboard-stats').innerHTML=`
+    <div class="stat-card"><div class="label">Total Quotes</div><div class="value">${total}</div><div class="sub">in library</div></div>
+    <div class="stat-card" style="border-color:var(--accent)"><div class="label">Total Value</div><div class="value">$${rev.toFixed(0)}</div><div class="sub">all quotes</div></div>
+    <div class="stat-card" style="border-color:#93c5fd"><div class="label">Avg Hrs / Unit</div><div class="value">${avgH.toFixed(1)}</div><div class="sub">labor average</div></div>
+    <div class="stat-card" style="border-color:#f59e0b"><div class="label">Avg Sheet Yield</div><div class="value">${avgYield.toFixed(0)}%</div><div class="sub">material efficiency</div></div>`;
+
+  const recent=quotes.slice(0,5);
+  document.getElementById('recent-quotes-list').innerHTML=recent.length
+    ?recent.map(q=>`<div class="similar-item" onclick="openDetail('${q.id}')">
+        <span><strong>${q.name}</strong><br/><small style="color:var(--gray-400)">${q.date} · ${q.type}${q.intL?` · ${q.intL}"×${q.intW}"×${q.intH}"`:''}</small></span>
+        <span style="font-weight:700;color:var(--wood-dark)">$${(q.totalPrice||0).toFixed(2)}</span>
+      </div>`).join('')
+    :'<p style="color:var(--gray-400);font-size:.88rem">No quotes yet. <a href="#" onclick="showPage(\'newquote\')" style="color:var(--wood-light)">Create your first →</a></p>';
+
+  const chartEl=document.getElementById('breakdownChart');
+  const chartEmpty=document.getElementById('chart-empty');
+  if(!total){chartEl.style.display='none';chartEmpty.style.display='';return;}
+  chartEl.style.display='';chartEmpty.style.display='none';
+  const avg=k=>quotes.reduce((s,x)=>s+(x[k]||0),0)/total;
+  if(breakdownChart)breakdownChart.destroy();
+  breakdownChart=new Chart(chartEl,{
+    type:'doughnut',
+    data:{
+      labels:['Wood','Materials','Labor','Customizations','Overhead','Markup'],
+      datasets:[{data:[avg('woodCostTotal'),avg('matCostTotal'),avg('laborCostTotal'),avg('customTotal'),avg('overheadAmt'),avg('markupAmt')],backgroundColor:['#7a4a1e','#c8843c','#2d6a4f','#52b788','#93c5fd','#f59e0b']}]
+    },
+    options:{plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},responsive:true,maintainAspectRatio:true}
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('q-date').value=new Date().toISOString().slice(0,10);
+  populateSpeciesSelect();
+  renderMaterials();renderCustoms();
+  setDimMode('interior');
+  updateAll();
+  renderDashboard();
+  renderSpeciesGrid();
+});
+</script>
+</body>
+</html>
