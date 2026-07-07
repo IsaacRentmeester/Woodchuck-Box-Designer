@@ -381,6 +381,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .dim-step:last-child{border-right:none;border-left:1px solid var(--bo)}
 .dim-step:hover{background:var(--gold-l);color:var(--gold-d)}
 .dim-inp{flex:1;border:none;outline:none;font-size:1rem;font-weight:700;color:var(--tx);background:#fff;text-align:center;min-width:0;padding:7px 0}
+/* Buy One Plant One bar */
+.plant-bar{background:linear-gradient(90deg,#0b160b,#122212,#0b160b);border-bottom:1px solid rgba(200,160,96,.22);padding:8px 20px;text-align:center;position:relative;overflow:hidden}
+.plant-bar-inner{display:inline-flex;align-items:center;gap:10px;font-family:Georgia,serif;font-size:.68rem;letter-spacing:.09em;color:rgba(195,220,175,.72)}
+.plant-bar-dot{color:rgba(200,160,96,.55);font-size:.5rem}
+.plant-bar-em{color:rgba(200,160,96,.88);font-weight:700}
 .dim-inp::-webkit-inner-spin-button,.dim-inp::-webkit-outer-spin-button{-webkit-appearance:none}
 
 /* ══════════════════════════════════════════════════════════
@@ -530,6 +535,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </style>
 </head>
 <body>
+<div class="plant-bar">
+  <span class="plant-bar-inner">
+    🌱 <span class="plant-bar-em">Buy One, Plant One</span>
+    <span class="plant-bar-dot">✦</span>
+    For every box sold, Woodchuck USA plants a tree
+    <span class="plant-bar-dot">✦</span>
+    Handcrafted in the USA &nbsp;·&nbsp; Sustainably sourced wood
+  </span>
+</div>
 <div class="hdr">
   <div class="hdr-logo">Woodchuck <span>USA</span></div>
   <div class="hdr-tag">Sales Configurator</div>
