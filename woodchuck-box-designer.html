@@ -329,8 +329,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qb-yield-box h5{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:8px}
 .qb-yield-row{display:flex;justify-content:space-between;padding:3px 0;font-size:.75rem}
 .qb-yield-row .qb-val{font-weight:700;color:var(--green)}
-.qb-mat-row{display:grid;grid-template-columns:1fr 64px 72px 20px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--bo)}
+.qb-mat-row{display:grid;grid-template-columns:1fr 52px 72px 58px 20px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--bo)}
 .qb-mat-row:last-child{border-bottom:none}
+.qb-mat-hdr{display:grid;grid-template-columns:1fr 52px 72px 58px 20px;gap:6px;margin-bottom:4px}
+.qb-mat-hdr span{font-size:.62rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mu);text-align:center}
+.qb-mat-hdr span:first-child{text-align:left}
+.qb-mat-linetotal{font-size:.74rem;font-weight:700;color:var(--green);text-align:right;padding-right:2px;white-space:nowrap}
 .qb-custom-row{display:grid;grid-template-columns:1fr 60px 80px 20px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--bo)}
 .qb-custom-row:last-child{border-bottom:none}
 .qb-custom-hdr{display:grid;grid-template-columns:1fr 60px 80px 20px;gap:6px;margin-bottom:4px}
@@ -378,6 +382,151 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .dim-step:hover{background:var(--gold-l);color:var(--gold-d)}
 .dim-inp{flex:1;border:none;outline:none;font-size:1rem;font-weight:700;color:var(--tx);background:#fff;text-align:center;min-width:0;padding:7px 0}
 .dim-inp::-webkit-inner-spin-button,.dim-inp::-webkit-outer-spin-button{-webkit-appearance:none}
+
+/* ══════════════════════════════════════════════════════════
+   WOODCHUCK USA — Quote Builder Brand Theme
+══════════════════════════════════════════════════════════ */
+
+/* Warm parchment panel background */
+.cfg{background:linear-gradient(180deg,#ede8df 0%,#e8e0d4 100%)}
+
+/* Sections become white cards inside the panel */
+.qb-sec,.cfg-sec{
+  background:#fff;
+  margin:8px 10px;
+  border-radius:14px;
+  border:1px solid #e2d8cc;
+  padding:16px 18px;
+  border-bottom:none;
+  box-shadow:0 1px 6px rgba(0,0,0,.05),0 0 0 1px rgba(255,255,255,.7) inset;
+}
+.qb-sec:first-child,.cfg-sec:first-child{margin-top:10px}
+.qb-sec:last-child,.cfg-sec:last-child{margin-bottom:10px}
+
+/* Section header — gold accent underline */
+.qb-hdr,.cfg-sec-hdr{
+  position:relative;
+  font-size:.63rem;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--green);
+  margin-bottom:14px;
+  padding-bottom:10px;
+  border-bottom:1px solid #ede5d8;
+}
+.qb-hdr::after,.cfg-sec-hdr::after{
+  content:'';
+  position:absolute;
+  bottom:-1px;left:0;
+  width:36px;height:2px;
+  background:linear-gradient(to right,var(--gold),transparent);
+  border-radius:2px;
+}
+
+/* Save Quote button — gold gradient */
+.qb-save-btn{
+  background:linear-gradient(135deg,#C8A060,#a07840);
+  border-radius:10px;
+  padding:13px;
+  font-size:.88rem;
+  font-family:inherit;
+  letter-spacing:.05em;
+  box-shadow:0 3px 12px rgba(200,160,96,.3);
+  margin-top:6px;
+}
+.qb-save-btn:hover{
+  background:linear-gradient(135deg,#d4aa68,#b08848);
+  transform:translateY(-1px);
+  box-shadow:0 6px 20px rgba(200,160,96,.42);
+}
+
+/* Add item / From presets buttons — green pill outline */
+.qb-add-btn{
+  border:1.5px solid var(--green);
+  border-radius:100px;
+  background:transparent;
+  color:var(--green);
+  padding:5px 14px;
+  font-size:.72rem;
+  font-weight:700;
+  transition:.14s;
+  font-family:inherit;
+  cursor:pointer;
+  margin-top:6px;
+}
+.qb-add-btn:hover{
+  background:var(--green);
+  color:#fff;
+  box-shadow:0 2px 8px rgba(61,79,67,.22);
+}
+
+/* Labor preset chip buttons */
+.qb-labor-preset-btn{
+  font-size:.66rem;
+  padding:4px 11px;
+  border:1.5px solid #c8ddc0;
+  border-radius:100px;
+  background:var(--gxl);
+  cursor:pointer;
+  font-family:inherit;
+  color:var(--green);
+  font-weight:700;
+  transition:.13s;
+}
+.qb-labor-preset-btn:hover{
+  background:var(--green);
+  border-color:var(--green);
+  color:#fff;
+  box-shadow:0 2px 8px rgba(61,79,67,.2);
+}
+
+/* Config costs total bar */
+.qb-cc-total{
+  background:linear-gradient(135deg,#edf4ee,#ddeade);
+  border:1px solid #c8ddc0;
+  border-radius:10px;
+  padding:10px 14px;
+  margin-top:9px;
+}
+.qb-cc-total-val{font-size:.95rem;font-weight:800;color:var(--green)}
+
+/* Cost-per-box card */
+.qb-cost-per-box{
+  background:linear-gradient(135deg,#1e3228,#2d4236);
+  border-radius:12px;
+  padding:14px 18px;
+  margin-top:12px;
+  box-shadow:0 4px 16px rgba(0,0,0,.15);
+}
+.qb-cost-per-box .qb-cpb-val{font-size:1.3rem}
+
+/* Quote summary card — gold border accent */
+.qb-summary{
+  border-radius:12px;
+  border:1.5px solid rgba(200,160,96,.3);
+  overflow:hidden;
+}
+
+/* Library quote cards */
+.qb-quote-card{
+  border-radius:12px;
+  border:1.5px solid #e5ddd0;
+  box-shadow:0 1px 5px rgba(0,0,0,.04);
+}
+.qb-quote-card:hover{
+  border-color:var(--gold);
+  box-shadow:0 3px 14px rgba(200,160,96,.2);
+}
+
+/* Pricing source buttons */
+.qb-srcbtn{border-radius:10px}
+.qb-srcbtn.sel{box-shadow:0 3px 10px rgba(61,79,67,.18)}
+
+/* Tab bar — taller, gold on active */
+.cfg-tabbar{border-radius:0}
+.ctab{padding:13px 8px;font-size:.7rem}
+.ctab.on{border-bottom-width:3px}
 </style>
 </head>
 <body>
@@ -418,6 +567,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <!-- ── QUOTE TAB ────────────────────────────────────────── -->
   <div id="ct-quote" class="ct-panel on">
+
+    <!-- BRANDED PANEL HEADER -->
+    <div style="background:linear-gradient(135deg,#1a2e1e,#2c4236,#3d5c48);padding:18px 20px 16px;border-bottom:1px solid rgba(200,160,96,.25);position:relative;overflow:hidden">
+      <div style="position:absolute;top:-18px;right:-18px;width:90px;height:90px;border-radius:50%;background:rgba(200,160,96,.07);pointer-events:none"></div>
+      <div style="position:absolute;bottom:-30px;right:30px;width:60px;height:60px;border-radius:50%;background:rgba(200,160,96,.05);pointer-events:none"></div>
+      <div style="font-size:.57rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:5px;opacity:.9">Woodchuck USA</div>
+      <div style="font-family:Georgia,serif;font-size:1.15rem;color:#fff;font-weight:normal;line-height:1.2;margin-bottom:4px">Quote <span style="color:var(--gold)">Builder</span></div>
+      <div style="font-size:.7rem;color:rgba(255,255,255,.48);line-height:1.4">Custom wood packaging · production pricing</div>
+    </div>
 
     <!-- LIVE DESIGN CONTROLS -->
     <div class="qb-sec">
@@ -625,18 +783,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <input class="qb-inp qb-cc-inp" id="qb-cc-fin" type="number" value="0" step="0.25" min="0" oninput="qbUpdateAll()">
           <div class="qb-cc-unit">/ unit</div>
         </div>
-        <!-- Engraving (hidden until engraving is set) -->
-        <div class="qb-cc-row" id="qb-cc-eng-row" style="display:none">
+        <!-- Engraving (always visible; fades when no text set) -->
+        <div class="qb-cc-row" id="qb-cc-eng-row" style="opacity:0.45">
           <div class="qb-cc-icon">✦</div>
           <div class="qb-cc-body"><div class="qb-cc-label">Engraving</div><div class="qb-cc-hint" id="qb-cc-eng-hint">—</div></div>
-          <input class="qb-inp qb-cc-inp" id="qb-cc-eng" type="number" value="8.00" step="0.50" min="0" oninput="qbUpdateAll()">
+          <input class="qb-inp qb-cc-inp" id="qb-cc-eng" type="number" value="0" step="0.50" min="0" oninput="qbUpdateAll()">
           <div class="qb-cc-unit">/ unit</div>
         </div>
-        <!-- Logo Burn (hidden until logo is uploaded) -->
-        <div class="qb-cc-row" id="qb-cc-logo-row" style="display:none">
+        <!-- Logo Burn (always visible; fades when no logo uploaded) -->
+        <div class="qb-cc-row" id="qb-cc-logo-row" style="opacity:0.45">
           <div class="qb-cc-icon">🖼</div>
           <div class="qb-cc-body"><div class="qb-cc-label">Logo burn</div><div class="qb-cc-hint">Laser / brand</div></div>
-          <input class="qb-inp qb-cc-inp" id="qb-cc-logo" type="number" value="5.00" step="0.50" min="0" oninput="qbUpdateAll()">
+          <input class="qb-inp qb-cc-inp" id="qb-cc-logo" type="number" value="0" step="0.50" min="0" oninput="qbUpdateAll()">
           <div class="qb-cc-unit">/ unit</div>
         </div>
         <!-- Packaging (poly bag / box wrap per unit) -->
@@ -655,6 +813,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <!-- ADDITIONAL MATERIALS -->
     <div class="qb-sec">
       <div class="qb-hdr">🔧 Additional materials &amp; hardware</div>
+      <div class="qb-mat-hdr" id="qb-mat-hdr" style="display:none"><span>Item / Description</span><span>Qty</span><span>$ / Unit</span><span>Total</span><span></span></div>
       <div id="qb-mat-list"><span style="font-size:.75rem;color:var(--mu)">No materials added.</span></div>
       <div style="display:flex;gap:6px;margin-top:8px">
         <button class="qb-add-btn" onclick="qbAddMaterial()">+ Add item</button>
@@ -752,7 +911,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <span class="qb-cpb-lbl">Cost · 1 box</span>
         <span class="qb-cpb-val" id="qb-cpb-val">—</span>
       </div>
-      <button class="qb-save-btn" onclick="qbSaveQuote()">💾 Save Quote to Library</button>
+      <button class="qb-save-btn" onclick="qbSaveQuote()">✦ Save Quote to Library</button>
     </div>
 
   <!-- SECTION: CLIENT QUOTE -->
@@ -781,7 +940,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <textarea class="ef" id="ef-note" rows="2" style="resize:none" placeholder="Notes for client…"></textarea>
       </div>
       <button class="send-btn" onclick="sendEmail()">✉ Send Quote to Client</button>
-      <div class="send-note">Opens in your email client · Sent from sales@woodchuckcase.com</div>
+      <div class="send-note">Opens your email client pre-filled · Client email is required</div>
     </div>
   </div>
 
@@ -1018,13 +1177,13 @@ function qbSyncConfigCosts(){
 
   // Engraving — show row only if text is set; don't overwrite if user already edited
   const hasEng=!!C.engrave;
-  if(el('qb-cc-eng-row'))el('qb-cc-eng-row').style.display=hasEng?'':'none';
+  if(el('qb-cc-eng-row'))el('qb-cc-eng-row').style.opacity=hasEng?'1':'0.45';
   if(el('qb-cc-eng-hint'))el('qb-cc-eng-hint').textContent=C.engrave?`"${C.engrave.slice(0,22)}"`:  '—';
   if(hasEng&&el('qb-cc-eng')&&parseFloat(el('qb-cc-eng').value)===0)el('qb-cc-eng').value=QB_ENG_COST.toFixed(2);
 
-  // Logo burn — show row only if logo is uploaded
+  // Logo burn — fade row when no logo uploaded; auto-fill default when logo is set
   const hasLogo=!!C.logo;
-  if(el('qb-cc-logo-row'))el('qb-cc-logo-row').style.display=hasLogo?'':'none';
+  if(el('qb-cc-logo-row'))el('qb-cc-logo-row').style.opacity=hasLogo?'1':'0.45';
   if(hasLogo&&el('qb-cc-logo')&&parseFloat(el('qb-cc-logo').value)===0)el('qb-cc-logo').value=QB_LOGO_COST.toFixed(2);
 
   qbUpdateAll();
@@ -1465,15 +1624,44 @@ function onQtySlide(v){syncQty(+v);}
 function onQtyInput(v){const n=parseInt(v,10);if(!isNaN(n)&&n>=50)syncQty(n);}
 function setQtyTier(el){syncQty(Math.max(+el.dataset.lo,C.qty>=+el.dataset.lo&&C.qty<=+el.dataset.hi?C.qty:+el.dataset.lo));}
 function sendEmail(){
-  const name=document.getElementById('ef-name').value.trim()||'(not provided)';
-  const co=document.getElementById('ef-co').value.trim()||'(not provided)';
-  const em=document.getElementById('ef-email').value.trim()||'(not provided)';
+  const repName=document.getElementById('ef-name').value.trim()||'The Woodchuck Team';
+  const co=document.getElementById('ef-co').value.trim()||'';
+  const em=document.getElementById('ef-email').value.trim();
   const note=document.getElementById('ef-note').value.trim();
-  fillSum();
-  const sub=encodeURIComponent(`Custom Box Quote — ${NM.bt[C.bt]} in ${woodName()} | ${co}`);
+  if(!em){showToast('Enter the client\'s email address first.');return;}
+  // Pull fresh numbers from the quote engine
+  const calc=qbUpdateAll();
+  const qty=parseInt(document.getElementById('qb-qty')?.value)||C.qty||100;
+  const perUnit=calc&&isFinite(calc.perUnit)&&calc.perUnit>0?calc.perUnit:null;
+  const grandTotal=calc&&isFinite(calc.grandTotal)&&calc.grandTotal>0?calc.grandTotal:null;
+  const w=C.cw||6, d=C.cd||9, h=C.ch||3;
+  const dimStr=`${w}"×${d}"×${h}" interior`;
+  const priceLine=perUnit
+    ?`Price per unit:   $${perUnit.toFixed(2)}\nOrder total (${qty.toLocaleString()} units): $${grandTotal.toFixed(2)}`
+    :'Price:            (contact us for a formal quote)';
   const ln='━━━━━━━━━━━━━━━━━━━━━━━━━━';
-  const body=encodeURIComponent(`Hello Woodchuck USA Team,\n\nI\'ve designed a custom box and would love a quote.\n\n${ln}\nMY BOX DESIGN\n${ln}\nBox Style:        ${NM.bt[C.bt]}\nWood:             ${woodName()}\nFinish:           ${NM.fin[C.fin]}\nSize:             ${NM.sz[C.sz]}\nHardware:         ${NM.hw[C.hw]}\nInterior Lining:  ${NM.int[C.int]}\nLogo Placement:   ${NM.pl[C.pl]}\nEngraving:        ${C.engrave||'None'}\nLogo Uploaded:    ${C.logo?'Yes':'No'}\nQuantity:         ${C.qty.toLocaleString()} units\n${ln}\nCONTACT\n${ln}\nName:     ${name}\nCompany:  ${co}\nEmail:    ${em}${note?`\nNotes:    ${note}`:''}\n\nThank you!\n${name}`);
-  window.location.href=`mailto:sales@woodchuckcase.com?subject=${sub}&body=${body}`;
+  const sub=encodeURIComponent(`Custom Wood Box Quote — ${NM.bt[C.bt]} in ${woodName()}${co?' | '+co:''}`);
+  const body=encodeURIComponent(
+    `Hello ${co||'there'},\n\n`
+    +`Thank you for the opportunity to work together! Below is your custom wood packaging quote from Woodchuck USA.\n\n`
+    +`${ln}\nBOX SPECIFICATIONS\n${ln}\n`
+    +`Box Style:        ${NM.bt[C.bt]}\n`
+    +`Wood Species:     ${woodName()}\n`
+    +`Finish:           ${NM.fin[C.fin]}\n`
+    +`Interior Dims:    ${dimStr}\n`
+    +`Hardware:         ${NM.hw[C.hw]}\n`
+    +`Interior Lining:  ${NM.int[C.int]}\n`
+    +`Logo:             ${C.logo?'Provided':'Not specified'}\n`
+    +`Engraving:        ${C.engrave||'None'}\n\n`
+    +`${ln}\nPRICING\n${ln}\n`
+    +`Quantity:         ${qty.toLocaleString()} units\n`
+    +`${priceLine}\n\n`
+    +(note?`Notes:\n${note}\n\n`:'')
+    +`${ln}\n`
+    +`This quote is valid for 30 days. Reply to this email with any questions — we're happy to adjust specs or quantities.\n\n`
+    +`Warm regards,\n${repName}\nWoodchuck USA\nsales@woodchuckcase.com`
+  );
+  window.location.href=`mailto:${em}?cc=sales@woodchuckcase.com&subject=${sub}&body=${body}`;
   showToast('Opening your email client now!');
 }
 // ═══ 3D BOX RENDERER — pure 2D canvas isometric ═══
@@ -2877,6 +3065,12 @@ const QB_OCOOCH=[
   {name:'White Limba',sheet:7.40,grain:'maple'},{name:'White Oak',sheet:7.70,grain:'maple'},
   {name:'Yellowheart',sheet:12.15,grain:'birch'},{name:'Zebrawood',sheet:15.20,grain:'walnutmaple'},
   {name:'Baltic Birch Ply 3/4"',sheet:null,grain:'birch'},{name:'MDF 3/4"',sheet:null,grain:'birch'},
+  // Woodchuck PS (Premium Sheet) — wood veneer over MDF core, from production pricing sheet
+  {name:'PS Walnut',sheet:null,grain:'walnut'},
+  {name:'PS White Maple',sheet:null,grain:'maple'},
+  {name:'PS Mahogany',sheet:null,grain:'mahogany'},
+  {name:'PS Cedar',sheet:null,grain:'cedar'},
+  {name:'Red Oak (Rift)',sheet:null,grain:'maple'},
 ];
 
 // Real-world color of each Ocooch species: {base} = lit-face tone, {grain} = streak/figure tone.
@@ -2917,6 +3111,11 @@ const QB_SPECIES_TONE={
   'Zebrawood':{base:'#C2965A',grain:'#3E2A16'},
   'Baltic Birch Ply 3/4"':{base:'#E0CC98',grain:'#B49860'},
   'MDF 3/4"':{base:'#C2A884',grain:'#A88C64'},
+  'PS Walnut':{base:'#6E4A2C',grain:'#3A2414'},
+  'PS White Maple':{base:'#E0C68E',grain:'#B0905A'},
+  'PS Mahogany':{base:'#9C4828',grain:'#5A2010'},
+  'PS Cedar':{base:'#C06848',grain:'#7C3820'},
+  'Red Oak (Rift)':{base:'#CCA06C',grain:'#946838'},
 };
 
 // ════════════════════════════════════════════════════════════════════════
@@ -2934,23 +3133,28 @@ const WC_SHEET_DIMS={L:96,W:48};
 // own nominal columns: 1/8"≈0.155, 1/4"=0.24, 3/8"=0.36 (raw-MDF cols differ).
 const WC_SHEET_COST={
   'Baltic Birch':{'0.155':15.40,'0.24':25.80,'0.36':30.80},
-  'Cedar':{'0.155':106.89,'0.24':109.96,'0.36':122.83,veneer:62.40,dsVeneer:116.00},
-  'Mahogany':{'0.155':81.40,'0.24':86.10,'0.36':98.98,veneer:33.60,dsVeneer:67.20},
-  'Maple':{'0.155':47.03,'0.24':114.56,'0.36':64.61,veneer:31.50,dsVeneer:63.00},
-  'Walnut':{'0.155':118.35,'0.24':123.06,'0.36':135.93,veneer:48.00,dsVeneer:96.00},
-  'Cherry':{'0.24':89.16,veneer:57.89},
+  // PS (Premium Sheet) — wood veneer over MDF core. Prices from 2026 Woodchuck pricing sheet.
+  'Cedar':{'0.155':104.25,'0.24':107.32,'0.36':120.19,veneer:50.00,dsVeneer:94.72},
+  'Mahogany':{'0.155':86.06,'0.24':90.77,'0.36':103.64,veneer:36.60,dsVeneer:55.00},
+  'Maple':{'0.155':103.04,'0.24':107.00,'0.36':120.83,veneer:31.40,dsVeneer:38.12},
+  'Walnut':{'0.155':124.74,'0.24':129.44,'0.36':142.32,veneer:51.20,dsVeneer:56.00},
+  'Cherry':{'0.24':89.16,veneer:132.80},
   'Walnut / Maple':{'0.24':67.79,'0.36':97.03},
   'Maple / Maple':{'0.24':51.73},
   'Mahogany / Maple':{'0.24':48.74},
   'Cherry / Maple':{'0.24':69.58},
+  // PS species (WC production only — veneer over MDF core)
+  'PS Walnut':{'0.155':124.74,'0.24':129.44,'0.36':142.32},
+  'PS White Maple':{'0.155':103.04,'0.24':107.00,'0.36':120.83},
+  'PS Mahogany':{'0.155':86.06,'0.24':90.77,'0.36':103.64},
+  'PS Cedar':{'0.155':104.25,'0.24':107.32,'0.36':120.19},
+  'Red Oak (Rift)':{'0.155':103.12,'0.36':111.04},
   'Clear Acrylic':{'0.155':66.28,'0.24':130.28,'0.36':190.28},
   'Colored Acrylic':{'0.155':67.28,'0.24':157.85,'0.36':255.03},
-  'Raw MDF':{'0.125':10.50,'0.25':18.41,'0.375':28.96}, // synced to WC_MDF_COST (authoritative)
+  'Raw MDF':{'0.125':12.00,'0.25':18.41,'0.375':33.10},
 };
-// ⚠ Source-sheet anomaly to surface, not silently trust: Maple ¼" reads $114.56 on
-// the master tab but $100.34 on the duplicate tab — and is HIGHER than Maple ⅜"
-// ($64.61), which is backwards. Master value used; flagged for human verification.
-const WC_PRICE_FLAGS={'Maple|0.24':'Maple ¼" sheet = $114.56 on the master tab but $100.34 on the duplicate — and it exceeds Maple ⅜" ($64.61), which is unusual. Verify the cost before quoting Maple at ¼".'};
+// Prices updated from 2026 Woodchuck pricing sheet — all PS species verified.
+const WC_PRICE_FLAGS={}; // no current anomalies
 // Qty-break multipliers off RETAIL — verified against 3 sample boxes on the sheet.
 // Map a catalog species → the Woodchuck production wood whose sheet cost applies.
 // ONLY same-species, high-confidence mappings; specialty Ocooch woods the Excel
@@ -2961,6 +3165,7 @@ const WC_WOOD_ALIAS={
   'Mahogany':'Mahogany',
   'Cherry':'Cherry',
   'Spanish Cedar':'Cedar','Red Cedar (Aromatic)':'Cedar',
+  'Red Oak':'Red Oak (Rift)',
 };
 // Snap an arbitrary thickness (in) to the nearest stocked Excel column for a wood.
 function wcThickKey(wood,t){
@@ -2989,14 +3194,41 @@ let qbPriceSrc=QBdb.get('priceSrc')||'wc';
 let qbActiveCost=null;  // {mode:'wc'|'ocooch', sheetCost, sheetSqin, wood, key, flag} for the current species
 
 // ── MDF sheet pricing (4×8 = 48×96 = 4608 sq in, same area as production sheets) ──
-const WC_MDF_COST={'0.125':10.50,'0.25':18.41,'0.375':28.96,'0.75':150.00};
+const WC_MDF_COST={'0.125':12.00,'0.25':18.41,'0.375':33.10,'0.75':150.00};
 const WC_MDF_LABELS={'0.125':'1/8" Raw MDF','0.25':'1/4" Raw MDF','0.375':'3/8" Raw MDF','0.75':'3/4" Maple MDF'};
+const WC_MDF_SPECIES={
+  'Raw MDF':       {'0.125':12.00,'0.25':18.41,'0.375':33.10,'0.75':150.00},
+  'PS Walnut':     {'0.155':124.74,'0.24':129.44,'0.36':142.32},
+  'PS White Maple':{'0.155':103.04,'0.24':107.00,'0.36':120.83},
+  'PS Mahogany':   {'0.155':86.06,'0.24':90.77,'0.36':103.64},
+  'PS Cedar':      {'0.155':104.25,'0.24':107.32,'0.36':120.19},
+  'Red Oak (Rift)':{'0.155':103.12,'0.36':111.04},
+};
+const WC_MDF_TONES={
+  'Raw MDF':{base:'#C2A884',grain:'#A88C64'},
+  'PS Walnut':{base:'#6E4A2C',grain:'#3A2414'},
+  'PS White Maple':{base:'#E0C68E',grain:'#B0905A'},
+  'PS Mahogany':{base:'#9C4828',grain:'#5A2010'},
+  'PS Cedar':{base:'#C06848',grain:'#7C3820'},
+  'Red Oak (Rift)':{base:'#CCA06C',grain:'#946838'},
+};
+let qbMdfSpecies=QBdb.get('mdfSpecies')||'Raw MDF';
 function mdfThickKey(t){const ks=Object.keys(WC_MDF_COST).map(Number);return String(ks.reduce((b,k)=>Math.abs(k-t)<Math.abs(b-t)?k:b));}
 function mdfSheetCost(t){const key=mdfThickKey(t);return{key,label:WC_MDF_LABELS[key]||key+'"',cost:WC_MDF_COST[key]};}
+function mdfSpeciesCost(species,t){
+  const tbl=WC_MDF_SPECIES[species]||WC_MDF_SPECIES['Raw MDF'];
+  const ks=Object.keys(tbl).map(Number);
+  const key=String(ks.reduce((b,k)=>Math.abs(k-t)<Math.abs(b-t)?k:b));
+  const cost=tbl[key];
+  const label=wcThickLabel(key)+' '+species;
+  return{key,cost,label,species};
+}
 
 // ── Labor ops from Woodchuck production MASTER sheet ──
-const WC_LABOR_RATES={ladies:0.28,skilled:0.35,woodshop:0.47,laser:0.42,cnc:1.25};
-const WC_LABOR_RATE_NAMES={ladies:'Ladies assembly',skilled:'Skilled assembly',woodshop:'Woodshop',laser:'Laser ops',cnc:'CNC'};
+// Rates from Nate's MASTER pricing sheet ($/min). Convert: ×60 = $/hr.
+// ladies=$16.80/hr · skilled(Ma/Ty/Pao)=$19.20/hr · woodshop(Cam)=$27.60/hr · laser=$25.20/hr · CNC=$25.20/hr
+const WC_LABOR_RATES={ladies:0.28,skilled:0.32,woodshop:0.46,laser:0.42,cnc:0.42};
+const WC_LABOR_RATE_NAMES={ladies:'Ladies assembly',skilled:'Skilled (Ma / Ty / Pao)',woodshop:'Woodshop (Cam)',laser:'Laser ops',cnc:'CNC'};
 let qbLaborOps=[]; // {id, name, minsPerUnit, rate, qty}
 function qbS4LO(){return Math.random().toString(36).slice(2,6);}
 function qbAddLaborOp(name,minsPerUnit,rate,qty){
@@ -3240,7 +3472,7 @@ function qbSyncQtyPresets(){
 function qbSetMatT(v){
   const t=parseFloat(v);
   if(t>0){C.cmat=t;drawBox();}
-  if(qbPriceSrc==='mdf'){const mdf=mdfSheetCost(t);const elP=document.getElementById('qb-sheetPrice');if(elP)elP.value=mdf.cost.toFixed(2);qbActiveCost={mode:'mdf',sheetCost:mdf.cost,sheetSqin:WC_SHEET_SQIN,wood:'MDF',key:mdf.key,label:mdf.label,flag:null};qbSyncSourceBadges();qbRenderSourceNote(null);}
+  if(qbPriceSrc==='mdf'){const mdf=mdfSpeciesCost(qbMdfSpecies,t);const elP=document.getElementById('qb-sheetPrice');if(elP)elP.value=mdf.cost.toFixed(2);qbActiveCost={mode:'mdf',sheetCost:mdf.cost,sheetSqin:WC_SHEET_SQIN,wood:qbMdfSpecies,key:mdf.key,label:mdf.label,flag:null};qbSyncSourceBadges();qbRenderSourceNote(null);}
   // Re-render grid so WC per-thickness prices update in the swatches
   if(qbPriceSrc==='wc')qbRenderWoodGrid();
   const sel=document.getElementById('qb-species');
@@ -3298,14 +3530,20 @@ function qbRenderWoodGrid(){
   const specRow=specLblEl?.closest('.qb-group');
   const woodLbl=document.querySelector('.qb-lbl[style*="margin:11px"]');
 
-  // ── MDF mode: no species — pricing is purely thickness-based ──
+  // ── MDF mode: show MDF species swatches ──
   if(qbPriceSrc==='mdf'){
-    g.innerHTML=`<div style="grid-column:1/-1;padding:12px;background:rgba(61,79,67,.07);border-radius:8px;font-size:.75rem;color:var(--green);line-height:1.55;text-align:center">`
-      +`📄 <strong>MDF is thickness-based</strong> — no wood species needed.<br>`
-      +`Set your thickness above and the sheet price updates automatically.<br>`
-      +`<span style="color:var(--mu);font-size:.68rem">1/8"=$10.50 &nbsp;·&nbsp; 1/4"=$18.41 &nbsp;·&nbsp; 3/8"=$28.96 &nbsp;·&nbsp; 3/4" Maple=$150.00</span></div>`;
     if(specRow)specRow.style.display='none';
     if(woodLbl)woodLbl.style.display='none';
+    g.innerHTML=Object.entries(WC_MDF_SPECIES).map(([name,prices])=>{
+      const t=WC_MDF_TONES[name]||{base:'#C2A884',grain:'#A88C64'};
+      const result=mdfSpeciesCost(name,T);
+      const price='$'+result.cost.toFixed(2)+'/sht';
+      const sel=qbMdfSpecies===name?'sel':'';
+      return `<div class="qb-wsw ${sel}" data-mdf="${name}" onclick="qbPickMdfSpecies('${name}')" title="${name}">`
+        +`<div class="qb-wsw-chip" style="background:linear-gradient(135deg,${lightenHex(t.base,0.06)},${t.base} 45%,${t.grain})"></div>`
+        +`<div class="qb-wsw-name">${name}</div>`
+        +`<div class="qb-wsw-price">${price}</div></div>`;
+    }).join('');
     return;
   }
 
@@ -3340,6 +3578,20 @@ function qbPickSpecies(id){
   const sel=document.getElementById('qb-species');
   if(sel){sel.value=id;qbLoadSpeciesPrice();}
 }
+// User tapped an MDF species swatch → update pricing for that PS/raw species.
+function qbPickMdfSpecies(name){
+  qbMdfSpecies=name;
+  QBdb.set('mdfSpecies',name);
+  document.querySelectorAll('#qb-wood-grid .qb-wsw[data-mdf]').forEach(el=>el.classList.toggle('sel',el.dataset.mdf===name));
+  const T=parseFloat(document.getElementById('qb-matT')?.value)||0.25;
+  const mdf=mdfSpeciesCost(name,T);
+  const elL=document.getElementById('qb-sheetL'),elW=document.getElementById('qb-sheetW'),elP=document.getElementById('qb-sheetPrice');
+  if(elL)elL.value=WC_SHEET_DIMS.L;
+  if(elW)elW.value=WC_SHEET_DIMS.W;
+  if(elP)elP.value=mdf.cost.toFixed(2);
+  qbActiveCost={mode:'mdf',sheetCost:mdf.cost,sheetSqin:WC_SHEET_SQIN,wood:name,key:mdf.key,label:mdf.label,flag:null};
+  qbSyncSourceBadges();qbRenderSourceNote(null);qbCalcPanels();renderSyncReadout(qbUpdateAll());
+}
 // Reflect the currently-selected species into the grid highlight + label.
 function qbSyncWoodGrid(){
   const sel=document.getElementById('qb-species');
@@ -3364,14 +3616,14 @@ function qbSetPriceSrc(src){
   qbRenderWoodGrid(); // re-filter grid for the new source
 
   if(qbPriceSrc==='mdf'){
-    // MDF: sheet size is always 48×96, price from WC_MDF_COST by thickness
+    // MDF: sheet size is always 48×96, price from selected MDF species + thickness
     const T=parseFloat(document.getElementById('qb-matT')?.value)||0.25;
-    const mdf=mdfSheetCost(T);
+    const mdf=mdfSpeciesCost(qbMdfSpecies,T);
     const elL=document.getElementById('qb-sheetL'),elW=document.getElementById('qb-sheetW'),elP=document.getElementById('qb-sheetPrice');
     if(elL)elL.value=WC_SHEET_DIMS.L;
     if(elW)elW.value=WC_SHEET_DIMS.W;
     if(elP)elP.value=mdf.cost.toFixed(2);
-    qbActiveCost={mode:'mdf',sheetCost:mdf.cost,sheetSqin:WC_SHEET_SQIN,wood:'MDF',key:mdf.key,label:mdf.label,flag:null};
+    qbActiveCost={mode:'mdf',sheetCost:mdf.cost,sheetSqin:WC_SHEET_SQIN,wood:qbMdfSpecies,key:mdf.key,label:mdf.label,flag:null};
     qbSyncSourceBadges();qbRenderSourceNote(null);qbCalcPanels();renderSyncReadout(qbUpdateAll());
     return;
   }
@@ -3397,15 +3649,15 @@ function qbSetPriceSrc(src){
 }
 
 function qbLoadSpeciesPrice(skipGrainUpdate){
-  // MDF mode: prices are thickness-driven, not species-driven
+  // MDF mode: prices driven by selected MDF species + thickness
   if(qbPriceSrc==='mdf'){
     const T=parseFloat(document.getElementById('qb-matT')?.value)||0.25;
-    const mdf=mdfSheetCost(T);
+    const mdf=mdfSpeciesCost(qbMdfSpecies,T);
     const elL=document.getElementById('qb-sheetL'),elW=document.getElementById('qb-sheetW'),elP=document.getElementById('qb-sheetPrice');
     if(elL)elL.value=WC_SHEET_DIMS.L;
     if(elW)elW.value=WC_SHEET_DIMS.W;
     if(elP)elP.value=mdf.cost.toFixed(2);
-    qbActiveCost={mode:'mdf',sheetCost:mdf.cost,sheetSqin:WC_SHEET_SQIN,wood:'MDF',key:mdf.key,label:mdf.label,flag:null};
+    qbActiveCost={mode:'mdf',sheetCost:mdf.cost,sheetSqin:WC_SHEET_SQIN,wood:qbMdfSpecies,key:mdf.key,label:mdf.label,flag:null};
     qbSyncSourceBadges();qbRenderSourceNote(null);
     qbCalcPanels();const calc=qbUpdateAll();renderSyncReadout(calc);
     return;
@@ -3475,7 +3727,9 @@ function qbRenderSourceNote(sp){
   if(!a){note.style.display='none';return;}
   let html;
   if(a.mode==='mdf'){
-    html=`<b>📄 MDF sheet</b> — ${a.label||a.key} at <b>$${a.sheetCost.toFixed(2)}</b> per 48×96 (4×8) sheet. MDF is a flat engineered panel — no grain, no species; pricing is purely thickness-based. Wood cost = panel area ÷ 4608 sq in × sheet cost.`;
+    const mdfName=a.wood||'Raw MDF';
+    const isRaw=mdfName==='Raw MDF';
+    html=`<b>📄 ${mdfName}</b> — ${a.label||a.key} at <b>$${a.sheetCost.toFixed(2)}</b> per 48×96 (4×8) sheet. `+(isRaw?'Raw MDF is a flat engineered panel with no wood grain.':'PS (Premium Sheet) = wood veneer face over MDF core — real wood look, engineered stability.')+' Wood cost = panel area ÷ 4608 sq in × sheet cost.';
   }else if(a.mode==='wc'){
     html=`<b>🏭 Woodchuck production sheet</b> — ${a.wood} ${wcThickLabel(a.key)} priced from the 2026 Excel at <b>$${a.sheetCost.toFixed(2)}</b> per 48×96 sheet. Wood cost = panel area ÷ 4608 sq in × sheet cost, so it updates automatically with thickness and the master sheet.`;
     if(sp&&!WC_WOOD_ALIAS[sp.name]&&!WC_SHEET_COST[sp.name]){/* never */}
@@ -3658,14 +3912,23 @@ function qbUpdateMat(id,field,val){
 }
 function qbRenderMaterials(){
   const el=document.getElementById('qb-mat-list');if(!el)return;
-  if(!qbMaterials.length){el.innerHTML='<span style="font-size:.75rem;color:var(--mu)">No materials added.</span>';return;}
-  el.innerHTML=qbMaterials.map(m=>`
-    <div class="qb-mat-row">
-      <input type="text" value="${m.item.replace(/"/g,'&quot;')}" placeholder="Item" onchange="qbUpdateMat('${m.id}','item',this.value)" style="border:1px solid var(--bo);border-radius:5px;padding:5px 7px;font-size:.75rem;width:100%;font-family:inherit">
-      <input type="number" value="${m.qty}" min="0" step="0.5" onchange="qbUpdateMat('${m.id}','qty',this.value)" style="border:1px solid var(--bo);border-radius:5px;padding:5px 7px;font-size:.75rem;text-align:center;width:100%;font-family:inherit">
-      <input type="number" value="${m.unitCost}" min="0" step="0.01" onchange="qbUpdateMat('${m.id}','unitCost',this.value)" style="border:1px solid var(--bo);border-radius:5px;padding:5px 7px;font-size:.75rem;text-align:center;width:100%;font-family:inherit">
+  const hdr=document.getElementById('qb-mat-hdr');
+  if(!qbMaterials.length){
+    el.innerHTML='<span style="font-size:.75rem;color:var(--mu)">No materials added.</span>';
+    if(hdr)hdr.style.display='none';
+    return;
+  }
+  if(hdr)hdr.style.display='grid';
+  el.innerHTML=qbMaterials.map(m=>{
+    const lineTotal=(m.qty||0)*(m.unitCost||0);
+    return`<div class="qb-mat-row">
+      <input type="text" value="${m.item.replace(/"/g,'&quot;')}" placeholder="e.g. Piano hinge" onchange="qbUpdateMat('${m.id}','item',this.value)" style="border:1px solid var(--bo);border-radius:5px;padding:5px 7px;font-size:.75rem;width:100%;font-family:inherit">
+      <input type="number" value="${m.qty}" min="0" step="1" placeholder="1" onchange="qbUpdateMat('${m.id}','qty',this.value)" style="border:1px solid var(--bo);border-radius:5px;padding:5px 7px;font-size:.75rem;text-align:center;width:100%;font-family:inherit">
+      <input type="number" value="${m.unitCost}" min="0" step="0.01" placeholder="0.00" onchange="qbUpdateMat('${m.id}','unitCost',this.value)" style="border:1px solid var(--bo);border-radius:5px;padding:5px 7px;font-size:.75rem;text-align:center;width:100%;font-family:inherit">
+      <span class="qb-mat-linetotal">$${lineTotal.toFixed(2)}</span>
       <button onclick="qbRemoveMaterial('${m.id}')" style="background:none;border:none;color:#c00;cursor:pointer;font-size:.9rem;padding:0">✕</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function qbAddCustom(desc='',qty=1,unitCost=0){
@@ -3794,8 +4057,8 @@ function qbUpdateAll(){
   const g=id=>parseFloat(document.getElementById(id)?.value)||0;
   const vis=id=>document.getElementById(id)?.style.display!=='none';
   const hwPer=g('qb-cc-hw'), intPer=g('qb-cc-int'), finPer=g('qb-cc-fin');
-  const engPer=vis('qb-cc-eng-row')?g('qb-cc-eng'):0;
-  const logoPer=vis('qb-cc-logo-row')?g('qb-cc-logo'):0;
+  const engPer=g('qb-cc-eng');   // always count if rep entered a value; row visibility is just a UX hint
+  const logoPer=g('qb-cc-logo');
   const pkgPer=g('qb-cc-pkg');
   const configPerUnit=hwPer+intPer+finPer+engPer+logoPer+pkgPer;
   const configTotal=configPerUnit*qty;
@@ -3843,7 +4106,7 @@ function qbUpdateAll(){
   }else if(cpbBox){cpbBox.style.display='none';}
 
   // Woodchuck volume tiers — anchor per-unit RETAIL off the variable cost
-  return{woodTotal,matTotal,laborTotal,customTotal,overheadAmt,markupAmt,grandTotal,perUnit,totalHrs,hrsPerUnit,yld,margin};
+  return{woodTotal,matTotal,laborTotal,customTotal,configTotal,overheadAmt,markupAmt,grandTotal,perUnit,totalHrs,hrsPerUnit,yld,margin};
 }
 
 // ════════════════════════════════════════════════════════════════════════
@@ -3885,11 +4148,14 @@ function qbSaveQuote(){
     pricePerUnit:calc.perUnit,
     totalHours:calc.totalHrs,
     hrsPerUnit:calc.hrsPerUnit,
+    margin:parseFloat(document.getElementById('qb-margin')?.value)||50,
     overhead:parseFloat(document.getElementById('qb-overhead')?.value)||15,
     markup:parseFloat(document.getElementById('qb-markup')?.value)||35,
     rate:parseFloat(document.getElementById('qb-rate')?.value)||65,
+    configCostTotal:calc.configTotal||0,
     materials:[...qbMaterials],
     customs:[...qbCustoms],
+    laborOps:[...qbLaborOps],
   };
   qbQuotes.unshift(q);
   qbSaveQuoteStore();
@@ -3940,7 +4206,7 @@ function qbOpenDetail(id){
     ?(q.materials||[]).map(m=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;border-bottom:1px solid var(--bo)"><span>${m.item} ×${m.qty}</span><span style="font-weight:700">$${(m.qty*m.unitCost).toFixed(2)}</span></div>`).join('')
     :'<div style="font-size:.78rem;color:var(--mu)">None</div>';
   const cusRows=(q.customs||[]).length
-    ?(q.customs||[]).map(c=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;border-bottom:1px solid var(--bo)"><span>${c.desc}</span><span style="font-weight:700">$${(c.cost||0).toFixed(2)}</span></div>`).join('')
+    ?(q.customs||[]).map(c=>{const lineTotal=(c.qty??1)*(c.unitCost??c.cost??0);return`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;border-bottom:1px solid var(--bo)"><span>${c.desc||'—'}${(c.qty&&c.qty>1)?` ×${c.qty}`:''}</span><span style="font-weight:700">$${lineTotal.toFixed(2)}</span></div>`;}).join('')
     :'<div style="font-size:.78rem;color:var(--mu)">None</div>';
 
   document.getElementById('qb-detail-body').innerHTML=`
@@ -3961,15 +4227,16 @@ function qbOpenDetail(id){
     </div>
     <div style="background:linear-gradient(135deg,#2c4236,#3d5c48);border-radius:10px;padding:14px;color:#fff">
       <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;color:rgba(255,255,255,.75)"><span>Wood / Material</span><span>$${(q.woodCostTotal||0).toFixed(2)}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;color:rgba(255,255,255,.75)"><span>Additional Materials</span><span>$${(q.matCostTotal||0).toFixed(2)}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;color:rgba(255,255,255,.75)"><span>Overhead (${q.overhead||0}%)</span><span>$${(q.overheadAmt||0).toFixed(2)}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;color:rgba(255,255,255,.75)"><span>Labor</span><span>$${(q.laborCostTotal||0).toFixed(2)}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;color:rgba(255,255,255,.75)"><span>Markup (${q.markup||0}%)</span><span>$${(q.markupAmt||0).toFixed(2)}</span></div>
+      ${(q.configCostTotal||0)>0?`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;color:rgba(255,255,255,.75)"><span>Config (HW · finish · pkg)</span><span>$${(q.configCostTotal||0).toFixed(2)}</span></div>`:''}
+      ${(q.matCostTotal||0)>0?`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;color:rgba(255,255,255,.75)"><span>Additional Materials</span><span>$${(q.matCostTotal||0).toFixed(2)}</span></div>`:''}
+      ${(q.laborCostTotal||0)>0?`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;color:rgba(255,255,255,.75)"><span>Labor</span><span>$${(q.laborCostTotal||0).toFixed(2)}</span></div>`:''}
+      ${(q.customTotal||0)>0?`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;color:rgba(255,255,255,.75)"><span>Extras / customizations</span><span>$${(q.customTotal||0).toFixed(2)}</span></div>`:''}
+      ${(()=>{const pct=q.margin||(q.overhead||0)+(q.markup||0)||50;const costBase=(q.woodCostTotal||0)+(q.configCostTotal||0)+(q.matCostTotal||0)+(q.laborCostTotal||0)+(q.customTotal||0);const marginAmt=(q.totalPrice||0)-costBase;return`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.8rem;color:rgba(255,255,255,.75)"><span>Margin &amp; overhead (${pct}%)</span><span>$${Math.max(0,marginAmt).toFixed(2)}</span></div>`;})()}
       <div style="display:flex;justify-content:space-between;padding:9px 0 3px;border-top:1px solid rgba(200,160,96,.4);margin-top:4px">
         <span style="color:#fff;font-weight:700">TOTAL</span>
         <span style="color:var(--gold);font-weight:800;font-size:1.1rem">$${(q.totalPrice||0).toFixed(2)}</span>
       </div>
-      <div style="text-align:right;font-size:.75rem;color:rgba(255,255,255,.65)">$${(q.pricePerUnit||0).toFixed(2)} per unit</div>
+      <div style="text-align:right;font-size:.75rem;color:rgba(255,255,255,.65)">$${(q.pricePerUnit||0).toFixed(2)} per unit · ${q.qty||0} units</div>
     </div>`;
 
   document.getElementById('qb-detail-clone').onclick=()=>qbCloneQuote(id);
@@ -3996,7 +4263,8 @@ function qbCloneQuote(id){
   const mkEl=document.getElementById('qb-markup'); if(mkEl)mkEl.value=q.markup||35;
   qbMaterials=(q.materials||[]).map(m=>({...m,id:qbS4()}));
   qbCustoms=(q.customs||[]).map(c=>({...c,id:qbS4()}));
-  qbRenderMaterials();qbRenderCustoms();
+  qbLaborOps=(q.laborOps||[]).map(o=>({...o,id:qbS4LO()}));
+  qbRenderMaterials();qbRenderCustoms();qbRenderLaborOps();
   drawBox();updateLabel();updateChips();
   qbSyncFromDesign();qbUpdateAll();
   showToast('Quote cloned — edit and save as new.');
