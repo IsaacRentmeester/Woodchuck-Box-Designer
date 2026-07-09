@@ -2392,14 +2392,14 @@ function buildSettop(w,h,dp,add){
   add([[0,0,0],[0,0,dp],[0,bh,dp],[0,bh,0]],-1,0,0);
   add([[w,0,0],[w,0,dp],[w,bh,dp],[w,bh,0]],1,0,0);
   add([[0,0,0],[w,0,0],[w,bh,0],[0,bh,0]],0,0,-1);
-  // Rim — wall thickness at set-top body opening
-  const wt=0.10;
-  add([[0,bh,0],[w,bh,0],[w,bh,wt],[0,bh,wt]],0,1,0);
-  add([[0,bh,dp-wt],[w,bh,dp-wt],[w,bh,dp],[0,bh,dp]],0,1,0);
-  add([[0,bh,wt],[wt,bh,wt],[wt,bh,dp-wt],[0,bh,dp-wt]],0,1,0);
-  add([[w-wt,bh,wt],[w,bh,wt],[w,bh,dp-wt],[w-wt,bh,dp-wt]],0,1,0);
   // Lift-off lid cap (slightly oversized, lifts straight up)
   const lo=bh+lift,hi=h+lift,ow=0.06;
+  // Rim — on the LID at y=lo so it moves with the cap, not the body
+  const wt=0.10;
+  add([[0,lo,0],[w,lo,0],[w,lo,wt],[0,lo,wt]],0,1,0);
+  add([[0,lo,dp-wt],[w,lo,dp-wt],[w,lo,dp],[0,lo,dp]],0,1,0);
+  add([[0,lo,wt],[wt,lo,wt],[wt,lo,dp-wt],[0,lo,dp-wt]],0,1,0);
+  add([[w-wt,lo,wt],[w,lo,wt],[w,lo,dp-wt],[w-wt,lo,dp-wt]],0,1,0);
   add([[0-ow,lo,0-ow],[w+ow,lo,0-ow],[w+ow,lo,dp+ow],[0-ow,lo,dp+ow]],0,-1,0); // underside of lid
   add([[0-ow,lo,dp+ow],[w+ow,lo,dp+ow],[w+ow,hi,dp+ow],[0-ow,hi,dp+ow]],0,0,1);
   add([[0-ow,lo,0-ow],[0-ow,lo,dp+ow],[0-ow,hi,dp+ow],[0-ow,hi,0-ow]],-1,0,0);
