@@ -3797,7 +3797,8 @@ function qbCalcPanels(){
   // ── Live exterior readout next to the dimension inputs ──
   const extRO=document.getElementById('qb-ext-readout');
   if(extRO){
-    const lidDesc=lidType==='none'?'no lid (floor T only)':lidType==='hinged'||lidType==='fixed'?'floor + hinged lid':'floor + lid';
+    const lidDescMap={none:'no lid (floor only)',hinged:'floor + hinged lid',fixed:'floor + drop panel',sliding:'floor + sliding lid',liftoff:'floor + lift-off lid'};
+    const lidDesc=lidDescMap[lidType]||'floor + lid';
     extRO.style.display='';
     extRO.innerHTML=`🪵 <strong>Exterior (wood we buy):</strong> `
       +`${extL.toFixed(3)}" W &nbsp;×&nbsp; ${extW.toFixed(3)}" D &nbsp;×&nbsp; ${extH.toFixed(3)}" H `
