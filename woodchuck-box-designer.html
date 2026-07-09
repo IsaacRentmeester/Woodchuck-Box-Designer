@@ -4304,8 +4304,8 @@ function qbDeleteQuote(id){
 }
 
 function qbExport(){
-  const hdr=['Name','Client','Date','Qty','Species','BoxType','W','D','H','PricePerUnit','TotalPrice','HrsPerUnit','TotalHrs','Notes'];
-  const rows=qbQuotes.map(q=>[q.name,q.client||'',q.date,q.qty||1,q.speciesName||'',NM.bt[q.boxType]||q.boxType||'',q.dimW||'',q.dimD||'',q.dimH||'',(q.pricePerUnit||0).toFixed(2),(q.totalPrice||0).toFixed(2),(q.hrsPerUnit||0).toFixed(2),(q.totalHours||0).toFixed(2),q.notes||'']);
+  const hdr=['Name','Client','Rep','Date','Qty','Species','BoxType','W','D','H','PricePerUnit','TotalPrice','HrsPerUnit','TotalHrs','Notes'];
+  const rows=qbQuotes.map(q=>[q.name,q.client||'',q.rep||'',q.date,q.qty||1,q.speciesName||'',NM.bt[q.boxType]||q.boxType||'',q.dimW||'',q.dimD||'',q.dimH||'',(q.pricePerUnit||0).toFixed(2),(q.totalPrice||0).toFixed(2),(q.hrsPerUnit||0).toFixed(2),(q.totalHours||0).toFixed(2),q.notes||'']);
   const csv=[hdr,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
