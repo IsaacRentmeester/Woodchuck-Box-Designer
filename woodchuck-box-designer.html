@@ -654,6 +654,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="qb-group"><div class="qb-lbl">Date</div><input class="qb-inp" id="qb-date" type="date"></div>
         <div class="qb-group"><div class="qb-lbl">Quantity</div><input class="qb-inp" id="qb-qty" type="number" value="100" min="1" oninput="qbSetQtyFromQuote(this.value)"></div>
       </div>
+      <div class="qb-fg">
+        <div class="qb-group" style="flex:1"><div class="qb-lbl">Sales Rep</div><input class="qb-inp" id="qb-rep" type="text" placeholder="Your name" oninput="const ef=document.getElementById('ef-name');if(ef&&!ef.dataset.manualEdit)ef.value=this.value;"></div>
+      </div>
       <div class="qb-lbl" style="margin-bottom:5px">Quick quantity</div>
       <div id="qb-qty-quick" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px">
         <button class="pill" data-q="25" onclick="qbSetQtyPreset(25)">25</button>
