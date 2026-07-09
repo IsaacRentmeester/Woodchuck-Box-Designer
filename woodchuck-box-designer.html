@@ -4207,7 +4207,7 @@ function qbRenderLibrary(){
       <div style="display:flex;justify-content:space-between;align-items:start;gap:10px">
         <div style="flex:1;min-width:0">
           <div class="qb-qc-name">${q.name}</div>
-          <div class="qb-qc-meta">${q.date} · ${q.client||'No client'} · ${q.qty} units</div>
+          <div class="qb-qc-meta">${q.date} · ${q.client||'No client'} · ${q.qty} units${q.rep?' · '+q.rep:''}</div>
           <div class="qb-qc-tags">
             ${q.speciesName?`<span class="qb-qc-tag">${q.speciesName}</span>`:''}
             ${q.boxType?`<span class="qb-qc-tag">${NM.bt[q.boxType]||q.boxType}</span>`:''}
