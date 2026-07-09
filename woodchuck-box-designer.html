@@ -4236,6 +4236,7 @@ function qbOpenDetail(id){
     <div style="margin-bottom:12px">
       <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:6px">Design</div>
       ${q.dimW?`<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:3px 0"><span>Dimensions</span><span style="font-weight:700">${q.dimW}"×${q.dimD}"×${q.dimH}"</span></div>`:''}
+      ${q.rep?`<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:3px 0"><span>Sales Rep</span><span style="font-weight:700">${q.rep}</span></div>`:''}
       <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:3px 0"><span>Box type</span><span style="font-weight:700">${NM.bt[q.boxType]||q.boxType||'—'}</span></div>
       <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:3px 0"><span>Species</span><span style="font-weight:700">${q.speciesName||'—'}</span></div>
       <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:3px 0"><span>Finish</span><span style="font-weight:700">${NM.fin[q.finish]||q.finish||'—'}</span></div>
