@@ -4146,6 +4146,7 @@ function qbSaveQuote(){
     id:qbS4(),
     name,
     client:document.getElementById('qb-client')?.value||'',
+    rep:document.getElementById('qb-rep')?.value.trim()||'',
     date:document.getElementById('qb-date')?.value||new Date().toISOString().slice(0,10),
     notes:document.getElementById('qb-notes')?.value||'',
     qty,
