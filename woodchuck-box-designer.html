@@ -4281,6 +4281,7 @@ function qbCloneQuote(id){
   // Restore form fields
   const nameEl=document.getElementById('qb-name'); if(nameEl)nameEl.value='Copy of '+q.name;
   const clientEl=document.getElementById('qb-client'); if(clientEl)clientEl.value=q.client||'';
+  const repEl=document.getElementById('qb-rep'); if(repEl)repEl.value=q.rep||'';
   const qtyEl=document.getElementById('qb-qty'); if(qtyEl)qtyEl.value=q.qty||100;
   const rateEl=document.getElementById('qb-rate'); if(rateEl)rateEl.value=q.rate||65;
   const ohEl=document.getElementById('qb-overhead'); if(ohEl)ohEl.value=q.overhead||15;
