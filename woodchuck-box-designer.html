@@ -4190,7 +4190,7 @@ function qbRenderLibrary(){
   const search=(document.getElementById('qb-lib-search')?.value||'').toLowerCase();
   const sort=document.getElementById('qb-lib-sort')?.value||'date-desc';
   let filtered=qbQuotes.filter(q=>{
-    return!search||q.name.toLowerCase().includes(search)||(q.client||'').toLowerCase().includes(search)||(q.speciesName||'').toLowerCase().includes(search);
+    return!search||q.name.toLowerCase().includes(search)||(q.client||'').toLowerCase().includes(search)||(q.speciesName||'').toLowerCase().includes(search)||(q.rep||'').toLowerCase().includes(search);
   });
   if(sort==='date-asc')filtered.sort((a,b)=>a.date.localeCompare(b.date));
   else if(sort==='date-desc')filtered.sort((a,b)=>b.date.localeCompare(a.date));
