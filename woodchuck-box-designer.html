@@ -1641,7 +1641,7 @@ function onQtySlide(v){syncQty(+v);}
 function onQtyInput(v){const n=parseInt(v,10);if(!isNaN(n)&&n>=50)syncQty(n);}
 function setQtyTier(el){syncQty(Math.max(+el.dataset.lo,C.qty>=+el.dataset.lo&&C.qty<=+el.dataset.hi?C.qty:+el.dataset.lo));}
 function sendEmail(){
-  const repName=document.getElementById('ef-name').value.trim()||'The Woodchuck Team';
+  const repName=document.getElementById('ef-name').value.trim()||document.getElementById('qb-rep')?.value.trim()||'The Woodchuck Team';
   const co=document.getElementById('ef-co').value.trim()||'';
   const em=document.getElementById('ef-email').value.trim();
   const note=document.getElementById('ef-note').value.trim();
