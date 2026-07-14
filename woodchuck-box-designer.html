@@ -308,6 +308,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qb-laborop-row:last-child{border-bottom:none}
 .qb-labor-ops-list{margin:6px 0 4px}
 .qb-labor-presets{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 10px}
+.qb-labor-cat{width:100%;font-size:.59rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin:5px 0 1px;padding-top:5px;border-top:1px solid var(--bo)}.qb-labor-cat:first-child{border-top:none;margin-top:0;padding-top:0}
 .qb-labor-preset-btn{font-size:.65rem;padding:3px 8px;border:1px solid var(--bo);border-radius:12px;background:#fff;cursor:pointer;font-family:inherit;color:var(--green);font-weight:600;transition:.12s}
 .qb-labor-preset-btn:hover{background:var(--green);color:#fff;border-color:var(--green)}
 .qb-cost-per-box{background:linear-gradient(135deg,#3d4f43,#2d3e30);border-radius:10px;padding:10px 14px;margin-top:10px;color:#fff;display:flex;justify-content:space-between;align-items:center}
@@ -532,6 +533,120 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .cfg-tabbar{border-radius:0}
 .ctab{padding:13px 8px;font-size:.7rem}
 .ctab.on{border-bottom-width:3px}
+
+/* ═══════════════════════════════════════════════════════════
+   DECISION TREE — one-screen no-scroll quote panel (qt-*)
+═══════════════════════════════════════════════════════════ */
+.qt-wrap{display:flex;flex-direction:column;background:linear-gradient(180deg,#ede8df 0%,#e8e0d4 100%);min-height:0}
+.qt-hdr{background:linear-gradient(135deg,#1a2e1e,#2c4236);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.qt-hdr-brand{font-family:Georgia,serif;font-size:.88rem;color:#fff;font-weight:normal}
+.qt-hdr-brand span{color:#C8A060;font-style:italic}
+.qt-hdr-sub{font-size:.56rem;color:rgba(255,255,255,.48);text-transform:uppercase;letter-spacing:.1em}
+.qt-steps{padding:6px 8px;display:flex;flex-direction:column;gap:4px}
+.qt-step{border-radius:10px;overflow:hidden;background:#fff;border:1.5px solid #e2d8cc;transition:border-color .18s,box-shadow .18s}
+.qt-step.qt-active{border-color:#C8A060;box-shadow:0 2px 12px rgba(200,160,96,.2)}
+.qt-step.qt-done{border-color:#c8ddc0}
+.qt-step.qt-locked{opacity:.6}
+.qt-step.qt-locked .qt-chip{cursor:default}
+.qt-chip{display:flex;align-items:center;gap:7px;padding:7px 12px;cursor:pointer;user-select:none;min-height:34px}
+.qt-step.qt-done .qt-chip,.qt-step.qt-active .qt-chip{opacity:1}
+.qt-num{width:17px;height:17px;border-radius:50%;background:#e2d8cc;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:800;color:#7a7268;flex-shrink:0;transition:.18s}
+.qt-step.qt-active .qt-num{background:#C8A060;color:#fff}
+.qt-step.qt-done .qt-num{background:#3d4f43;color:#fff}
+.qt-chip-icon{font-size:.84rem;flex-shrink:0}
+.qt-chip-txt{font-size:.73rem;font-weight:600;color:#1a1a18;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qt-step.qt-done .qt-chip-txt{color:#3d4f43}
+.qt-chip-ed{font-size:.65rem;color:#7a7268;opacity:0;transition:opacity .14s;flex-shrink:0}
+.qt-step.qt-done:hover .qt-chip-ed{opacity:.7;color:#C8A060}
+.qt-body{display:none;padding:4px 11px 10px;border-top:1px solid #e2d8cc}
+.qt-step.qt-active .qt-body{display:block}
+.qt-sz-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+.qt-sz{padding:3px 9px;border:1.5px solid #e2d8cc;border-radius:100px;font-size:.66rem;font-weight:700;background:#fff;color:#7a7268;cursor:pointer;transition:.12s;font-family:inherit}
+.qt-sz:hover{border-color:#6a8c72;color:#1a1a18}
+.qt-sz.sel{border-color:#C8A060;background:#f0e0c0;color:#a07840}
+.qt-sz-preset{border-color:#3d4f43!important;color:#3d4f43}
+.qt-sz-preset:hover{background:#3d4f43;color:#fff}
+.qt-dims{display:flex;align-items:center;gap:4px;margin-bottom:6px}
+.qt-df{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.qt-da{font-size:.54rem;font-weight:700;letter-spacing:.08em;color:#7a7268}
+.qt-dx{color:#7a7268;font-weight:700;padding-top:14px;font-size:.9rem}
+.qt-dr{display:flex;border:1.5px solid #e2d8cc;border-radius:7px;overflow:hidden;background:#fff;width:100%}
+.qt-dr:focus-within{border-color:#C8A060}
+.qt-dr button{width:24px;background:#F8F4EE;border:none;border-right:1px solid #e2d8cc;font-size:.92rem;color:#7a7268;cursor:pointer;font-family:inherit;padding:3px 0;flex-shrink:0;transition:.1s;line-height:1}
+.qt-dr button:last-child{border-right:none;border-left:1px solid #e2d8cc}
+.qt-dr button:hover{background:#f0e0c0;color:#a07840}
+.qt-di{flex:1;border:none;outline:none;font-size:.84rem;font-weight:700;color:#1a1a18;text-align:center;min-width:0;padding:4px 0;background:#fff}
+.qt-di::-webkit-inner-spin-button,.qt-di::-webkit-outer-spin-button{-webkit-appearance:none}
+.qt-bts-row{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:7px}
+.qt-bts{padding:5px 3px;border:1.5px solid #e2d8cc;border-radius:7px;font-size:.61rem;font-weight:700;color:#1a1a18;cursor:pointer;background:#fff;font-family:inherit;transition:.12s;text-align:center;line-height:1.3}
+.qt-bts:hover{border-color:#6a8c72}
+.qt-bts.sel{border-color:#C8A060;background:#f0e0c0;color:#a07840}
+.qt-path-row{display:flex;gap:4px;margin-bottom:7px}
+.qt-path{flex:1;padding:6px 4px;border:1.5px solid #e2d8cc;border-radius:8px;font-size:.64rem;font-weight:700;color:#7a7268;cursor:pointer;background:#fff;font-family:inherit;transition:.12s;text-align:center;line-height:1.3}
+.qt-path span{display:block;font-size:.53rem;font-weight:600;opacity:.72;margin-top:1px}
+.qt-path:hover{border-color:#6a8c72;color:#1a1a18}
+.qt-path.sel{background:#3d4f43;border-color:#3d4f43;color:#fff}
+.qt-fin-row{display:flex;gap:3px;margin-bottom:7px}
+.qt-fo{flex:1;border:1.5px solid #e2d8cc;border-radius:7px;padding:5px 2px;cursor:pointer;text-align:center;transition:.14s;background:#fff}
+.qt-fo:hover{border-color:#6a8c72}
+.qt-fo.sel{border-color:#C8A060;box-shadow:0 0 0 2px rgba(200,160,96,.18)}
+.qt-fdot{width:20px;height:20px;border-radius:50%;margin:0 auto 3px;border:1px solid rgba(0,0,0,.08)}
+.qt-fo span{font-size:.52rem;font-weight:700;color:#1a1a18;display:block;line-height:1.2}
+.qt-hw-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px}
+.qt-hw{padding:4px 9px;border:1.5px solid #e2d8cc;border-radius:100px;font-size:.66rem;font-weight:700;background:#fff;color:#1a1a18;cursor:pointer;font-family:inherit;transition:.12s;display:flex;align-items:center;gap:5px}
+.qt-hw:hover{border-color:#6a8c72}
+.qt-hw.sel{border-color:#C8A060;background:#f0e0c0}
+.qt-hwdot{width:9px;height:9px;border-radius:50%;border:1px solid rgba(0,0,0,.1);flex-shrink:0}
+.qt-brand-row{display:flex;gap:6px;margin-bottom:7px;align-items:flex-start}
+.qt-engv{flex:1;padding:5px 8px;border:1.5px solid #e2d8cc;border-radius:7px;font-size:.76rem;font-family:Georgia,serif;color:#1a1a18;background:#fff;resize:none;transition:.18s}
+.qt-engv:focus{outline:none;border-color:#C8A060}
+.qt-logo-area{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+.qt-luzone{padding:5px 9px;border:1.5px dashed #e2d8cc;border-radius:7px;font-size:.64rem;color:#7a7268;cursor:pointer;text-align:center;white-space:nowrap;transition:.14s;background:#F8F4EE}
+.qt-luzone:hover{border-color:#C8A060;color:#a07840}
+.qt-logo-clr{padding:3px 7px;border:1.5px solid #ddd;border-radius:5px;font-size:.6rem;cursor:pointer;background:#fff;color:#7a7268;font-family:inherit;display:none}
+.qt-logo-clr:hover{border-color:#c00;color:#c00}
+.qt-int-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:7px}
+.qt-int{padding:6px 5px;border:1.5px solid #e2d8cc;border-radius:7px;font-size:.66rem;font-weight:700;background:#fff;color:#1a1a18;cursor:pointer;font-family:inherit;transition:.12s;text-align:center}
+.qt-int:hover{border-color:#6a8c72}
+.qt-int.sel{border-color:#C8A060;background:#f0e0c0}
+.qt-qty-presets{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px}
+.qt-qp{padding:4px 9px;border:1.5px solid #e2d8cc;border-radius:100px;font-size:.68rem;font-weight:700;background:#fff;color:#7a7268;cursor:pointer;font-family:inherit;transition:.12s}
+.qt-qp:hover{border-color:#6a8c72;color:#1a1a18}
+.qt-qp.sel{border-color:#C8A060;background:#f0e0c0;color:#a07840}
+.qt-qty-custom{font-size:.68rem;color:#7a7268;margin-bottom:7px;display:flex;align-items:center;gap:7px}
+.qt-qty-inp{width:76px;padding:4px 7px;border:1.5px solid #e2d8cc;border-radius:6px;font-size:.84rem;font-weight:700;text-align:center;font-family:inherit;color:#1a1a18}
+.qt-qty-inp:focus{outline:none;border-color:#C8A060}
+.qt-acts{display:flex;gap:6px;margin-top:4px}
+.qt-act-save{flex:1;padding:8px;background:linear-gradient(135deg,#C8A060,#a07840);border:none;border-radius:7px;color:#fff;font-size:.76rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em;transition:.14s}
+.qt-act-save:hover{background:linear-gradient(135deg,#d4aa68,#b08848)}
+.qt-act-send{flex:1;padding:8px;background:#3d4f43;border:none;border-radius:7px;color:#fff;font-size:.76rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em;transition:.14s}
+.qt-act-send:hover{background:#2a3c30}
+.qt-next-btn{width:100%;padding:6px;background:#3d4f43;border:none;border-radius:7px;color:#fff;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.14s;letter-spacing:.03em;margin-top:4px}
+.qt-next-btn:hover{background:#2a3c30}
+.qt-footer{background:linear-gradient(135deg,#1e3228,#2d4236);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(200,160,96,.22);flex-shrink:0;border-radius:0 0 18px 18px}
+.qt-footer.drawer-open{border-radius:0}
+.qt-footer-price{}
+.qt-fp-big{display:flex;align-items:baseline;gap:3px;line-height:1}
+.qt-fp-unit{font-size:1.45rem;font-weight:800;color:#fff}
+.qt-fp-each{font-size:.62rem;color:rgba(255,255,255,.58)}
+.qt-fp-total{font-size:.65rem;color:rgba(255,255,255,.68);margin-top:3px}
+.qt-footer-btns{display:flex;gap:5px;align-items:center}
+.qt-fb{padding:5px 9px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;cursor:pointer;font-size:.72rem;font-family:inherit;transition:.14s}
+.qt-fb:hover{background:rgba(255,255,255,.2)}
+.qt-fb-detail{font-weight:700;letter-spacing:.04em;font-size:.68rem}
+.qt-drawer{background:#fff;border-top:2px solid #f0e0c0;display:none;max-height:50vh;overflow-y:auto;border-radius:0 0 18px 18px}
+.qt-drawer.open{display:block}
+.qt-drawer-sec{padding:10px 14px;border-bottom:1px solid #e2d8cc}
+.qt-drawer-sec:last-child{border-bottom:none}
+.qt-drawer-hdr{font-size:.61rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#3d4f43;margin-bottom:7px;position:relative;display:flex;align-items:center;justify-content:space-between}
+.qt-drawer-close{background:none;border:none;cursor:pointer;color:#7a7268;font-size:.88rem;padding:0 2px;line-height:1;transition:.12s}
+.qt-drawer-close:hover{color:#c00}
+.qt-drawer-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:2px}
+.qt-dlbl{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#7a7268;display:block;margin-bottom:2px}
+.qt-dinp{border:1.5px solid #e2d8cc;border-radius:6px;padding:5px 8px;font-size:.76rem;color:#1a1a18;background:#fff;width:100%;font-family:inherit}
+.qt-dinp:focus{outline:none;border-color:#C8A060}
+.qt-send-btn{padding:8px 14px;border:none;border-radius:7px;color:#fff;font-size:.74rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.03em;transition:.14s}
+.qt-send-btn:hover{opacity:.88}
 </style>
 </head>
 <body>
@@ -582,387 +697,365 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- ── QUOTE TAB ────────────────────────────────────────── -->
   <div id="ct-quote" class="ct-panel on">
 
-    <!-- BRANDED PANEL HEADER -->
-    <div style="background:linear-gradient(135deg,#1a2e1e,#2c4236,#3d5c48);padding:18px 20px 16px;border-bottom:1px solid rgba(200,160,96,.25);position:relative;overflow:hidden">
-      <div style="position:absolute;top:-18px;right:-18px;width:90px;height:90px;border-radius:50%;background:rgba(200,160,96,.07);pointer-events:none"></div>
-      <div style="position:absolute;bottom:-30px;right:30px;width:60px;height:60px;border-radius:50%;background:rgba(200,160,96,.05);pointer-events:none"></div>
-      <div style="font-size:.57rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:5px;opacity:.9">Woodchuck USA</div>
-      <div style="font-family:Georgia,serif;font-size:1.15rem;color:#fff;font-weight:normal;line-height:1.2;margin-bottom:4px">Quote <span style="color:var(--gold)">Builder</span></div>
-      <div style="font-size:.7rem;color:rgba(255,255,255,.48);line-height:1.4">Custom wood packaging · production pricing</div>
+  <!-- ALL CRITICAL IDs KEPT IN DOM (hidden) — these are read by existing JS -->
+  <div style="display:none">
+    <input id="qb-dim-w" type="number" value="6" step="0.25" oninput="setCustomDim('cw',this.value)">
+    <input id="qb-dim-d" type="number" value="9" step="0.25" oninput="setCustomDim('cd',this.value)">
+    <input id="qb-dim-h" type="number" value="3" step="0.25" oninput="setCustomDim('ch',this.value)">
+    <input id="qb-matT" type="number" value="0.25" step="0.0625" oninput="qbSetMatT(this.value)">
+    <input id="qb-sheetL" type="number" value="24" oninput="qbUpdateAll()">
+    <input id="qb-sheetW" type="number" value="6" oninput="qbUpdateAll()">
+    <input id="qb-sheetPrice" type="number" step="0.01" oninput="qbUpdateAll()">
+    <select id="qb-species" onchange="qbLoadSpeciesPrice()"></select>
+    <input id="qb-kerf" type="number" value="0.125" step="0.0625" oninput="qbUpdateAll()">
+    <input id="qb-waste" type="number" value="12" oninput="qbUpdateAll()">
+    <input id="qb-name" type="text">
+    <input id="qb-client" type="text">
+    <input id="qb-date" type="date">
+    <input id="qb-qty" type="number" value="100" oninput="qbSetQtyFromQuote(this.value)">
+    <input id="qb-needby" type="date" oninput="qbCheckRush()">
+    <input id="qb-rep" type="text" oninput="const ef=document.getElementById('ef-name');if(ef&&!ef.dataset.manualEdit)ef.value=this.value;">
+    <select id="qb-status"><option value="draft">Draft</option><option value="sent">Sent</option><option value="followup">Follow-up</option><option value="won">Won</option><option value="lost">Lost</option></select>
+    <input id="qb-notes" type="text">
+    <input id="qb-setup" type="number" value="0">
+    <input id="qb-cut" type="number" value="0">
+    <input id="qb-assembly" type="number" value="0">
+    <input id="qb-finish" type="number" value="0">
+    <input id="qb-rate" type="number" value="65">
+    <input type="hidden" id="qb-margin" value="50">
+    <input type="hidden" id="qb-overhead" value="15">
+    <input type="hidden" id="qb-markup" value="35">
+    <input id="qb-cc-hw" type="number" value="0" step="0.25" oninput="qbUpdateAll()">
+    <input id="qb-cc-int" type="number" value="0" step="0.25" oninput="qbUpdateAll()">
+    <input id="qb-cc-fin" type="number" value="0" step="0.25" oninput="qbUpdateAll()">
+    <input id="qb-cc-eng" type="number" value="0" step="0.50" oninput="this.dataset.manualEdit='1';qbUpdateAll()">
+    <input id="qb-cc-logo" type="number" value="0" step="0.50" oninput="this.dataset.manualEdit='1';qbUpdateAll()">
+    <input id="qb-cc-pkg" type="number" value="0.35" step="0.05" oninput="qbUpdateAll()">
+    <input id="qb-cc-join" type="number" value="0" step="0.01" oninput="qbUpdateAll()">
+    <select id="qb-cc-join-sel" onchange="qbSetJoinery(this.value)">
+      <option value="0">Standard</option><option value="1.99">Laser Cut Butt Joint</option>
+      <option value="4.95">Laser Cut Miter</option><option value="7.10">Saw Cut Butt Joint</option>
+      <option value="9.31">Saw Cut Miter</option>
+    </select>
+    <div id="qb-margin-display"></div><div id="qb-margin-tier-badge"></div><div id="qb-margin-tiers"></div>
+    <div id="qb-cc-total"><span id="qb-cc-total-val"></span></div>
+    <div id="qb-cc-hw-row"><div id="qb-cc-hw-lbl"></div><div id="qb-cc-hw-hint"></div></div>
+    <div id="qb-cc-int-row"><div id="qb-cc-int-lbl"></div><div id="qb-cc-int-hint"></div></div>
+    <div id="qb-cc-fin-row"><div id="qb-cc-fin-lbl"></div><div id="qb-cc-fin-hint"></div></div>
+    <div id="qb-cc-eng-row"><div id="qb-cc-eng-hint"></div></div>
+    <div id="qb-cc-logo-row"></div>
+    <div id="qb-custom-insert-note"></div><div id="qb-custom-insert-flag"></div>
+    <div id="qb-rush-badge"></div>
+    <div id="qb-eng-pricing"><strong id="qb-eng-price-val"></strong></div>
+    <div id="qb-species-label"></div>
+    <span id="qb-tag-stock" class="ocooch-tag src-tag"></span>
+    <span id="qb-tag-price" class="ocooch-tag src-tag"></span>
+    <span id="qb-tag-thick" class="ocooch-tag src-tag"></span>
+    <div id="qb-srcfields-note"></div><div id="qb-src-note"></div>
+    <div id="qb-joinery-path-note"></div><div id="qb-matT-note"></div>
+    <div id="qb-matpath-btns">
+      <button id="qb-mp-solid" class="qb-mp-btn sel" data-mp="solid" onclick="qbSetMatPath('solid')"></button>
+      <button id="qb-mp-mix" class="qb-mp-btn" data-mp="mix" onclick="qbSetMatPath('mix')"></button>
+      <button id="qb-mp-mdf" class="qb-mp-btn" data-mp="mdf" onclick="qbSetMatPath('mdf')"></button>
     </div>
-
-    <!-- LIVE DESIGN CONTROLS -->
-    <div class="qb-sec">
-      <div class="qb-hdr">📐 Live design <span style="font-weight:600;color:var(--mu);font-size:.62rem;letter-spacing:0;text-transform:none">— edits update the 3D box &amp; price instantly</span></div>
-      <div style="font-size:.65rem;font-weight:700;letter-spacing:.07em;color:var(--green);text-transform:uppercase;margin-bottom:6px">📥 Interior dimensions <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--mu)">— what the client gives you</span></div>
-      <div class="dim-bar" style="margin-bottom:7px">
-        <div class="dim-field">
-          <div class="dim-lbl" title="Interior width — what fits inside the box">INT WIDTH</div>
-          <div class="dim-row">
-            <button class="dim-step" onclick="stepDim('cw',-0.25)">−</button>
-            <input class="dim-inp" id="qb-dim-w" type="number" value="6" min="2" max="24" step="0.25" oninput="setCustomDim('cw',this.value)">
-            <button class="dim-step" onclick="stepDim('cw',0.25)">+</button>
-          </div>
-        </div>
-        <div class="dim-x">×</div>
-        <div class="dim-field">
-          <div class="dim-lbl" title="Interior depth — what fits inside the box">INT DEPTH</div>
-          <div class="dim-row">
-            <button class="dim-step" onclick="stepDim('cd',-0.25)">−</button>
-            <input class="dim-inp" id="qb-dim-d" type="number" value="9" min="2" max="24" step="0.25" oninput="setCustomDim('cd',this.value)">
-            <button class="dim-step" onclick="stepDim('cd',0.25)">+</button>
-          </div>
-        </div>
-        <div class="dim-x">×</div>
-        <div class="dim-field">
-          <div class="dim-lbl" title="Interior height — what fits inside the box">INT HEIGHT</div>
-          <div class="dim-row">
-            <button class="dim-step" onclick="stepDim('ch',-0.25)">−</button>
-            <input class="dim-inp" id="qb-dim-h" type="number" value="3" min="1" max="24" step="0.25" oninput="setCustomDim('ch',this.value)">
-            <button class="dim-step" onclick="stepDim('ch',0.25)">+</button>
-          </div>
-        </div>
-      </div>
-      <!-- Derived exterior readout — populated live by qbCalcPanels -->
-      <div id="qb-ext-readout" class="qb-ext-readout" style="display:none"></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px">
-        <button id="qb-sz-sm" class="pill" onclick="setSzPreset('sm')">4×6×2</button>
-        <button id="qb-sz-md" class="pill sel" onclick="setSzPreset('md')">6×9×3</button>
-        <button id="qb-sz-lg" class="pill" onclick="setSzPreset('lg')">9×12×4</button>
-      </div>
-      <div class="qb-lbl" style="margin-bottom:5px">Box style</div>
-      <div class="qb-btchips" id="qb-btchips">
-        <button class="qb-btchip sel" data-bt="hinged" onclick="pickBoxType('hinged')">📦 Hinged Top</button>
-        <button class="qb-btchip" data-bt="clamshell" onclick="pickBoxType('clamshell')">🦪 Clamshell</button>
-        <button class="qb-btchip" data-bt="slide" onclick="pickBoxType('slide')">🗂 Slide Top</button>
-        <button class="qb-btchip" data-bt="settop" onclick="pickBoxType('settop')">🎁 Set Top</button>
-        <button class="qb-btchip" data-bt="droptop" onclick="pickBoxType('droptop')">🔓 Drop Top</button>
-        <button class="qb-btchip" data-bt="crate" onclick="pickBoxType('crate')">📫 Rustic Crate</button>
-      </div>
-      <div id="dim-err-quote" class="dim-err" style="display:none"></div>
-      <div class="qb-sync-bar" id="qb-syncbar" style="margin-top:9px"></div>
-    </div>
-
-    <!-- PROJECT INFO -->
-    <div class="qb-sec">
-      <div class="qb-hdr">📋 Project info</div>
-      <div class="qb-fg">
-        <div class="qb-group"><div class="qb-lbl">Project Name</div><input class="qb-inp" id="qb-name" type="text" placeholder="e.g. Hinged Gift Box 6×9×3"></div>
-        <div class="qb-group"><div class="qb-lbl">Client</div><input class="qb-inp" id="qb-client" type="text" placeholder="Client name"></div>
-      </div>
-      <div class="qb-fg">
-        <div class="qb-group"><div class="qb-lbl">Date</div><input class="qb-inp" id="qb-date" type="date"></div>
-        <div class="qb-group"><div class="qb-lbl">Quantity</div><input class="qb-inp" id="qb-qty" type="number" value="100" min="1" oninput="qbSetQtyFromQuote(this.value)"></div>
-      </div>
-      <div class="qb-fg">
-        <div class="qb-group" style="flex:1"><div class="qb-lbl">Sales Rep</div><input class="qb-inp" id="qb-rep" type="text" placeholder="Your name" oninput="const ef=document.getElementById('ef-name');if(ef&&!ef.dataset.manualEdit)ef.value=this.value;"></div>
-      </div>
-      <div class="qb-lbl" style="margin-bottom:5px">Quick quantity</div>
-      <div id="qb-qty-quick" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px">
-        <button class="pill" data-q="25" onclick="qbSetQtyPreset(25)">25</button>
-        <button class="pill" data-q="50" onclick="qbSetQtyPreset(50)">50</button>
-        <button class="pill" data-q="100" onclick="qbSetQtyPreset(100)">100</button>
-        <button class="pill" data-q="250" onclick="qbSetQtyPreset(250)">250</button>
-        <button class="pill" data-q="500" onclick="qbSetQtyPreset(500)">500</button>
-        <button class="pill" data-q="1000" onclick="qbSetQtyPreset(1000)">1,000</button>
-      </div>
-      <div class="qb-group" style="margin-bottom:0"><div class="qb-lbl">Notes</div><input class="qb-inp" id="qb-notes" type="text" placeholder="Optional notes"></div>
-    </div>
-
-    <!-- WOOD SPECIES & MATERIAL -->
-    <div class="qb-sec">
-      <div class="qb-hdr">🪵 Wood species &amp; material <span id="qb-srcfields-note" style="font-weight:600;color:var(--mu);font-size:.6rem;letter-spacing:0;text-transform:none">— <span class="ocooch-tag src-tag">Ocooch</span> fields auto-fill from the supplier sheet; no need to change them</span></div>
-      <div class="qb-lbl" style="margin-bottom:5px">Pricing source</div>
-      <div class="qb-pricesrc">
-        <button type="button" id="qb-src-wc" class="qb-srcbtn" data-src="wc" onclick="qbSetPriceSrc('wc')">🏭 Solid Wood<span class="qb-srcbtn-sub">48×96 sheet · Excel cost</span></button>
-        <button type="button" id="qb-src-ocooch" class="qb-srcbtn" data-src="ocooch" onclick="qbSetPriceSrc('ocooch')">🪵 Ocooch Solid<span class="qb-srcbtn-sub">6×24 board · prototype</span></button>
-        <button type="button" id="qb-src-mdf" class="qb-srcbtn" data-src="mdf" onclick="qbSetPriceSrc('mdf')">📄 MDF Sheet<span class="qb-srcbtn-sub">4×8 raw · no grain</span></button>
-      </div>
-      <div id="qb-src-note" class="qb-src-note" style="display:none"></div>
-      <div class="qb-lbl" style="margin:11px 0 6px">Wood species <span style="font-weight:600;color:var(--mu);font-size:.62rem;letter-spacing:0;text-transform:none">— tap any wood to preview it on the 3D box</span></div>
-      <div class="qb-wood-grid" id="qb-wood-grid"></div>
-      <select class="qb-sel" id="qb-species" onchange="qbLoadSpeciesPrice()" style="display:none"></select>
-      <div class="qb-fg" style="margin-top:12px">
-        <div class="qb-group">
-          <div class="qb-lbl">Selected species</div>
-          <div class="qb-inp" id="qb-species-label" style="display:flex;align-items:center;color:var(--green);font-weight:600;min-height:34px">— none —</div>
-        </div>
-        <div class="qb-group">
-          <div class="qb-lbl">Stock size (sheet)<span class="ocooch-tag src-tag" id="qb-tag-stock">Ocooch</span></div>
-          <div style="display:flex;gap:4px">
-            <input class="qb-inp" id="qb-sheetL" type="number" value="24" style="width:50%" oninput="qbUpdateAll()" title="Length (in)">
-            <input class="qb-inp" id="qb-sheetW" type="number" value="6" style="width:50%" oninput="qbUpdateAll()" title="Width (in)">
-          </div>
-        </div>
-      </div>
-      <div class="qb-fg">
-        <div class="qb-group"><div class="qb-lbl">Price / sheet ($)<span class="ocooch-tag src-tag" id="qb-tag-price">Ocooch</span></div><input class="qb-inp" id="qb-sheetPrice" type="number" step="0.01" placeholder="e.g. 6.90" oninput="qbUpdateAll()"></div>
-        <div class="qb-group"><div class="qb-lbl">Material thickness (in)<span class="ocooch-tag src-tag" id="qb-tag-thick">Ocooch</span></div><input class="qb-inp" id="qb-matT" type="number" value="0.25" step="0.0625" oninput="qbSetMatT(this.value)"><div id="qb-matT-note" class="matt-note" style="display:none"></div></div>
-      </div>
-      <div class="qb-fg">
-        <div class="qb-group"><div class="qb-lbl">Saw kerf (in)</div><input class="qb-inp" id="qb-kerf" type="number" value="0.125" step="0.0625" oninput="qbUpdateAll()"></div>
-        <div class="qb-group"><div class="qb-lbl">Waste %</div><input class="qb-inp" id="qb-waste" type="number" value="12" min="0" max="50" oninput="qbUpdateAll()"></div>
-      </div>
-      <!-- Panel breakdown -->
-      <div class="qb-panel-box" id="qb-panel-box" style="display:none">
-        <h5>📐 Panel breakdown</h5>
-        <div id="qb-ext-dims" style="font-size:.75rem;color:var(--green);margin-bottom:8px"></div>
-        <div id="qb-panel-rows"></div>
-      </div>
-      <!-- Yield -->
-      <div class="qb-yield-box" id="qb-yield-box">
-        <h5>📊 Material yield</h5>
-        <div id="qb-yield-content"><span style="font-size:.75rem;color:var(--mu)">Sync dimensions and select a species to see yield.</span></div>
-      </div>
-    </div>
-
-  <!-- SECTION: FINISH -->
-  <div class="cfg-sec">
-    <div class="cfg-sec-hdr">🎨 Finish</div>
-    <div class="slbl">Finish</div>
-    <div class="fg">
-      <div class="fo sel" onclick="P('fin','natural',this)"><div class="fdot" style="background:linear-gradient(135deg,#E8C090,#C89858)"></div><div class="fn">Natural</div></div>
-      <div class="fo" onclick="P('fin','goldenoak',this)"><div class="fdot" style="background:linear-gradient(135deg,#D4A030,#B88020)"></div><div class="fn">Golden Oak</div></div>
-      <div class="fo" onclick="P('fin','mahstain',this)"><div class="fdot" style="background:linear-gradient(135deg,#8B2820,#6B1010)"></div><div class="fn">Mahogany Stain</div></div>
-      <div class="fo" onclick="P('fin','walstain',this)"><div class="fdot" style="background:linear-gradient(135deg,#4A2810,#302008)"></div><div class="fn">Walnut Stain</div></div>
-      <div class="fo" onclick="P('fin','black',this)"><div class="fdot" style="background:linear-gradient(135deg,#2a2a2a,#1a1a1a)"></div><div class="fn">Black Paint</div></div>
-      <div class="fo" onclick="P('fin','white',this)"><div class="fdot" style="background:linear-gradient(135deg,#F8F0E8,#EDE0D0);border-color:#ddd"></div><div class="fn">White Paint</div></div>
-    </div>
-  </div>
-
-  <!-- SECTION: HARDWARE & INTERIOR -->
-  <div class="cfg-sec">
-    <div class="cfg-sec-hdr">✦ Hardware &amp; Interior</div>
-    <div class="slbl">Hardware Finish</div>
-    <div class="pr">
-      <div class="pill sel" onclick="P('hw','gold',this)"><div class="pd" style="background:#D4AF37"></div>Gold</div>
-      <div class="pill" onclick="P('hw','silver',this)"><div class="pd" style="background:#C0C0C0"></div>Silver</div>
-      <div class="pill" onclick="P('hw','black',this)"><div class="pd" style="background:#2a2a2a"></div>Black</div>
-      <div class="pill" onclick="P('hw','brass',this)"><div class="pd" style="background:#B5935A"></div>Antique Brass</div>
-      <div class="pill" onclick="P('hw','none',this)">No Hardware</div>
-    </div>
-    <div class="slbl">Interior Lining</div>
-    <div class="ig">
-      <div class="ib sel" onclick="P('int','none',this)">None (Raw Wood)</div>
-      <div class="ib" onclick="P('int','eco',this)">Eco-Foam</div>
-      <div class="ib" onclick="P('int','pu',this)">PU Foam</div>
-      <div class="ib" onclick="P('int','velvet',this)">✦ Velvet Flocked</div>
-      <div class="ib" onclick="P('int','wood',this)">Wood Inserts</div>
-      <div class="ib" onclick="P('int','excelsior',this)">Excelsior</div>
-    </div>
-  </div>
-
-  <!-- SECTION: BRANDING -->
-  <div class="cfg-sec">
-    <div class="cfg-sec-hdr">🖼 Branding</div>
-    <div class="slbl">Upload Logo</div>
-    <div class="uzone" id="uzone" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="dropLogo(event)">
-      <input type="file" id="logofile" accept="image/*" onchange="loadLogo(this.files[0])">
-      <div class="uicon">🖼</div>
-      <div class="umn">Click to upload or drag &amp; drop</div>
-      <div class="usub">PNG, JPG, SVG · Transparent backgrounds look best</div>
-    </div>
-    <div class="lpw" id="lpw"><img class="lpwi" id="lpwi" src="" alt=""><div class="lpwn" id="lpwn"></div><button class="lclr" onclick="clearLogo()">✕ Remove</button></div>
-    <div class="slbl">Logo Placement</div>
-    <div class="pr" style="margin-bottom:12px">
-      <div class="pill sel" onclick="P('pl','top',this)">Top Face</div>
-      <div class="pill" onclick="P('pl','front',this)">Front Face</div>
-      <div class="pill" onclick="P('pl','both',this)">Top &amp; Front</div>
-    </div>
-    <div class="slbl">Custom Engraving <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--mu)">(optional)</span></div>
-    <textarea class="ei" id="engv" rows="2" placeholder="e.g. Client Company · Est. 2010" oninput="setEngrave(this.value)" maxlength="80"></textarea>
-    <div class="ep"><div class="et" id="eprev">Engraving preview</div><div class="eh">✦ Laser-burned directly into the wood</div></div>
-  </div>
-
-    <!-- BOX CONFIGURATION COSTS -->
-    <div class="qb-sec">
-      <div class="qb-hdr">⚙️ Box configuration costs</div>
-      <div class="qb-src-note" style="margin-bottom:8px;font-size:.68rem">Auto-filled from your box design — edit any value to override. <button class="qb-labor-preset-btn" style="margin-left:4px" onclick="qbSyncConfigCosts()">↺ Re-sync from design</button></div>
-      <div id="qb-cc-rows">
-        <!-- Hardware -->
-        <div class="qb-cc-row" id="qb-cc-hw-row">
-          <div class="qb-cc-icon">🔩</div>
-          <div class="qb-cc-body"><div class="qb-cc-label" id="qb-cc-hw-lbl">Hardware</div><div class="qb-cc-hint" id="qb-cc-hw-hint">—</div></div>
-          <input class="qb-inp qb-cc-inp" id="qb-cc-hw" type="number" value="0" step="0.25" min="0" oninput="qbUpdateAll()">
-          <div class="qb-cc-unit">/ unit</div>
-        </div>
-        <!-- Interior Insert -->
-        <div class="qb-cc-row" id="qb-cc-int-row">
-          <div class="qb-cc-icon">🛋</div>
-          <div class="qb-cc-body"><div class="qb-cc-label" id="qb-cc-int-lbl">Interior</div><div class="qb-cc-hint" id="qb-cc-int-hint">—</div></div>
-          <input class="qb-inp qb-cc-inp" id="qb-cc-int" type="number" value="0" step="0.25" min="0" oninput="qbUpdateAll()">
-          <div class="qb-cc-unit">/ unit</div>
-        </div>
-        <!-- Finish / Coating -->
-        <div class="qb-cc-row" id="qb-cc-fin-row">
-          <div class="qb-cc-icon">🎨</div>
-          <div class="qb-cc-body"><div class="qb-cc-label" id="qb-cc-fin-lbl">Finish</div><div class="qb-cc-hint" id="qb-cc-fin-hint">—</div></div>
-          <input class="qb-inp qb-cc-inp" id="qb-cc-fin" type="number" value="0" step="0.25" min="0" oninput="qbUpdateAll()">
-          <div class="qb-cc-unit">/ unit</div>
-        </div>
-        <!-- Engraving (always visible; fades when no text set) -->
-        <div class="qb-cc-row" id="qb-cc-eng-row" style="opacity:0.45">
-          <div class="qb-cc-icon">✦</div>
-          <div class="qb-cc-body"><div class="qb-cc-label">Engraving</div><div class="qb-cc-hint" id="qb-cc-eng-hint">—</div></div>
-          <input class="qb-inp qb-cc-inp" id="qb-cc-eng" type="number" value="0" step="0.50" min="0" oninput="qbUpdateAll()">
-          <div class="qb-cc-unit">/ unit</div>
-        </div>
-        <!-- Logo Burn (always visible; fades when no logo uploaded) -->
-        <div class="qb-cc-row" id="qb-cc-logo-row" style="opacity:0.45">
-          <div class="qb-cc-icon">🖼</div>
-          <div class="qb-cc-body"><div class="qb-cc-label">Logo burn</div><div class="qb-cc-hint">Laser / brand</div></div>
-          <input class="qb-inp qb-cc-inp" id="qb-cc-logo" type="number" value="0" step="0.50" min="0" oninput="qbUpdateAll()">
-          <div class="qb-cc-unit">/ unit</div>
-        </div>
-        <!-- Packaging (poly bag / box wrap per unit) -->
-        <div class="qb-cc-row">
-          <div class="qb-cc-icon">📦</div>
-          <div class="qb-cc-body"><div class="qb-cc-label">Packaging</div><div class="qb-cc-hint">Poly bag / wrap per unit</div></div>
-          <input class="qb-inp qb-cc-inp" id="qb-cc-pkg" type="number" value="0.35" step="0.05" min="0" oninput="qbUpdateAll()">
-          <div class="qb-cc-unit">/ unit</div>
-        </div>
-      </div>
-      <div class="qb-cc-total" id="qb-cc-total" style="display:none">
-        <span>Config costs / unit</span><span class="qb-cc-total-val" id="qb-cc-total-val">—</span>
-      </div>
-    </div>
-
-    <!-- ADDITIONAL MATERIALS -->
-    <div class="qb-sec">
-      <div class="qb-hdr">🔧 Additional materials &amp; hardware</div>
-      <div class="qb-mat-hdr" id="qb-mat-hdr" style="display:none"><span>Item / Description</span><span>Qty</span><span>$ / Unit</span><span>Total</span><span></span></div>
-      <div id="qb-mat-list"><span style="font-size:.75rem;color:var(--mu)">No materials added.</span></div>
-      <div style="display:flex;gap:6px;margin-top:8px">
-        <button class="qb-add-btn" onclick="qbAddMaterial()">+ Add item</button>
-        <button class="qb-add-btn" onclick="qbOpenPresets()">+ From presets</button>
-      </div>
-    </div>
-
-    <!-- LABOR -->
-    <div class="qb-sec">
-      <div class="qb-hdr">⏱ Labor</div>
-      <div class="qb-lbl" style="margin-bottom:5px">Quick-add operations <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--mu);font-size:.62rem">— from Woodchuck production sheet</span></div>
-      <div class="qb-labor-presets" id="qb-labor-presets">
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('Prep &amp; clean box',0.75,'ladies',1)">Prep box</button>
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('Assemble small box',2.25,'ladies',1)">Asm. Small</button>
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('Assemble medium box',3.02,'ladies',1)">Asm. Medium</button>
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('Assemble large box',3.62,'ladies',1)">Asm. Large</button>
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('Clamshell box',9.36,'ladies',1)">Clamshell</button>
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('Saw cut (1 box)',11,'woodshop',1)">Saw cut</button>
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('Miter (4 pieces)',2.5,'woodshop',1)">Miter</button>
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('Sand board',1.5,'woodshop',1)">Sand</button>
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('Regular hinge (2)',2,'skilled',1)">Hinge</button>
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('Stop hinge (2)',4.25,'skilled',1)">Stop hinge</button>
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('Insert magnets (set)',1,'skilled',1)">Magnets</button>
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('PIN NAIL box',0.28,'ladies',1)">Pin nail</button>
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('Laser engraving (1 min)',1,'laser',1)">Laser</button>
-        <button class="qb-labor-preset-btn" onclick="qbAddLaborOp('CNC (1 min)',1,'cnc',1)">CNC</button>
-      </div>
-      <div class="qb-labor-ops-list" id="qb-labor-ops-list"><span style="font-size:.72rem;color:var(--mu)">No ops added — tap a button above or enter manual hours below.</span></div>
-      <div style="margin:10px 0 4px;font-size:.68rem;font-weight:700;letter-spacing:.07em;color:var(--mu);text-transform:uppercase">Manual hours <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--mu);font-size:.62rem">— use ops above OR hours below, not both</span></div>
-      <div class="qb-fg3">
-        <div class="qb-group"><div class="qb-lbl">Setup hrs (one-time)</div><input class="qb-inp" id="qb-setup" type="number" value="0" step="0.25" min="0" oninput="qbUpdateAll()"></div>
-        <div class="qb-group"><div class="qb-lbl">Cut hrs / unit</div><input class="qb-inp" id="qb-cut" type="number" value="0" step="0.1" min="0" oninput="qbUpdateAll()"></div>
-        <div class="qb-group"><div class="qb-lbl">Assembly hrs / unit</div><input class="qb-inp" id="qb-assembly" type="number" value="0" step="0.1" min="0" oninput="qbUpdateAll()"></div>
-      </div>
-      <div class="qb-fg">
-        <div class="qb-group"><div class="qb-lbl">Finish hrs / unit</div><input class="qb-inp" id="qb-finish" type="number" value="0" step="0.1" min="0" oninput="qbUpdateAll()"></div>
-        <div class="qb-group"><div class="qb-lbl">Shop rate ($/hr)</div><input class="qb-inp" id="qb-rate" type="number" value="65" step="5" min="0" oninput="qbUpdateAll()"></div>
-      </div>
-      <div class="qb-yield-box" id="qb-labor-box" style="margin-bottom:0">
-        <h5>Labor summary</h5>
-        <div id="qb-labor-content"><span style="font-size:.75rem;color:var(--mu)">Add ops or enter hours above.</span></div>
-      </div>
-    </div>
-
-    <!-- CUSTOMIZATIONS -->
-    <div class="qb-sec">
-      <div class="qb-hdr">✦ Customizations &amp; extras</div>
-      <div class="qb-custom-hdr" id="qb-custom-hdr" style="display:none">
-        <span>Description / What it is</span><span>Qty</span><span>Unit Price</span><span></span>
-      </div>
-      <div id="qb-custom-list"><span style="font-size:.75rem;color:var(--mu)">No extras added.</span></div>
-      <button class="qb-add-btn" onclick="qbAddCustom()" style="margin-top:8px">+ Add extra</button>
-    </div>
-
-    <!-- COMBINED MARGIN -->
-    <div class="qb-sec">
-      <div class="qb-hdr">📈 Margin &amp; overhead</div>
-      <div class="qb-margin-row">
-        <input class="qb-inp" id="qb-margin" type="number" value="50" step="5" min="0" oninput="qbUpdateAll()">
-        <span style="font-size:.85rem;font-weight:700;color:var(--green)">%</span>
-        <span class="qb-margin-note">Combined overhead + profit margin applied to total cost.<br>As margin rises, both overhead and profit rise together.</span>
-      </div>
-      <!-- Hidden legacy inputs kept for save/load compatibility -->
-      <input type="hidden" id="qb-overhead" value="15">
-      <input type="hidden" id="qb-markup" value="35">
-    </div>
-
-    <!-- CUSTOM MATERIAL CALCULATOR -->
-    <div class="qb-sec">
-      <div class="qb-hdr">🔢 Custom material calculator</div>
-      <div class="qb-custmat-box">
-        <div style="font-size:.68rem;font-weight:700;letter-spacing:.06em;color:var(--mu);text-transform:uppercase;margin-bottom:7px">Sheet</div>
-        <div class="qb-custmat-grid">
-          <div class="qb-group"><div class="qb-lbl">Length (in)</div><input class="qb-inp" id="cm-sheetL" type="number" value="96" step="1" min="0.1" oninput="qbCalcCustomMat()"></div>
-          <div class="qb-group"><div class="qb-lbl">Width (in)</div><input class="qb-inp" id="cm-sheetW" type="number" value="48" step="1" min="0.1" oninput="qbCalcCustomMat()"></div>
-          <div class="qb-group"><div class="qb-lbl">Sheet cost ($)</div><input class="qb-inp" id="cm-sheetCost" type="number" value="" step="0.01" min="0" placeholder="e.g. 25.80" oninput="qbCalcCustomMat()"></div>
-        </div>
-        <div style="font-size:.68rem;font-weight:700;letter-spacing:.06em;color:var(--mu);text-transform:uppercase;margin-bottom:7px">Part to cut</div>
-        <div class="qb-custmat-grid">
-          <div class="qb-group"><div class="qb-lbl">Part length (in)</div><input class="qb-inp" id="cm-partL" type="number" value="" step="0.25" min="0.1" placeholder="e.g. 6.5" oninput="qbCalcCustomMat()"></div>
-          <div class="qb-group"><div class="qb-lbl">Part width (in)</div><input class="qb-inp" id="cm-partW" type="number" value="" step="0.25" min="0.1" placeholder="e.g. 3.5" oninput="qbCalcCustomMat()"></div>
-          <div class="qb-group"><div class="qb-lbl">Qty of parts</div><input class="qb-inp" id="cm-partQty" type="number" value="1" step="1" min="1" oninput="qbCalcCustomMat()"></div>
-        </div>
-        <div class="qb-custmat-result" id="cm-result">Enter sheet cost and part size above</div>
-      </div>
-    </div>
-
-    <!-- QUOTE SUMMARY -->
-    <div class="qb-sec">
-      <div class="qb-hdr">💲 Quote summary</div>
-      <div class="qb-summary" id="qb-summary">
-        <div style="color:rgba(255,255,255,.5);font-size:.8rem;text-align:center;padding:12px 0">Fill in details above to calculate quote</div>
-      </div>
-      <div class="qb-cost-per-box" id="qb-cost-per-box" style="display:none">
-        <span class="qb-cpb-lbl">Cost · 1 box</span>
-        <span class="qb-cpb-val" id="qb-cpb-val">—</span>
-      </div>
-      <button class="qb-save-btn" onclick="qbSaveQuote()">✦ Save Quote to Library</button>
-    </div>
-
-  <!-- SECTION: CLIENT QUOTE -->
-  <div class="cfg-sec" style="padding-bottom:24px">
-    <div class="cfg-sec-hdr">📬 Send Quote to Client</div>
+    <div id="qb-panel-box" style="display:none"><div id="qb-ext-dims"></div><div id="qb-panel-rows"></div></div>
+    <div id="qb-yield-box"><div id="qb-yield-content"></div></div>
+    <div id="qb-ext-readout"></div>
+    <div id="dim-err-quote"></div><div id="qb-syncbar"></div>
+    <div id="qb-summary"></div>
+    <div id="qb-cost-per-box"><span class="qb-cpb-lbl">Cost · 1 box</span><span id="qb-cpb-val">—</span></div>
     <div class="sum-grid" id="sumGrid">
-      <div class="sum-row"><span class="sum-k">Box Style</span><span class="sum-v gold" id="ss">—</span></div>
-      <div class="sum-row"><span class="sum-k">Wood</span><span class="sum-v" id="sw">—</span></div>
-      <div class="sum-row"><span class="sum-k">Finish</span><span class="sum-v" id="sf">—</span></div>
-      <div class="sum-row"><span class="sum-k">Size</span><span class="sum-v" id="ssz">—</span></div>
-      <div class="sum-row"><span class="sum-k">Hardware</span><span class="sum-v" id="sh">—</span></div>
-      <div class="sum-row"><span class="sum-k">Interior</span><span class="sum-v" id="si">—</span></div>
-      <div class="sum-row"><span class="sum-k">Quantity</span><span class="sum-v gold" id="sq">100 units</span></div>
-      <div class="sum-row"><span class="sum-k">Logo</span><span class="sum-v" id="slo">None</span></div>
-      <div class="sum-row"><span class="sum-k">Engraving</span><span class="sum-v" id="se">None</span></div>
+      <span id="ss">—</span><span id="sw">—</span><span id="sf">—</span><span id="ssz">—</span>
+      <span id="sh">—</span><span id="si">—</span><span id="sq">100 units</span>
+      <span id="slo">None</span><span id="se">None</span>
     </div>
-    <div class="email-section">
-      <div class="email-head"><div class="email-icon">📬</div><div class="email-title">Email quote to client</div></div>
-      <div class="email-sub">Opens in your email client pre-filled with the full spec and pricing.</div>
-      <div class="email-fields">
-        <div class="ef-row">
-          <input class="ef" id="ef-name" type="text" placeholder="Your name (sales rep)" oninput="this.dataset.manualEdit='1'">
-          <input class="ef" id="ef-co" type="text" placeholder="Client company">
-        </div>
-        <input class="ef" id="ef-email" type="email" placeholder="Client email address">
-        <textarea class="ef" id="ef-note" rows="2" style="resize:none" placeholder="Notes for client…"></textarea>
-      </div>
-      <button class="send-btn" onclick="sendEmail()">✉ Send Quote to Client</button>
-      <div class="send-note">Opens your email client pre-filled · Client email is required</div>
+    <div id="qb-btchips">
+      <button class="qb-btchip sel" data-bt="hinged" onclick="pickBoxType('hinged')"></button>
+      <button class="qb-btchip" data-bt="clamshell" onclick="pickBoxType('clamshell')"></button>
+      <button class="qb-btchip" data-bt="slide" onclick="pickBoxType('slide')"></button>
+      <button class="qb-btchip" data-bt="settop" onclick="pickBoxType('settop')"></button>
+      <button class="qb-btchip" data-bt="droptop" onclick="pickBoxType('droptop')"></button>
+      <button class="qb-btchip" data-bt="crate" onclick="pickBoxType('crate')"></button>
+    </div>
+    <textarea id="engv" oninput="setEngrave(this.value)"></textarea>
+    <div id="eprev" class="et"></div>
+    <div id="uzone"><input type="file" id="logofile" accept="image/*" onchange="loadLogo(this.files[0])"></div>
+    <div id="lpw"><img id="lpwi" src="" alt=""><div id="lpwn"></div></div>
+    <div id="qb-qty-quick">
+      <button class="pill" data-q="25" onclick="qbSetQtyPreset(25)">25</button>
+      <button class="pill" data-q="50" onclick="qbSetQtyPreset(50)">50</button>
+      <button class="pill" data-q="100" onclick="qbSetQtyPreset(100)">100</button>
+      <button class="pill" data-q="250" onclick="qbSetQtyPreset(250)">250</button>
+      <button class="pill" data-q="500" onclick="qbSetQtyPreset(500)">500</button>
+      <button class="pill" data-q="1000" onclick="qbSetQtyPreset(1000)">1,000</button>
     </div>
   </div>
 
+  <!-- DECISION TREE UI -->
+  <div class="qt-wrap">
 
-  </div><!-- end ct-quote -->
+    <div class="qt-hdr">
+      <div class="qt-hdr-brand">Woodchuck <span>USA</span></div>
+      <div class="qt-hdr-sub">Custom Box Quote</div>
+    </div>
+
+    <div class="qt-steps" id="qt-steps">
+
+      <!-- Step 1: Design -->
+      <div class="qt-step qt-active" id="qt-step-1">
+        <div class="qt-chip" onclick="qtEdit(1)">
+          <span class="qt-num">1</span><span class="qt-chip-icon">📐</span>
+          <span class="qt-chip-txt" id="qt-s1-txt">Box dimensions &amp; style</span>
+          <span class="qt-chip-ed">✎ edit</span>
+        </div>
+        <div class="qt-body">
+          <div class="qt-sz-row">
+            <button id="qt-sz-sm" class="qt-sz" onclick="qtSetSz('sm')">4×6×2</button>
+            <button id="qt-sz-md" class="qt-sz sel" onclick="qtSetSz('md')">6×9×3</button>
+            <button id="qt-sz-lg" class="qt-sz" onclick="qtSetSz('lg')">9×12×4</button>
+            <button class="qt-sz qt-sz-preset" onclick="setBoxPreset('liquor')">🍾 750ml</button>
+            <button class="qt-sz qt-sz-preset" onclick="setBoxPreset('wine')">🍷 Wine</button>
+          </div>
+          <div class="qt-dims">
+            <div class="qt-df"><span class="qt-da">W&quot;</span>
+              <div class="qt-dr"><button onclick="qtSD('w',-0.25)">−</button><input id="qt-cw" class="qt-di" type="number" value="6" min="2" max="24" step="0.25" oninput="qtDC()"><button onclick="qtSD('w',0.25)">+</button></div>
+            </div>
+            <span class="qt-dx">×</span>
+            <div class="qt-df"><span class="qt-da">D&quot;</span>
+              <div class="qt-dr"><button onclick="qtSD('d',-0.25)">−</button><input id="qt-cd" class="qt-di" type="number" value="9" min="2" max="24" step="0.25" oninput="qtDC()"><button onclick="qtSD('d',0.25)">+</button></div>
+            </div>
+            <span class="qt-dx">×</span>
+            <div class="qt-df"><span class="qt-da">H&quot;</span>
+              <div class="qt-dr"><button onclick="qtSD('h',-0.25)">−</button><input id="qt-ch" class="qt-di" type="number" value="3" min="1" max="24" step="0.25" oninput="qtDC()"><button onclick="qtSD('h',0.25)">+</button></div>
+            </div>
+          </div>
+          <div class="qt-bts-row">
+            <button class="qt-bts sel" data-bt="hinged" onclick="qtPBt('hinged',this)">📦 Hinged</button>
+            <button class="qt-bts" data-bt="clamshell" onclick="qtPBt('clamshell',this)">🦪 Clamshell</button>
+            <button class="qt-bts" data-bt="slide" onclick="qtPBt('slide',this)">🗂 Slide</button>
+            <button class="qt-bts" data-bt="settop" onclick="qtPBt('settop',this)">🎁 Set Top</button>
+            <button class="qt-bts" data-bt="droptop" onclick="qtPBt('droptop',this)">🔓 Drop Top</button>
+            <button class="qt-bts" data-bt="crate" onclick="qtPBt('crate',this)">📫 Crate</button>
+          </div>
+          <button class="qt-next-btn" onclick="qtNext(1)">Material &amp; Wood →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Material & Wood -->
+      <div class="qt-step qt-locked" id="qt-step-2">
+        <div class="qt-chip" onclick="qtEdit(2)">
+          <span class="qt-num">2</span><span class="qt-chip-icon">🪵</span>
+          <span class="qt-chip-txt" id="qt-s2-txt">Material &amp; wood species</span>
+          <span class="qt-chip-ed">✎ edit</span>
+        </div>
+        <div class="qt-body">
+          <div class="qt-path-row">
+            <button class="qt-path sel" data-mp="solid" onclick="qtSetPath('solid',this)">🪵 Solid<span>Ocooch hardwood</span></button>
+            <button class="qt-path" data-mp="mix" onclick="qtSetPath('mix',this)">🔀 Mix<span>Solid sides · MDF panels</span></button>
+            <button class="qt-path" data-mp="mdf" onclick="qtSetPath('mdf',this)">📄 MDF<span>All panels</span></button>
+          </div>
+          <div class="qb-wood-grid" id="qb-wood-grid" style="max-height:104px;overflow-y:auto;margin-bottom:7px"></div>
+          <button class="qt-next-btn" onclick="qtNext(2)">Finish &amp; Hardware →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Finish & Hardware -->
+      <div class="qt-step qt-locked" id="qt-step-3">
+        <div class="qt-chip" onclick="qtEdit(3)">
+          <span class="qt-num">3</span><span class="qt-chip-icon">🎨</span>
+          <span class="qt-chip-txt" id="qt-s3-txt">Finish &amp; hardware</span>
+          <span class="qt-chip-ed">✎ edit</span>
+        </div>
+        <div class="qt-body">
+          <div class="qt-fin-row">
+            <div class="qt-fo sel" onclick="qtPFin('natural',this)" title="Natural"><div class="qt-fdot" style="background:linear-gradient(135deg,#E8C090,#C89858)"></div><span>Natural</span></div>
+            <div class="qt-fo" onclick="qtPFin('goldenoak',this)" title="Golden Oak"><div class="qt-fdot" style="background:linear-gradient(135deg,#D4A030,#B88020)"></div><span>Gldn Oak</span></div>
+            <div class="qt-fo" onclick="qtPFin('mahstain',this)" title="Mahogany Stain"><div class="qt-fdot" style="background:linear-gradient(135deg,#8B2820,#6B1010)"></div><span>Mah Stain</span></div>
+            <div class="qt-fo" onclick="qtPFin('walstain',this)" title="Walnut Stain"><div class="qt-fdot" style="background:linear-gradient(135deg,#4A2810,#302008)"></div><span>Wal Stain</span></div>
+            <div class="qt-fo" onclick="qtPFin('black',this)" title="Black Paint"><div class="qt-fdot" style="background:#2a2a2a"></div><span>Black</span></div>
+            <div class="qt-fo" onclick="qtPFin('white',this)" title="White Paint"><div class="qt-fdot" style="background:#F8F0E8;border:1px solid #ddd"></div><span>White</span></div>
+          </div>
+          <div class="qt-hw-row">
+            <button class="qt-hw sel" data-hw="gold" onclick="qtPHw('gold',this)"><div class="qt-hwdot" style="background:#D4AF37"></div>Gold</button>
+            <button class="qt-hw" data-hw="silver" onclick="qtPHw('silver',this)"><div class="qt-hwdot" style="background:#C0C0C0"></div>Silver</button>
+            <button class="qt-hw" data-hw="black" onclick="qtPHw('black',this)"><div class="qt-hwdot" style="background:#2a2a2a"></div>Black</button>
+            <button class="qt-hw" data-hw="brass" onclick="qtPHw('brass',this)"><div class="qt-hwdot" style="background:#B5935A"></div>Brass</button>
+            <button class="qt-hw" data-hw="none" onclick="qtPHw('none',this)">No Hardware</button>
+          </div>
+          <button class="qt-next-btn" onclick="qtNext(3)">Branding →</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Branding -->
+      <div class="qt-step qt-locked" id="qt-step-4">
+        <div class="qt-chip" onclick="qtEdit(4)">
+          <span class="qt-num">4</span><span class="qt-chip-icon">🖼</span>
+          <span class="qt-chip-txt" id="qt-s4-txt">Branding &amp; logo</span>
+          <span class="qt-chip-ed">✎ edit</span>
+        </div>
+        <div class="qt-body">
+          <div class="qt-brand-row">
+            <textarea class="qt-engv" id="qt-engv" rows="2" placeholder="Engraving text (optional)" oninput="qtSEng(this.value)" maxlength="80"></textarea>
+            <div class="qt-logo-area">
+              <div class="qt-luzone" onclick="document.getElementById('qt-logofile').click()">
+                <input type="file" id="qt-logofile" accept="image/*" style="display:none" onchange="loadLogo(this.files[0]);qtUpdBrand()">
+                <span id="qt-logo-lbl">📎 Upload logo</span>
+              </div>
+              <button class="qt-logo-clr" id="qt-logo-clr" onclick="clearLogo();document.getElementById('qt-logo-lbl').textContent='📎 Upload logo';this.style.display='none';qtUpdBrand()">✕ Remove</button>
+            </div>
+          </div>
+          <button class="qt-next-btn" onclick="qtNext(4)">Interior →</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Interior -->
+      <div class="qt-step qt-locked" id="qt-step-5">
+        <div class="qt-chip" onclick="qtEdit(5)">
+          <span class="qt-num">5</span><span class="qt-chip-icon">🛋</span>
+          <span class="qt-chip-txt" id="qt-s5-txt">Interior lining</span>
+          <span class="qt-chip-ed">✎ edit</span>
+        </div>
+        <div class="qt-body">
+          <div class="qt-int-grid">
+            <button class="qt-int sel" data-int="none" onclick="qtPInt('none',this)">None (Raw Wood)</button>
+            <button class="qt-int" data-int="velvet" onclick="qtPInt('velvet',this)">✦ Velvet Flocked</button>
+            <button class="qt-int" data-int="wood" onclick="qtPInt('wood',this)">Wood Inserts</button>
+            <button class="qt-int" data-int="custom" onclick="qtPInt('custom',this)" style="border-color:#C8A060;color:#8a6020">📋 Custom Insert</button>
+          </div>
+          <button class="qt-next-btn" onclick="qtNext(5)">Quantity →</button>
+        </div>
+      </div>
+
+      <!-- Step 6: Quantity -->
+      <div class="qt-step qt-locked" id="qt-step-6">
+        <div class="qt-chip" onclick="qtEdit(6)">
+          <span class="qt-num">6</span><span class="qt-chip-icon">📦</span>
+          <span class="qt-chip-txt" id="qt-s6-txt">Order quantity</span>
+          <span class="qt-chip-ed">✎ edit</span>
+        </div>
+        <div class="qt-body">
+          <div class="qt-qty-presets">
+            <button class="qt-qp" onclick="qtSQ(25)">25</button>
+            <button class="qt-qp" onclick="qtSQ(50)">50</button>
+            <button class="qt-qp sel" onclick="qtSQ(100)">100</button>
+            <button class="qt-qp" onclick="qtSQ(250)">250</button>
+            <button class="qt-qp" onclick="qtSQ(500)">500</button>
+            <button class="qt-qp" onclick="qtSQ(1000)">1,000</button>
+          </div>
+          <div class="qt-qty-custom">
+            Custom: <input id="qt-qty" class="qt-qty-inp" type="number" value="100" min="1" oninput="qtSQI(this.value)">
+          </div>
+          <div class="qt-acts">
+            <button class="qt-act-save" onclick="qbSaveQuote()">✦ Save Quote</button>
+            <button class="qt-act-send" onclick="qtOpenSend()">✉ Send to Client</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- qt-steps -->
+
+    <!-- PRICE FOOTER -->
+    <div class="qt-footer" id="qt-footer">
+      <div class="qt-footer-price">
+        <div class="qt-fp-big"><span class="qt-fp-unit" id="qt-fp-unit">—</span><span class="qt-fp-each">/unit</span></div>
+        <div class="qt-fp-total" id="qt-fp-total">Configure above to price</div>
+      </div>
+      <div class="qt-footer-btns">
+        <button class="qt-fb" onclick="printSpecSheet()" title="Print spec sheet">🖨</button>
+        <button class="qt-fb" onclick="printBoxTemplate()" title="Print cut sheet">📐</button>
+        <button class="qt-fb qt-fb-detail" onclick="qtToggleDetail()">⋯ Details</button>
+      </div>
+    </div>
+
+    <!-- DETAIL DRAWER -->
+    <div class="qt-drawer" id="qt-drawer">
+
+      <div class="qt-drawer-sec">
+        <div class="qt-drawer-hdr">
+          📋 Project details
+          <button class="qt-drawer-close" onclick="qtToggleDetail()">✕ close</button>
+        </div>
+        <div class="qt-drawer-grid">
+          <div><label class="qt-dlbl">Project name</label><input class="qt-dinp" id="qt-d-name" type="text" placeholder="e.g. Gift Box 6×9×3" oninput="document.getElementById('qb-name').value=this.value"></div>
+          <div><label class="qt-dlbl">Client</label><input class="qt-dinp" id="qt-d-client" type="text" placeholder="Client name" oninput="document.getElementById('qb-client').value=this.value"></div>
+          <div><label class="qt-dlbl">Need by</label><input class="qt-dinp" id="qt-d-needby" type="date" oninput="document.getElementById('qb-needby').value=this.value;qbCheckRush()"></div>
+          <div><label class="qt-dlbl">Sales rep</label><input class="qt-dinp" id="qt-d-rep" type="text" placeholder="Your name" oninput="document.getElementById('qb-rep').value=this.value;const ef=document.getElementById('ef-name');if(ef&&!ef.dataset.manualEdit)ef.value=this.value;"></div>
+          <div style="grid-column:1/-1"><label class="qt-dlbl">Notes</label><input class="qt-dinp" style="width:100%" type="text" placeholder="Notes…" oninput="document.getElementById('qb-notes').value=this.value"></div>
+        </div>
+      </div>
+
+      <div class="qt-drawer-sec" id="qt-send-sec">
+        <div class="qt-drawer-hdr">📬 Send quote to client</div>
+        <div class="qt-drawer-grid" style="margin-bottom:6px">
+          <input class="qt-dinp" id="ef-name" type="text" placeholder="Your name (sales rep)" oninput="this.dataset.manualEdit='1'">
+          <input class="qt-dinp" id="ef-co" type="text" placeholder="Client company">
+        </div>
+        <input class="qt-dinp" id="ef-email" type="email" placeholder="Client email" style="width:100%;margin-bottom:5px">
+        <textarea class="qt-dinp" id="ef-note" rows="2" style="width:100%;resize:none;margin-bottom:7px" placeholder="Notes for client…"></textarea>
+        <div style="display:flex;gap:6px">
+          <button class="qt-send-btn" style="background:var(--gold)" onclick="sendEmail()">✉ Send Quote</button>
+          <button class="qt-send-btn" style="background:var(--green)" onclick="printSpecSheet()">🖨 Spec Sheet</button>
+          <button class="qt-send-btn" style="background:#4a6058" onclick="printBoxTemplate()">📐 Cut Sheet</button>
+        </div>
+      </div>
+
+      <div class="qt-drawer-sec">
+        <div class="qt-drawer-hdr" onclick="qtTogMats(this)" style="cursor:pointer">
+          🔧 Additional materials
+          <span style="font-weight:400;font-size:.8rem;opacity:.5">▼</span>
+        </div>
+        <div id="qt-mats-body" style="display:none">
+          <div id="qb-mat-hdr" style="display:none" class="qb-mat-hdr"><span>Item</span><span>Qty</span><span>$ / Unit</span><span>Total</span><span></span></div>
+          <div id="qb-mat-list"><span style="font-size:.75rem;color:var(--mu)">No materials added.</span></div>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <button class="qb-add-btn" onclick="qbAddMaterial()">+ Add item</button>
+            <button class="qb-add-btn" onclick="qbOpenPresets()">+ From presets</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="qt-drawer-sec">
+        <div class="qt-drawer-hdr" onclick="qtTogCust(this)" style="cursor:pointer">
+          ✦ Extras / customizations
+          <span style="font-weight:400;font-size:.8rem;opacity:.5">▼</span>
+        </div>
+        <div id="qt-cust-body" style="display:none">
+          <div class="qb-custom-hdr" id="qb-custom-hdr" style="display:none"><span>Description</span><span>Qty</span><span>Unit Price</span><span></span></div>
+          <div id="qb-custom-list"><span style="font-size:.75rem;color:var(--mu)">No extras added.</span></div>
+          <button class="qb-add-btn" onclick="qbAddCustom()" style="margin-top:6px">+ Add extra</button>
+        </div>
+      </div>
+
+      <div class="qt-drawer-sec" id="qb-breaks-sec" style="display:none">
+        <div class="qt-drawer-hdr">📊 Quantity price breaks</div>
+        <div id="qb-breaks-content"></div>
+      </div>
+
+      <div class="qt-drawer-sec">
+        <div class="qt-drawer-hdr" onclick="qtTogAdv(this)" style="cursor:pointer">
+          ⚙️ Advanced config costs
+          <span style="font-weight:400;font-size:.8rem;opacity:.5">▼</span>
+        </div>
+        <div id="qt-adv-body" style="display:none">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-size:.73rem;font-weight:700;flex-shrink:0">🔗 Joinery</span>
+            <select id="qt-join-sel" class="qt-dinp" style="flex:1;font-size:.7rem;padding:4px" onchange="qtSetJoin(this.value)">
+              <option value="0">Standard — $0.00</option>
+              <option value="1.99">Laser Cut Butt Joint — +$1.99</option>
+              <option value="4.95">Laser Cut Miter — +$4.95</option>
+              <option value="7.10">Saw Cut Butt Joint — +$7.10</option>
+              <option value="9.31">Saw Cut Miter — +$9.31</option>
+            </select>
+          </div>
+          <button class="qb-labor-preset-btn" onclick="qbSyncConfigCosts()">↺ Re-sync config from design</button>
+        </div>
+      </div>
+
+    </div><!-- qt-drawer -->
+
+  </div><!-- qt-wrap -->
+
+</div><!-- end ct-quote -->
 
   <!-- ── LIBRARY TAB ────────────────────────────────────────── -->
   <div id="ct-library" class="ct-panel">
@@ -1024,7 +1117,7 @@ const NM={
   fin:{natural:'Natural',goldenoak:'Golden Oak',mahstain:'Mahogany Stain',walstain:'Walnut Stain',black:'Black Paint',white:'White Paint'},
   sz:{sm:'Small (4×6×2")',md:'Medium (6×9×3")',lg:'Large (9×12×4")'},
   hw:{gold:'Gold',silver:'Silver',black:'Black',brass:'Antique Brass',none:'None'},
-  int:{none:'None (Raw Wood)',eco:'Eco-Foam',pu:'PU Foam',velvet:'Velvet Flocked',wood:'Wood Inserts',excelsior:'Excelsior'},
+  int:{none:'None (Raw Wood)',velvet:'Velvet Flocked',wood:'Wood Inserts',custom:'Custom Insert (quoted separately)',eco:'Eco-Foam',pu:'PU Foam',excelsior:'Excelsior'},
   pl:{top:'Top Face',front:'Front Face',both:'Top & Front'}
 };
 const TOASTS={
@@ -1076,6 +1169,8 @@ function pickBoxType(bt){
     qbReflectDesign();
   }
   qbSyncConfigCosts();
+  // Sync tree box-style chips
+  document.querySelectorAll('.qt-bts').forEach(b=>b.classList.toggle('sel',b.dataset.bt===bt));
 }
 function showToast(m){const t=document.getElementById('toast');t.innerHTML='<span style="color:var(--gold);margin-right:7px;font-size:1.05em">✦</span>'+m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
 function flashLive(){const b=document.getElementById('lb');b.classList.add('on');clearTimeout(b._t);b._t=setTimeout(()=>b.classList.remove('on'),1100);}
@@ -1144,7 +1239,9 @@ const QB_HW_DESC={
 // Interior insert cost per sq.in of interior floor area (W×D).
 // Base ref: 54 sq.in (6"×9" medium). Costs scale naturally with box size.
 const QB_INT_SQIN={
-  none:0, eco:0.083, pu:0.139, velvet:0.241, wood:0.167, excelsior:0.046,
+  none:0, velvet:0.241, wood:0.167, custom:0,
+  // foam removed in v2 — keep legacy values for saved quote compat
+  eco:0.083, pu:0.139, excelsior:0.046,
 };
 // Finish material cost per sq.in of total exterior surface area.
 // Base ref: 216.5 sq.in (6"×9"×3" hinged at ¼" walls).
@@ -1152,8 +1249,252 @@ const QB_FIN_SQIN={
   natural:0, goldenoak:0.0162, mahstain:0.0162, walstain:0.0162,
   black:0.0231, white:0.0208,
 };
-const QB_ENG_COST=8.00;   // engraving — per unit
-const QB_LOGO_COST=5.00;  // logo laser burn — per unit
+// Engraving & logo — tiered by placement count, charged from unit 1
+// 1 placement = base rate; 2+ = reduced rate per placement
+const QB_ENG_RATES=[{min:1,max:1,rate:8.00},{min:2,max:2,rate:6.50},{min:3,max:99,rate:5.50}];
+const QB_LOGO_RATES=[{min:1,max:1,rate:5.00},{min:2,max:2,rate:4.00},{min:3,max:99,rate:3.50}];
+const QB_ENG_COST=8.00;   // kept for legacy compat
+const QB_LOGO_COST=5.00;  // kept for legacy compat
+
+// Quantity-driven margin table — locked, read-only
+const QB_MARGIN_TABLE=[
+  {lo:1,   hi:24,   margin:65, label:'1–24'},
+  {lo:25,  hi:49,   margin:60, label:'25–49'},
+  {lo:50,  hi:99,   margin:55, label:'50–99'},
+  {lo:100, hi:249,  margin:50, label:'100–249'},
+  {lo:250, hi:499,  margin:45, label:'250–499'},
+  {lo:500, hi:999,  margin:40, label:'500–999'},
+  {lo:1000,hi:99999,margin:35, label:'1000+'},
+];
+function qbMarginForQty(qty){
+  const row=QB_MARGIN_TABLE.find(r=>qty>=r.lo&&qty<=r.hi)||QB_MARGIN_TABLE[QB_MARGIN_TABLE.length-1];
+  return row;
+}
+
+// Material path state: 'solid' | 'mix' | 'mdf'
+let qbMatPath=QBdb.get('matPath')||'solid';
+function qbSetMatPath(path){
+  qbMatPath=path;
+  QBdb.set('matPath',path);
+  // Update button selection
+  document.querySelectorAll('.qb-mp-btn').forEach(b=>b.classList.toggle('sel',b.dataset.mp===path));
+  // Show/hide joinery note
+  const jNote=document.getElementById('qb-joinery-path-note');
+  if(jNote){
+    if(path==='mdf'){
+      jNote.style.display='block';
+      jNote.innerHTML='📄 <strong>MDF path:</strong> Laser-cut stitch joinery is available. Butt joint and miter also apply.';
+    } else if(path==='mix'){
+      jNote.style.display='block';
+      jNote.innerHTML='🔀 <strong>Mix path:</strong> Ocooch solid sides · MDF top &amp; bottom. Butt joint or miter only — no laser stitch.';
+    } else {
+      jNote.style.display='none';
+    }
+  }
+  // Keep joinery selector in sync — laser stitch only available on MDF
+  const joinSel=document.getElementById('qb-cc-join-sel');
+  if(joinSel){
+    Array.from(joinSel.options).forEach(o=>{
+      if(o.value==='1.99'||o.value==='4.95'){
+        // Laser cut options — only valid for mdf path (laser stitch) or always for miter/butt
+        // Keep all options, just note via the select hint which path applies
+      }
+    });
+  }
+  // Sync price source for legacy pricing engine
+  if(path==='solid')qbSetPriceSrc('ocooch');
+  else if(path==='mix')qbSetPriceSrc('ocooch');
+  else qbSetPriceSrc('mdf');
+  qbUpdateAll();
+}
+
+// Ocooch multi-board stock sizes per species
+// Format: [width_in, length_in, price_per_board]
+// Source: ocoochhardwoods.com/thin-wood/ (1/4" thick unless noted)
+// The board selection engine picks the cheapest combination that covers all panels
+const QB_OCOOCH_BOARDS={
+  // Most species available in 3", 4", 6" wide x 24" long at 1/4" thick
+  // Prices vary by species and width
+  default:{
+    '3x24':null, // not all species have 3" wide
+    '4x24':null,
+    '6x24':null,
+  }
+};
+// We use the per-board price from QB_OCOOCH (which is 6x24) and derive other sizes
+// by assuming board-foot pricing is consistent within a species
+function ocoochBoardsForSpecies(speciesName,t){
+  const sp=QB_OCOOCH.find(s=>s.name===speciesName);
+  if(!sp||!sp.sheet)return null;
+  const price6x24=sp.sheet; // price for 6"x24"x1/4"
+  // Board-foot at 1/4" thick: 6*24*(0.25/12) = 3 BF for a 6x24x1/4
+  // Derive other sizes proportionally by area (same $/sq.in assumption)
+  const sqin6x24=6*24;
+  const pricePerSqIn=price6x24/sqin6x24;
+  // Available stock widths for Ocooch 1/4" thin wood
+  const widths=[3,4,6];
+  const length=24;
+  return widths.map(w=>({
+    width:w, length, thick:t||0.25,
+    price:parseFloat((pricePerSqIn*w*length).toFixed(2)),
+    sqin:w*length,
+    label:`${w}"x${length}" (${t||0.25}")`
+  }));
+}
+
+// Auto-select the lowest-cost board combination for a set of panels
+// panels: [{w, h}] — each panel's required dimensions (after joinery calc)
+// Returns {boardSize, boardsNeeded, totalCost, wastePercent, boards}
+function ocoochSelectBoard(speciesName,panels,t,kerf){
+  const k=kerf||0.125;
+  const boards=ocoochBoardsForSpecies(speciesName,t);
+  if(!boards||!boards.length)return null;
+
+  // For each available board width, compute how many boards are needed
+  let best=null;
+  boards.forEach(board=>{
+    // Simple 1D bin-packing: for each panel, determine if it fits within board width
+    // A panel of width w can be cut from this board if w <= board.width (with kerf)
+    // Count how many panels fit per board (panels laid end-to-end along length, side-by-side if width allows)
+    let totalBoardsNeeded=0;
+    let totalAreaUsed=0;
+
+    // Group panels by whether they fit within this board width
+    const fitsAll=panels.every(p=>p.w<=board.width||p.h<=board.width);
+    if(!fitsAll)return; // skip this board size — a panel is too wide
+
+    // For each panel: how many fit along the 24" length?
+    // Orient panel so the shorter dimension is the width (to use board width efficiently)
+    let remaining=board.length; // remaining length on current board
+    let boardCount=1;
+
+    panels.forEach(p=>{
+      // Orient: try to fit the panel so one dimension <= board.width
+      const pW=Math.min(p.w,p.h)<=board.width?Math.min(p.w,p.h):Math.max(p.w,p.h);
+      const pL=(pW===Math.min(p.w,p.h))?Math.max(p.w,p.h):Math.min(p.w,p.h);
+      const needed=pL+k; // panel length + one kerf
+      if(remaining<needed){boardCount++;remaining=board.length;}
+      remaining-=needed;
+      totalAreaUsed+=p.w*p.h;
+    });
+    totalBoardsNeeded=boardCount;
+
+    const totalCost=totalBoardsNeeded*board.price;
+    const totalBoardArea=totalBoardsNeeded*board.sqin;
+    const wastePercent=Math.max(0,Math.round((1-totalAreaUsed/totalBoardArea)*100));
+
+    if(!best||totalCost<best.totalCost){
+      best={
+        boardSize:`${board.width}"x${board.length}"x${t||0.25}"`,
+        boardsNeeded:totalBoardsNeeded,
+        totalCost,
+        wastePercent,
+        pricePerBoard:board.price,
+        label:board.label,
+        sqinPerBoard:board.sqin,
+        totalAreaUsed:totalAreaUsed.toFixed(1),
+        totalBoardArea
+      };
+    }
+  });
+  return best;
+}
+
+// Update margin display and tiers from current qty
+function qbUpdateMarginDisplay(qty){
+  const row=qbMarginForQty(qty);
+  const dispEl=document.getElementById('qb-margin-display');
+  const badgeEl=document.getElementById('qb-margin-tier-badge');
+  const tiersEl=document.getElementById('qb-margin-tiers');
+  const hiddenEl=document.getElementById('qb-margin');
+  if(dispEl)dispEl.textContent=row.margin+'%';
+  if(badgeEl)badgeEl.textContent=row.label+' units';
+  if(hiddenEl)hiddenEl.value=row.margin;
+  if(tiersEl){
+    tiersEl.innerHTML=QB_MARGIN_TABLE.map(r=>`
+      <div style="padding:4px 6px;border-radius:6px;background:${r.margin===row.margin?'var(--green)':'var(--gxl)'};border:1px solid ${r.margin===row.margin?'var(--green)':'var(--bo)'};text-align:center">
+        <div style="font-size:.55rem;font-weight:700;color:${r.margin===row.margin?'rgba(255,255,255,.7)':'var(--mu)'};text-transform:uppercase;letter-spacing:.05em">${r.label}</div>
+        <div style="font-size:.82rem;font-weight:900;color:${r.margin===row.margin?'#fff':'var(--tx)'}">${r.margin}%</div>
+      </div>`).join('');
+  }
+}
+
+// Quantity breaks: show next 2-3 tiers above current qty with savings
+function qbUpdateQtyBreaks(qty,perUnit){
+  const sec=document.getElementById('qb-breaks-sec');
+  const el=document.getElementById('qb-breaks-content');
+  if(!sec||!el)return;
+  const currentRow=qbMarginForQty(qty);
+  // Find tiers above current
+  const nextTiers=QB_MARGIN_TABLE.filter(r=>r.lo>qty).slice(0,3);
+  if(!nextTiers.length||!perUnit||perUnit<=0){sec.style.display='none';return;}
+  sec.style.display='block';
+  // For each next tier, estimate what the unit price would be
+  // Same cost base, lower margin => lower price
+  const currentMargin=currentRow.margin;
+  el.innerHTML=nextTiers.map(r=>{
+    const nextQty=r.lo;
+    const costBase=perUnit*(1-currentMargin/100); // reverse-engineer cost
+    const nextPerUnit=r.margin<100?costBase/(1-r.margin/100):costBase*2;
+    const savings=perUnit-nextPerUnit;
+    const totalSavings=savings*nextQty;
+    const diff=nextQty-qty;
+    return`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:${r===nextTiers[0]?'rgba(61,79,67,.06)':'var(--gxl)'};border-radius:8px;margin-bottom:5px;border:1px solid var(--bo)">
+      <div>
+        <div style="font-size:.75rem;font-weight:700;color:var(--green)">${nextQty.toLocaleString()} units <span style="font-size:.62rem;font-weight:600;color:var(--gold)">(${r.margin}% margin)</span></div>
+        <div style="font-size:.62rem;color:var(--mu);margin-top:1px">Add ${diff} more · $${totalSavings.toFixed(0)} total savings</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:.9rem;font-weight:900;color:var(--green)">$${nextPerUnit.toFixed(2)}<span style="font-size:.62rem;font-weight:600;color:var(--mu)">/unit</span></div>
+        <div style="font-size:.62rem;color:#2e7d32;font-weight:700">-$${savings.toFixed(2)}/unit</div>
+      </div>
+    </div>`;
+  }).join('');
+  // "You're X away from next break" nudge
+  if(nextTiers[0]){
+    const diff=nextTiers[0].lo-qty;
+    if(diff<=25){
+      el.innerHTML=`<div style="padding:5px 9px;background:rgba(200,160,96,.1);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;font-size:.67rem;font-weight:700;color:#7a5c1e;margin-bottom:7px">💡 Add just ${diff} more unit${diff!==1?'s':''} to unlock the next price break!</div>`+el.innerHTML;
+    }
+  }
+}
+
+// Custom insert: show/hide flag
+function qbUpdateCustomInsert(){
+  const isCustom=C.int==='custom';
+  const flagEl=document.getElementById('qb-custom-insert-flag');
+  const noteEl=document.getElementById('qb-custom-insert-note');
+  if(flagEl)flagEl.style.display=isCustom?'block':'none';
+  if(noteEl)noteEl.style.display=isCustom?'block':'none';
+  // Zero out the insert cost when custom (it's quoted separately)
+  const intInp=document.getElementById('qb-cc-int');
+  if(intInp&&isCustom){intInp.value='0';}
+}
+
+// Engraving price display
+function qbUpdateEngPricing(){
+  const hasEng=!!(C.engrave&&C.engrave.trim());
+  const el=document.getElementById('qb-eng-pricing');
+  const valEl=document.getElementById('qb-eng-price-val');
+  if(!el)return;
+  if(hasEng){
+    el.style.display='block';
+    if(valEl)valEl.textContent='$'+QB_ENG_COST.toFixed(2);
+  } else {
+    el.style.display='none';
+  }
+}
+
+// Format labor time: show minutes when < 1 hr, hours otherwise
+function fmtHrs(h){
+  if(!h||h<=0) return '0 min';
+  if(h<1){
+    const m=h*60;
+    const r=Math.round(m*10)/10; // 1 decimal place
+    return (r===Math.round(r)?Math.round(r):r)+' min';
+  }
+  return h.toFixed(2)+' hr';
+}
 
 // Sync config costs from C state → populate the config-cost inputs
 function qbSyncConfigCosts(){
@@ -1192,19 +1533,35 @@ function qbSyncConfigCosts(){
   if(el('qb-cc-fin-hint'))el('qb-cc-fin-hint').textContent=finK==='natural'?'no coating — natural wood':`${surfArea.toFixed(0)} sq.in × $${(QB_FIN_SQIN[finK]||0).toFixed(4)}/sq.in`;
   const finRow=el('qb-cc-fin-row'); if(finRow)finRow.style.opacity=finCost===0?'0.4':'1';
 
-  // Engraving — show row only if text is set; don't overwrite if user already edited
+  // Engraving — auto-fill when text added; auto-clear when text removed
   const hasEng=!!C.engrave;
   if(el('qb-cc-eng-row'))el('qb-cc-eng-row').style.opacity=hasEng?'1':'0.45';
   if(el('qb-cc-eng-hint'))el('qb-cc-eng-hint').textContent=C.engrave?`"${C.engrave.slice(0,22)}"`:  '—';
-  if(hasEng&&el('qb-cc-eng')&&parseFloat(el('qb-cc-eng').value)===0)el('qb-cc-eng').value=QB_ENG_COST.toFixed(2);
+  if(el('qb-cc-eng')){
+    if(hasEng&&parseFloat(el('qb-cc-eng').value)===0)el('qb-cc-eng').value=QB_ENG_COST.toFixed(2);
+    if(!hasEng&&!el('qb-cc-eng').dataset.manualEdit)el('qb-cc-eng').value='0'; // clear cost when text removed
+  }
 
-  // Logo burn — fade row when no logo uploaded; auto-fill default when logo is set
+  // Logo burn — auto-fill when logo uploaded; auto-clear when removed
   const hasLogo=!!C.logo;
   if(el('qb-cc-logo-row'))el('qb-cc-logo-row').style.opacity=hasLogo?'1':'0.45';
-  if(hasLogo&&el('qb-cc-logo')&&parseFloat(el('qb-cc-logo').value)===0)el('qb-cc-logo').value=QB_LOGO_COST.toFixed(2);
+  if(el('qb-cc-logo')){
+    if(hasLogo&&parseFloat(el('qb-cc-logo').value)===0)el('qb-cc-logo').value=QB_LOGO_COST.toFixed(2);
+    if(!hasLogo&&!el('qb-cc-logo').dataset.manualEdit)el('qb-cc-logo').value='0';
+  }
 
   qbUpdateAll();
 }
+
+function qbSetJoinery(val){
+  const n=parseFloat(val)||0;
+  const inp=document.getElementById('qb-cc-join');
+  if(inp){inp.value=n.toFixed(2);}
+  qbUpdateAll();
+}
+
+// Labor functions removed in v2 — labor is now quoted separately
+
 const VOL_MULT=[
   [5000,0.55],[1000,0.60],[500,0.68],[250,0.75],[100,0.85],[50,0.90],[1,1.0]
 ];
@@ -1303,10 +1660,11 @@ function setCustomDim(key,val){
 }
 // Keep DESIGN-tab and QUOTE-tab dimension fields + size-preset pills mirrored to C
 function syncDimInputs(){
-  [['cw','dim-w','qb-dim-w'],['cd','dim-d','qb-dim-d'],['ch','dim-h','qb-dim-h']].forEach(([k,a,b])=>{
-    const ea=document.getElementById(a), eb=document.getElementById(b);
+  [['cw','dim-w','qb-dim-w','qt-cw'],['cd','dim-d','qb-dim-d','qt-cd'],['ch','dim-h','qb-dim-h','qt-ch']].forEach(([k,a,b,c])=>{
+    const ea=document.getElementById(a), eb=document.getElementById(b), ec=document.getElementById(c);
     if(ea&&document.activeElement!==ea)ea.value=C[k];
     if(eb&&document.activeElement!==eb)eb.value=C[k];
+    if(ec&&document.activeElement!==ec)ec.value=C[k];
   });
   ['sm','md','lg','custom'].forEach(k=>{
     document.getElementById('sz-'+k)?.classList.toggle('sel',k===C.sz);
@@ -1331,6 +1689,21 @@ function setSzPreset(sz){
   syncDimInputs();
   drawBox();updateLabel();updateChips();updatePrice();drawFlatLayout();
   qbReflectDesign();
+}
+function setBoxPreset(name){
+  const presets={
+    liquor:{bt:'settop',cw:3.75,cd:3.75,ch:13,wood:'birch',fin:'natural',label:'750ml Liquor Bottle Box — 3¾"×3¾"×13" interior'},
+    wine:  {bt:'settop',cw:4,   cd:4,   ch:14,wood:'maple', fin:'natural',label:'Wine Bottle Box — 4"×4"×14" interior'},
+    flask: {bt:'hinged',cw:5,   cd:2,   ch:7, wood:'walnut',fin:'natural',label:'Flask Box — 5"×2"×7" interior'},
+  };
+  const p=presets[name]; if(!p) return;
+  C.bt=p.bt; C.cw=p.cw; C.cd=p.cd; C.ch=p.ch; C.sz='custom';
+  C.wood=p.wood; C.fin=p.fin;
+  syncDimInputs();
+  document.querySelectorAll('.qb-btchip').forEach(c=>c.classList.toggle('sel',c.dataset.bt===p.bt));
+  drawBox();updateLabel();updateChips();updatePrice();drawFlatLayout();
+  qbReflectDesign();
+  showToast(p.label);
 }
 
 function lightenHex(hex,amt){const p=s=>parseInt(s,16);const r=Math.min(255,Math.round(p(hex.slice(1,3))+amt*255));const g2=Math.min(255,Math.round(p(hex.slice(3,5))+amt*255));const bv=Math.min(255,Math.round(p(hex.slice(5,7))+amt*255));return'#'+[r,g2,bv].map(v=>v.toString(16).padStart(2,'0')).join('');}
@@ -1657,7 +2030,8 @@ function sendEmail(){
     ?`Price per unit:   $${perUnit.toFixed(2)}\nOrder total (${qty.toLocaleString()} units): $${grandTotal.toFixed(2)}`
     :'Price:            (contact us for a formal quote)';
   const ln='━━━━━━━━━━━━━━━━━━━━━━━━━━';
-  const sub=encodeURIComponent(`Custom Wood Box Quote — ${NM.bt[C.bt]} in ${woodName()}${co?' | '+co:''}`);
+  const rushPrefix=qbIsRush()?'⚠ RUSH — ':'';
+  const sub=encodeURIComponent(`${rushPrefix}Custom Wood Box Quote — ${NM.bt[C.bt]} in ${woodName()}${co?' | '+co:''}`);
   const body=encodeURIComponent(
     `Hello ${co||'there'},\n\n`
     +`Thank you for the opportunity to work together! Below is your custom wood packaging quote from Woodchuck USA.\n\n`
@@ -1681,6 +2055,515 @@ function sendEmail(){
   window.location.href=`mailto:${em}?cc=sales@woodchuckcase.com&subject=${sub}&body=${body}`;
   showToast('Opening your email client now!');
 }
+function printBoxTemplate(){
+  // Pull live price calc so we can show totals on the cut sheet
+  const calc=(typeof qbUpdateAll==='function')?qbUpdateAll():null;
+  const qty=parseInt(document.getElementById('qb-qty')?.value)||C.qty||100;
+  // Dimensions from current config
+  const t=parseFloat(document.getElementById('qb-matT')?.value)||0.25;
+  let intW,intD,intH;
+  if(C.sz==='custom'){intW=C.cw||3.75;intD=C.cd||3.75;intH=C.ch||13;}
+  else{const m={sm:{w:4,d:6,h:2},md:{w:6,d:9,h:3},lg:{w:9,d:12,h:4}}[C.sz]||{w:6,d:9,h:3};intW=m.w;intD=m.d;intH=m.h;}
+  intW=parseFloat(intW.toFixed(4)); intD=parseFloat(intD.toFixed(4)); intH=parseFloat(intH.toFixed(4));
+
+  // Set-top box construction (butt joints):
+  //   front/back are full exterior width, sides fit between them, bottom inside all 4 walls
+  const extW=parseFloat((intW+2*t).toFixed(4));
+  const extD=parseFloat((intD+2*t).toFixed(4));
+  const extH=parseFloat((intH+t).toFixed(4));   // base total height incl. bottom panel
+  const lidDrop=1.5;                              // how far lid drops over base
+  const lidClr=0.0625;                            // 1/16" clearance each side
+  const lidW=parseFloat((extW+2*lidClr+2*t).toFixed(4)); // lid exterior width
+  const lidD=parseFloat((extD+2*lidClr+2*t).toFixed(4)); // lid exterior depth
+  const lidSideW=parseFloat((extD+2*lidClr).toFixed(4)); // lid L/R inner panel fits between F/B
+
+  const panels=[
+    {id:1,name:'Base Bottom',   pw:intW,   ph:intD,    qty:1,grp:'base',note:'Inside all 4 walls (glue pocket)'},
+    {id:2,name:'Base Front',    pw:extW,   ph:extH,    qty:1,grp:'base',note:'Full width · covers L/R side edges'},
+    {id:3,name:'Base Back',     pw:extW,   ph:extH,    qty:1,grp:'base',note:'Full width · covers L/R side edges'},
+    {id:4,name:'Base Side',     pw:intD,   ph:extH,    qty:2,grp:'base',note:'Fits between Front & Back — cut ×2'},
+    {id:5,name:'Lid Top',       pw:lidW,   ph:lidD,    qty:1,grp:'lid', note:'Drops over base exterior with 1⁄16" clearance'},
+    {id:6,name:'Lid Front/Back',pw:lidW,   ph:lidDrop, qty:2,grp:'lid', note:'Full lid width — cut ×2'},
+    {id:7,name:'Lid Side',      pw:lidSideW,ph:lidDrop,qty:2,grp:'lid', note:'Fits between Lid F/B — cut ×2'},
+  ];
+
+  const totalSqIn=panels.reduce((s,p)=>s+p.pw*p.ph*p.qty,0);
+  const roughBF=(totalSqIn*t/144).toFixed(2);
+  const bfWaste=(totalSqIn*t*1.2/144).toFixed(2);
+
+  const wood=woodName()||'Birch';
+  const fin=NM.fin[C.fin]||'Natural';
+  const bt=NM.bt[C.bt]||'Set Top';
+  const projName=document.getElementById('qb-name')?.value.trim()||'Custom Box';
+  const repName=(document.getElementById('ef-name')?.value.trim()||document.getElementById('qb-rep')?.value.trim()||'');
+  const today=new Date().toISOString().slice(0,10);
+
+  // ── SVG panel diagram ──────────────────────────────────────────────────
+  // Row 1: base panels (taller). Row 2: lid panels (much shorter).
+  const sc=Math.min(170/extH, 36); // px per inch; cap so small boxes don't blow up
+  const px=(v)=>Math.round(v*sc);
+  const svgGap=8, svgMargin=10, lblH=14;
+  const baseFill='#E8D8A8', lidFill='#D4BA72', stroke='#3d4f43';
+
+  let svgOut='', cx=svgMargin, cy=svgMargin+lblH;
+  const r1H=px(extH);
+  // Section label row 1
+  svgOut+=`<text x="${svgMargin}" y="${cy-3}" font-size="8" font-weight="800" fill="#3d4f43">BASE BOX PANELS</text>`;
+  panels.filter(p=>p.grp==='base').forEach(p=>{
+    const w=px(p.pw), h=px(p.ph);
+    const qLabel=p.qty>1?` ×${p.qty}`:'';
+    svgOut+=`<rect x="${cx}" y="${cy}" width="${w}" height="${h}" fill="${baseFill}" stroke="${stroke}" stroke-width="1.2" rx="2"/>`;
+    // Name + dims inside panel (works for tall panels)
+    const midY=cy+h/2;
+    svgOut+=`<text x="${cx+w/2}" y="${midY-5}" text-anchor="middle" font-size="8" font-weight="700" fill="#333">${p.name}${qLabel}</text>`;
+    svgOut+=`<text x="${cx+w/2}" y="${midY+8}" text-anchor="middle" font-size="7" fill="#666">${p.pw}"×${p.ph}"</text>`;
+    cx+=w+svgGap;
+  });
+  const svgRow1W=cx;
+
+  // Row 2: lid panels
+  const rowGap=26;
+  cx=svgMargin;
+  const cy2=cy+r1H+rowGap;
+  svgOut+=`<text x="${svgMargin}" y="${cy2-5}" font-size="8" font-weight="800" fill="#A07020">LID PANELS</text>`;
+  panels.filter(p=>p.grp==='lid').forEach(p=>{
+    const w=px(p.pw), h=Math.max(px(p.ph),22); // min 22px so text fits
+    const qLabel=p.qty>1?` ×${p.qty}`:'';
+    svgOut+=`<rect x="${cx}" y="${cy2}" width="${w}" height="${h}" fill="${lidFill}" stroke="${stroke}" stroke-width="1.2" rx="2"/>`;
+    svgOut+=`<text x="${cx+w/2}" y="${cy2+h/2-4}" text-anchor="middle" font-size="7.5" font-weight="700" fill="#333">${p.name}${qLabel}</text>`;
+    svgOut+=`<text x="${cx+w/2}" y="${cy2+h/2+7}" text-anchor="middle" font-size="7" fill="#666">${p.pw}"×${p.ph}"</text>`;
+    cx+=w+svgGap;
+  });
+  const svgTotalW=Math.max(svgRow1W,cx)+svgMargin;
+  const svgTotalH=cy2+Math.max(px(lidD),22)+svgMargin*2;
+
+  // ── Build HTML ─────────────────────────────────────────────────────────
+  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>Box Cut Sheet — ${projName}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:10pt;color:#1a1a1a;background:#fff;padding:20px 26px}
+.page{max-width:760px;margin:0 auto}
+.hd{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:12px;border-bottom:3px solid #3d4f43;margin-bottom:14px}
+.brand{color:#3d4f43}
+.bn{font-size:17pt;font-weight:900;letter-spacing:-.02em;line-height:1}
+.bs{font-size:7pt;color:#888;letter-spacing:.12em;text-transform:uppercase;margin-top:2px}
+.dt{font-size:12pt;font-weight:800;color:#3d4f43;text-align:right}
+.dm{font-size:8pt;color:#666;text-align:right;margin-top:4px;line-height:1.8}
+/* Spec bar */
+.sbar{display:grid;grid-template-columns:1fr 1fr 1fr;border:1.5px solid #ddd;border-radius:8px;overflow:hidden;margin-bottom:14px}
+.sc{padding:9px 12px;border-right:1px solid #ddd}
+.sc:last-child{border-right:none}
+.sh{font-size:6.5pt;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#3d4f43;margin-bottom:5px}
+.sr{display:flex;justify-content:space-between;font-size:8.5pt;padding:2px 0;border-bottom:1px solid #f0ece4}
+.sr:last-child{border-bottom:none}
+.sk{color:#666}
+.sv{font-weight:700}
+/* Table */
+table{width:100%;border-collapse:collapse;margin-bottom:14px}
+thead{background:#3d4f43;color:#fff}
+th{padding:6px 8px;font-size:7.5pt;font-weight:700;text-align:left;letter-spacing:.04em}
+td{padding:5px 8px;border-bottom:1px solid #eee;font-size:9pt;vertical-align:middle}
+tr:nth-child(even) td{background:#faf7f2}
+.badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:7pt;font-weight:700}
+.bb{background:#3d4f43;color:#fff}
+.bl{background:#C8A060;color:#fff}
+/* Diagram */
+.diag{border:1.5px solid #e0dbd0;border-radius:8px;padding:12px;margin-bottom:14px;background:#fdf9f3}
+.dh{font-size:6.5pt;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#3d4f43;margin-bottom:8px}
+.legend{display:flex;gap:14px;margin-top:8px;font-size:7.5pt;color:#666;align-items:center}
+.ld{width:11px;height:11px;border-radius:2px;border:1px solid #aaa;display:inline-block;vertical-align:middle;margin-right:3px}
+/* Cols */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.sec{border:1.5px solid #e0dbd0;border-radius:8px;padding:11px}
+.sech{font-size:6.5pt;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#3d4f43;border-bottom:1.5px solid #C8A060;padding-bottom:3px;margin-bottom:7px}
+.step{display:flex;gap:7px;font-size:8.5pt;margin-bottom:5px;align-items:flex-start}
+.snum{background:#3d4f43;color:#fff;border-radius:50%;width:17px;height:17px;min-width:17px;display:flex;align-items:center;justify-content:center;font-size:7.5pt;font-weight:800;flex-shrink:0;margin-top:1px}
+.mr{display:flex;justify-content:space-between;font-size:8.5pt;padding:3px 0;border-bottom:1px solid #eee}
+.mr:last-child{border-bottom:none}
+.mk{color:#666}
+.mv{font-weight:700;color:#222}
+.highlight{border-top:2px solid #C8A060;margin-top:6px;padding-top:6px}
+/* Project name banner */
+.proj-banner{background:#f5f0e8;border-radius:7px;padding:8px 14px;margin-bottom:14px;display:flex;align-items:baseline;gap:10px}
+.proj-banner-lbl{font-size:6.5pt;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#888;white-space:nowrap}
+.proj-banner-val{font-size:14pt;font-weight:900;color:#3d4f43;letter-spacing:-.01em;line-height:1.1}
+/* Price strip (page 2) */
+.price-strip{background:linear-gradient(90deg,#3d4f43,#4a6058);border-radius:8px;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;color:#fff}
+.ps-label{font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.75)}
+.ps-right{display:flex;align-items:baseline;gap:14px}
+.ps-per{font-size:10pt;color:#C8A060;font-weight:700}
+.ps-total{font-size:20pt;font-weight:900;color:#fff;line-height:1}
+/* Sig */
+.sigs{display:flex;gap:40px;margin-top:14px}
+.sig{border-top:1px solid #aaa;width:180px;padding-top:3px;font-size:7pt;color:#888;margin-top:28px}
+/* Footer */
+.foot{border-top:1px solid #ddd;padding-top:10px;margin-top:14px;display:flex;justify-content:space-between;font-size:7.5pt;color:#999;line-height:1.7}
+@media print{
+  body{padding:8px 12px}
+  @page{margin:.4in .38in;size:letter}
+  svg{max-width:100%}
+  /* Force Assembly + Materials onto page 2 so nothing clips */
+  .cols{page-break-before:always;break-before:page;margin-top:0}
+  /* Keep each column intact — no mid-column splits */
+  .sec{page-break-inside:avoid;break-inside:avoid}
+  /* Keep sig lines + footer together on page 2 */
+  .sigs,.foot{page-break-inside:avoid;break-inside:avoid}
+}
+</style>
+</head><body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="hd">
+  <div class="brand"><div class="bn">WOODCHUCK USA</div><div class="bs">Custom Wood Packaging — Box Production Template</div></div>
+  <div>
+    <div class="dt">📐 Box Cut Sheet</div>
+    <div class="dm">Wood: ${wood} · ${fin} · ${t}" mat${repName?'<br>Rep: '+repName:''}<br>Date: ${today}</div>
+  </div>
+</div>
+
+<!-- PROJECT NAME BANNER -->
+<div class="proj-banner">
+  <span class="proj-banner-lbl">Design</span>
+  <span class="proj-banner-val">${projName}</span>
+</div>
+
+<!-- SPEC BAR -->
+<div class="sbar">
+  <div class="sc">
+    <div class="sh">Interior (what fits inside)</div>
+    <div class="sr"><span class="sk">Width</span><span class="sv">${intW}"</span></div>
+    <div class="sr"><span class="sk">Depth</span><span class="sv">${intD}"</span></div>
+    <div class="sr"><span class="sk">Height</span><span class="sv">${intH}"</span></div>
+    <div class="sr"><span class="sk">Mat thickness</span><span class="sv">${t}"</span></div>
+  </div>
+  <div class="sc">
+    <div class="sh">Base Exterior</div>
+    <div class="sr"><span class="sk">Width</span><span class="sv">${extW}"</span></div>
+    <div class="sr"><span class="sk">Depth</span><span class="sv">${extD}"</span></div>
+    <div class="sr"><span class="sk">Height</span><span class="sv">${extH}"</span></div>
+    <div class="sr"><span class="sk">Lid drop</span><span class="sv">${lidDrop}"</span></div>
+  </div>
+  <div class="sc">
+    <div class="sh">Lid Exterior</div>
+    <div class="sr"><span class="sk">Width</span><span class="sv">${lidW}"</span></div>
+    <div class="sr"><span class="sk">Depth</span><span class="sv">${lidD}"</span></div>
+    <div class="sr"><span class="sk">Clearance</span><span class="sv">1⁄16" each side</span></div>
+    <div class="sr"><span class="sk">Box style</span><span class="sv">${bt}</span></div>
+  </div>
+</div>
+
+<!-- CUTTING TABLE -->
+<table>
+  <thead><tr>
+    <th>#</th><th>Piece Name</th><th>Width</th><th>Length</th><th>Qty</th><th>Part</th><th>Notes</th>
+  </tr></thead>
+  <tbody>
+    ${panels.map(p=>`<tr>
+      <td style="color:#aaa;font-size:8pt">${p.id}</td>
+      <td><strong>${p.name}</strong></td>
+      <td><strong>${p.pw}"</strong></td>
+      <td><strong>${p.ph}"</strong></td>
+      <td style="font-weight:800;font-size:11pt;color:#3d4f43">${p.qty}</td>
+      <td><span class="badge ${p.grp==='base'?'bb':'bl'}">${p.grp==='base'?'Base':'Lid'}</span></td>
+      <td style="font-size:8pt;color:#888">${p.note}</td>
+    </tr>`).join('')}
+  </tbody>
+</table>
+
+<!-- PANEL DIAGRAM -->
+<div class="diag">
+  <div class="dh">Panel Diagram — proportional scale for reference · use table above for exact dimensions</div>
+  <svg width="${svgTotalW}" height="${svgTotalH}" viewBox="0 0 ${svgTotalW} ${svgTotalH}" style="max-width:100%;height:auto;display:block">
+    ${svgOut}
+  </svg>
+  <div class="legend">
+    <span><span class="ld" style="background:#E8D8A8"></span>Base Box panels (4 pcs)</span>
+    <span><span class="ld" style="background:#D4BA72"></span>Lid panels (5 pcs total incl. ×2 pairs)</span>
+    <span style="margin-left:4px;color:#aaa">· All butt joints · glue + brad nails</span>
+  </div>
+</div>
+
+<!-- ASSEMBLY + MATERIALS -->
+<div class="cols">
+  <div class="sec">
+    <div class="sech">Assembly Order</div>
+    <div class="step"><div class="snum">1</div><div>Sand all panels to 150 grit, then 220 before assembly.</div></div>
+    <div class="step"><div class="snum">2</div><div>Dry-fit all base panels — check dimensions match cut sheet.</div></div>
+    <div class="step"><div class="snum">3</div><div>Glue + nail Left/Right sides to Bottom panel. Clamp flush.</div></div>
+    <div class="step"><div class="snum">4</div><div>Attach Front and Back walls (full-width, covering L/R edges).</div></div>
+    <div class="step"><div class="snum">5</div><div>Clamp 30 min minimum. Check square with corner gauge.</div></div>
+    <div class="step"><div class="snum">6</div><div>Sand exterior seams flush. Ease all corners to 1⁄16" radius.</div></div>
+    <div class="step"><div class="snum">7</div><div>Build lid the same way: L/R sides → top → F/B walls.</div></div>
+    <div class="step"><div class="snum">8</div><div>Test-fit lid over base. Sand inside lid lightly for smooth drop.</div></div>
+    <div class="step"><div class="snum">9</div><div>Apply finish. Add interior lining / foam once fully cured.</div></div>
+  </div>
+  <div class="sec">
+    <div class="sech">Material Requirements</div>
+    <div class="mr"><span class="mk">Total cut panel area</span><span class="mv">${totalSqIn.toFixed(1)} sq in</span></div>
+    <div class="mr"><span class="mk">Rough board feet (${t}" stock)</span><span class="mv">${roughBF} BF</span></div>
+    <div class="mr"><span class="mk">With 20% waste factor</span><span class="mv">${bfWaste} BF</span></div>
+    <div class="mr highlight"><span class="mk">Wood species</span><span class="mv">${wood}</span></div>
+    <div class="mr"><span class="mk">Finish / stain</span><span class="mv">${fin}</span></div>
+    <div class="mr"><span class="mk">Panel thickness</span><span class="mv">${t}" nominal</span></div>
+    <div class="mr"><span class="mk">Joinery method</span><span class="mv">Butt joint + PVA glue</span></div>
+    <div class="mr"><span class="mk">Fasteners</span><span class="mv">18-ga brad nails or clamp only</span></div>
+    <div class="mr"><span class="mk">Lid clearance</span><span class="mv">1⁄16" per side — sand to fit</span></div>
+    <div class="mr"><span class="mk">Tolerance</span><span class="mv">±1⁄32" all dimensions</span></div>
+  </div>
+</div>
+
+<!-- PRICE SUMMARY -->
+${(calc&&calc.grandTotal>0)?`<div class="price-strip">
+  <div class="ps-label">${projName} · Quoted total · ${qty.toLocaleString()} units</div>
+  <div class="ps-right">
+    <span class="ps-per">$${calc.perUnit.toFixed(2)} / unit</span>
+    <span class="ps-total">$${calc.grandTotal.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+  </div>
+</div>`:''}
+
+<!-- SIG LINES -->
+<div class="sigs">
+  <div><div class="sig">Production sign-off</div></div>
+  <div><div class="sig">QC / Inspection</div></div>
+  <div><div class="sig">Date completed</div></div>
+</div>
+
+<div class="foot">
+  <div>All dimensions in inches · Interior dims are nominal · Verify fit with dry-fit before gluing · Finish / lining thickness not included in dims</div>
+  <div style="text-align:right">Woodchuck USA · sales@woodchuckcase.com · woodchuckusa.com</div>
+</div>
+
+</div>
+<script>window.onload=()=>{window.print();}<\/script>
+</body></html>`;
+
+  const win=window.open('','_blank','width=820,height=1060');
+  if(!win){showToast('Pop-up blocked — allow pop-ups and try again.');return;}
+  win.document.write(html);
+  win.document.close();
+}
+
+function printSpecSheet(){
+  const calc=qbUpdateAll();
+  const qty=parseInt(document.getElementById('qb-qty')?.value)||C.qty||100;
+  const repName=(document.getElementById('ef-name')?.value.trim()||document.getElementById('qb-rep')?.value.trim()||'Woodchuck USA Sales');
+  const co=document.getElementById('ef-co')?.value.trim()||document.getElementById('qb-client')?.value.trim()||'';
+  const projName=document.getElementById('qb-name')?.value.trim()||'Custom Wood Box Quote';
+  const status=(document.getElementById('qb-status')?.value||'draft');
+  const statusLbl={draft:'Draft',sent:'Sent',followup:'Follow-up',won:'Won',lost:'Lost'}[status]||status;
+  const needBy=document.getElementById('qb-needby')?.value||'';
+  const quoteDate=document.getElementById('qb-date')?.value||new Date().toISOString().slice(0,10);
+  const notes=document.getElementById('qb-notes')?.value.trim()||document.getElementById('ef-note')?.value.trim()||'';
+  const engrave=C.engrave||'';
+  const w=C.cw||6, d=C.cd||9, h=C.ch||3;
+  const isRush=qbIsRush();
+  const daysOut=needBy?Math.ceil((new Date(needBy)-new Date())/864e5):null;
+  const rushHtml=isRush
+    ?(daysOut<=0?`<span class="rush-badge overdue">🔥 OVERDUE</span>`:`<span class="rush-badge">${daysOut<=14?'🔥':'⚠'} RUSH · ${daysOut}d out</span>`)
+    :(daysOut!==null?`<span class="rush-badge ok">⏱ ${daysOut}d out</span>`:'');
+
+  // Gather cost rows
+  const perUnit=calc&&calc.perUnit>0?calc.perUnit:null;
+  const rows=[
+    ['Wood / Panel Material','woodTotal'],
+    ['Config (hardware, finish, insert)','configTotal'],
+    ['Additional Materials','matTotal'],
+    ['Labor','laborTotal'],
+    ['Custom / Extras','customTotal'],
+  ].filter(([,k])=>(calc[k]||0)>0)
+   .map(([label,k])=>`<tr><td>${label}</td><td>$${(calc[k]||0).toFixed(2)}</td></tr>`).join('');
+  const margin=parseFloat(document.getElementById('qb-margin')?.value)||50;
+  const marginAmt=calc?(calc.grandTotal-(calc.woodTotal+calc.configTotal+calc.matTotal+calc.laborTotal+calc.customTotal)):0;
+
+  // Labor hours detail
+  const setupH=parseFloat(document.getElementById('qb-setup')?.value)||0;
+  const cutH=parseFloat(document.getElementById('qb-cut')?.value)||0;
+  const assemblyH=parseFloat(document.getElementById('qb-assembly')?.value)||0;
+  const finishH=parseFloat(document.getElementById('qb-finish')?.value)||0;
+  const totalHrs=calc?.totalHrs||0;
+
+  // Spec rows helper
+  const SR=(k,v)=>v?`<tr><td class="sk">${k}</td><td>${v}</td></tr>`:'';
+
+  const spId=document.getElementById('qb-species')?.value;
+  const sp=(typeof qbSpecies!=='undefined'?qbSpecies:[]).find(s=>s.id===spId);
+  const speciesName=sp?sp.name:woodName();
+
+  const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>Spec Sheet — ${projName}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:10.5pt;color:#222;background:#fff;padding:28px 32px}
+  .page{max-width:740px;margin:0 auto}
+  /* Header */
+  .hd{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:3px solid #3d4f43;margin-bottom:18px}
+  .brand{display:flex;flex-direction:column;gap:3px}
+  .brand-name{font-size:19pt;font-weight:900;color:#3d4f43;letter-spacing:-.02em;line-height:1}
+  .brand-sub{font-size:8pt;color:#888;letter-spacing:.12em;text-transform:uppercase}
+  .hd-right{text-align:right}
+  .doc-title{font-size:14pt;font-weight:800;color:#3d4f43}
+  .doc-meta{font-size:8pt;color:#666;margin-top:4px;line-height:1.7}
+  /* Project info bar */
+  .proj-bar{background:#f5f0e8;border-radius:7px;padding:11px 14px;display:flex;flex-wrap:wrap;gap:10px 28px;margin-bottom:18px}
+  .proj-item{display:flex;flex-direction:column;gap:2px}
+  .proj-k{font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#888}
+  .proj-v{font-size:10pt;font-weight:700;color:#222}
+  /* Rush badges */
+  .rush-badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:8pt;font-weight:800;background:#f44336;color:#fff;letter-spacing:.04em}
+  .rush-badge.ok{background:#4CAF50;color:#fff;font-weight:600}
+  .rush-badge.overdue{background:#b71c1c}
+  /* Sections */
+  .section{margin-bottom:18px}
+  .sec-hdr{font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#3d4f43;border-bottom:1.5px solid #C8A060;padding-bottom:4px;margin-bottom:8px}
+  /* Tables */
+  table{width:100%;border-collapse:collapse}
+  td{padding:5px 6px;font-size:9.5pt;border-bottom:1px solid #eee;vertical-align:top}
+  td.sk{color:#555;width:38%;font-weight:500}
+  td.sk-l{color:#555;width:44%;font-weight:500}
+  tr:last-child td{border-bottom:none}
+  /* Two-column layout */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+  /* Pricing card */
+  .price-card{background:linear-gradient(135deg,#2c4236,#3d5c48);border-radius:10px;padding:16px;color:#fff;margin-bottom:18px}
+  .price-card table td{border-bottom:1px solid rgba(200,160,96,.2);color:rgba(255,255,255,.78);font-size:9pt}
+  .price-card table tr:last-child td{border-bottom:none}
+  .price-total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(200,160,96,.4);margin-top:8px;padding-top:10px}
+  .price-total-lbl{font-size:10pt;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.06em}
+  .price-total-amt{font-size:22pt;font-weight:900;color:#C8A060;line-height:1}
+  .price-per{text-align:right;font-size:8pt;color:rgba(255,255,255,.6);margin-top:3px}
+  /* Labor mini-table */
+  .labor-row{display:flex;justify-content:space-between;font-size:9pt;padding:4px 0;border-bottom:1px solid #eee}
+  .labor-row:last-child{border-bottom:none}
+  /* Notes */
+  .notes-box{background:#f9f7f3;border-left:3px solid #C8A060;border-radius:0 6px 6px 0;padding:10px 13px;font-size:9.5pt;color:#444;line-height:1.55;white-space:pre-wrap}
+  /* Footer */
+  .footer{border-top:1px solid #ddd;padding-top:12px;margin-top:20px;display:flex;justify-content:space-between;align-items:flex-end}
+  .footer-note{font-size:8pt;color:#888;line-height:1.6;max-width:480px}
+  .footer-contact{text-align:right;font-size:8pt;color:#555;line-height:1.7}
+  .footer-contact strong{color:#3d4f43}
+  /* Sig line */
+  .sig-line{border-top:1px solid #aaa;width:220px;margin-top:28px;padding-top:4px;font-size:7.5pt;color:#888}
+  /* Print adjustments */
+  @media print{
+    body{padding:14px 18px}
+    @page{margin:.6in .55in;size:letter}
+    .no-print{display:none!important}
+  }
+</style>
+</head><body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="hd">
+    <div class="brand">
+      <div class="brand-name">WOODCHUCK USA</div>
+      <div class="brand-sub">Custom Wood Packaging</div>
+      ${projName?`<div style="font-size:15pt;font-weight:900;color:#3d4f43;letter-spacing:-.01em;margin-top:6px;line-height:1.1">${projName}</div>`:''}
+      ${co?`<div style="font-size:8.5pt;font-weight:600;color:#555;margin-top:3px">${co}</div>`:''}
+    </div>
+    <div class="hd-right">
+      <div class="doc-title">📋 Quote Spec Sheet</div>
+      <div class="doc-meta">
+        Date: ${quoteDate}<br>
+        Rep: ${repName}<br>
+        Status: <strong>${statusLbl}</strong>${needBy?`<br>Need by: <strong>${needBy}</strong> ${rushHtml}`:''}
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECT INFO BAR -->
+  <div class="proj-bar">
+    ${projName?`<div class="proj-item"><div class="proj-k">Project</div><div class="proj-v">${projName}</div></div>`:''}
+    ${co?`<div class="proj-item"><div class="proj-k">Client</div><div class="proj-v">${co}</div></div>`:''}
+    <div class="proj-item"><div class="proj-k">Quantity</div><div class="proj-v">${qty.toLocaleString()} units</div></div>
+    ${perUnit?`<div class="proj-item"><div class="proj-k">Price / Unit</div><div class="proj-v" style="color:#3d4f43">$${perUnit.toFixed(2)}</div></div>`:''}
+    ${calc?.grandTotal>0?`<div class="proj-item"><div class="proj-k">Order Total</div><div class="proj-v" style="color:#C8A060">$${calc.grandTotal.toFixed(2)}</div></div>`:''}
+  </div>
+
+  <!-- TWO-COLUMN: SPECS + LABOR -->
+  <div class="cols">
+
+    <!-- BOX SPECIFICATIONS -->
+    <div class="section">
+      <div class="sec-hdr">Box Specifications</div>
+      <table>
+        ${SR('Box Style', NM.bt[C.bt]||C.bt)}
+        ${SR('Wood Species', speciesName)}
+        ${SR('Finish', NM.fin[C.fin]||C.fin)}
+        ${SR('Interior Dimensions', `${w}" × ${d}" × ${h}" (W×D×H)`)}
+        ${SR('Material Thickness', (document.getElementById('qb-matT')?.value||'0.25')+'"')}
+        ${SR('Hardware', NM.hw[C.hw]||C.hw)}
+        ${SR('Interior Lining', NM.int[C.int]||C.int)}
+        ${SR('Logo Placement', C.logo?(NM.pl[C.pl]||C.pl):'None')}
+        ${SR('Engraving Text', engrave||'None')}
+        ${(()=>{const jSel=document.getElementById('qb-cc-join-sel');const jVal=parseFloat(document.getElementById('qb-cc-join')?.value)||0;const jTxt=jSel?jSel.options[jSel.selectedIndex]?.text:'';return jVal>0?SR('Joinery Upcharge',`${jTxt} ($${jVal.toFixed(2)}/unit)`):''})()}
+      </table>
+    </div>
+
+    <!-- LABOR & TIME -->
+    <div class="section">
+      <div class="sec-hdr">Production Hours</div>
+      <div class="labor-row"><span style="color:#555">Setup (one-time)</span><span>${fmtHrs(setupH)}</span></div>
+      <div class="labor-row"><span style="color:#555">Cut / mill per unit</span><span>${fmtHrs(cutH)}</span></div>
+      <div class="labor-row"><span style="color:#555">Assembly per unit</span><span>${fmtHrs(assemblyH)}</span></div>
+      <div class="labor-row"><span style="color:#555">Finish per unit</span><span>${fmtHrs(finishH)}</span></div>
+      <div class="labor-row" style="font-weight:700;color:#3d4f43;border-top:2px solid #3d4f43;margin-top:4px;padding-top:6px"><span>Total order time</span><span>${fmtHrs(totalHrs)}</span></div>
+      ${calc?.hrsPerUnit?`<div class="labor-row" style="color:#888"><span>Per-unit avg</span><span>${fmtHrs(calc.hrsPerUnit)}</span></div>`:''}
+    </div>
+
+  </div>
+
+  <!-- PRICING CARD -->
+  ${calc&&calc.grandTotal>0?`
+  <div class="price-card">
+    <div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:rgba(200,160,96,.8);margin-bottom:8px">Cost Breakdown</div>
+    <table>
+      ${rows}
+      ${marginAmt>0?`<tr><td style="color:rgba(255,255,255,.55)">Margin &amp; overhead (${margin}%)</td><td style="color:rgba(255,255,255,.55)">$${marginAmt.toFixed(2)}</td></tr>`:''}
+    </table>
+    <div class="price-total">
+      <div class="price-total-lbl">Order Total</div>
+      <div class="price-total-amt">$${calc.grandTotal.toFixed(2)}</div>
+    </div>
+    <div class="price-per">$${perUnit?perUnit.toFixed(2):'—'} per unit · ${qty.toLocaleString()} units ordered</div>
+  </div>`:''}
+
+  <!-- NOTES -->
+  ${notes?`
+  <div class="section">
+    <div class="sec-hdr">Notes</div>
+    <div class="notes-box">${notes}</div>
+  </div>`:''}
+
+  <!-- SIGNATURE LINES -->
+  <div style="display:flex;gap:60px;margin-top:24px">
+    <div><div class="sig-line">Approved by (client)</div></div>
+    <div><div class="sig-line">Date</div></div>
+    <div><div class="sig-line">Woodchuck USA Rep</div></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-note">This quote is valid for 30 days from the date above. Prices subject to change based on final spec confirmation. Minimum order quantities may apply.</div>
+    <div class="footer-contact">
+      <strong>Woodchuck USA</strong><br>
+      sales@woodchuckcase.com<br>
+      woodchuckusa.com
+    </div>
+  </div>
+
+</div><!-- end page -->
+<script>window.onload=()=>{window.print();}<\/script>
+</body></html>`;
+
+  const w2=window.open('','_blank','width=820,height=1060');
+  if(!w2){showToast('Pop-up blocked — allow pop-ups and try again.');return;}
+  w2.document.write(html);
+  w2.document.close();
+}
+
 // ═══ 3D BOX RENDERER — pure 2D canvas isometric ═══
 let bCv,bCtx,rotY=0.42,rotX=-0.22,zoom=1;
 let isDrag=false,prevMx=0,prevMy=0;
@@ -3168,7 +4051,7 @@ const WC_SHEET_COST={
   'Red Oak (Rift)':{'0.155':103.12,'0.36':111.04},
   'Clear Acrylic':{'0.155':66.28,'0.24':130.28,'0.36':190.28},
   'Colored Acrylic':{'0.155':67.28,'0.24':157.85,'0.36':255.03},
-  'Raw MDF':{'0.125':12.00,'0.25':18.41,'0.375':33.10},
+  'Raw MDF':{'0.125':10.50,'0.25':18.41,'0.375':28.96},
 };
 // Prices updated from 2026 Woodchuck pricing sheet — all PS species verified.
 const WC_PRICE_FLAGS={}; // no current anomalies
@@ -3215,10 +4098,12 @@ let qbPriceSrc=QBdb.get('priceSrc')||'wc';
 let qbActiveCost=null;  // {mode:'wc'|'ocooch', sheetCost, sheetSqin, wood, key, flag} for the current species
 
 // ── MDF sheet pricing (4×8 = 48×96 = 4608 sq in, same area as production sheets) ──
-const WC_MDF_COST={'0.125':12.00,'0.25':18.41,'0.375':33.10,'0.75':150.00};
-const WC_MDF_LABELS={'0.125':'1/8" Raw MDF','0.25':'1/4" Raw MDF','0.375':'3/8" Raw MDF','0.75':'3/4" Maple MDF'};
+// MDF Forte pricing (4×8 sheet) — verified against MDF Forte supplier sheet + Woodchuck pricing doc.
+// RMDF001=1/8"$10.50  RMDF002=1/4"$18.41  RMDF003=3/8"$28.96  3/4"MappleMDF=$150.00
+const WC_MDF_COST={'0.125':10.50,'0.25':18.41,'0.375':28.96,'0.75':150.00};
+const WC_MDF_LABELS={'0.125':'1/8" Raw MDF (RMDF001)','0.25':'1/4" Raw MDF (RMDF002)','0.375':'3/8" Raw MDF (RMDF003)','0.75':'3/4" Maple MDF'};
 const WC_MDF_SPECIES={
-  'Raw MDF':       {'0.125':12.00,'0.25':18.41,'0.375':33.10,'0.75':150.00},
+  'Raw MDF':       {'0.125':10.50,'0.25':18.41,'0.375':28.96,'0.75':150.00},
   'PS Walnut':     {'0.155':124.74,'0.24':129.44,'0.36':142.32},
   'PS White Maple':{'0.155':103.04,'0.24':107.00,'0.36':120.83},
   'PS Mahogany':   {'0.155':86.06,'0.24':90.77,'0.36':103.64},
@@ -3245,34 +4130,8 @@ function mdfSpeciesCost(species,t){
   return{key,cost,label,species};
 }
 
-// ── Labor ops from Woodchuck production MASTER sheet ──
-// Rates from Nate's MASTER pricing sheet ($/min). Convert: ×60 = $/hr.
-// ladies=$16.80/hr · skilled(Ma/Ty/Pao)=$19.20/hr · woodshop(Cam)=$27.60/hr · laser=$25.20/hr · CNC=$25.20/hr
-const WC_LABOR_RATES={ladies:0.28,skilled:0.32,woodshop:0.46,laser:0.42,cnc:0.42};
-const WC_LABOR_RATE_NAMES={ladies:'Ladies assembly',skilled:'Skilled (Ma / Ty / Pao)',woodshop:'Woodshop (Cam)',laser:'Laser ops',cnc:'CNC'};
-let qbLaborOps=[]; // {id, name, minsPerUnit, rate, qty}
-function qbS4LO(){return Math.random().toString(36).slice(2,6);}
-function qbAddLaborOp(name,minsPerUnit,rate,qty){
-  qty=qty||1;
-  qbLaborOps.push({id:qbS4LO(),name,minsPerUnit,rate,qty});
-  qbRenderLaborOps();qbUpdateAll();
-}
-function qbRemoveLaborOp(id){qbLaborOps=qbLaborOps.filter(o=>o.id!==id);qbRenderLaborOps();qbUpdateAll();}
-function qbUpdateLaborOpQty(id,val){const o=qbLaborOps.find(x=>x.id===id);if(o){o.qty=Math.max(1,parseInt(val)||1);}qbUpdateAll();}
-function qbRenderLaborOps(){
-  const el=document.getElementById('qb-labor-ops-list');if(!el)return;
-  if(!qbLaborOps.length){el.innerHTML='<span style="font-size:.72rem;color:var(--mu)">No ops added — tap a button above or enter manual hours below.</span>';return;}
-  el.innerHTML=qbLaborOps.map(o=>{
-    const rateVal=WC_LABOR_RATES[o.rate]||0.47;
-    const costPerOp=o.minsPerUnit*rateVal;
-    return`<div class="qb-laborop-row">
-      <span style="flex:1">${o.name} <span style="color:var(--mu);font-size:.67rem">(${o.minsPerUnit}min · $${costPerOp.toFixed(2)}/box)</span></span>
-      <input type="number" value="${o.qty}" min="1" step="1" style="width:44px;border:1px solid var(--bo);border-radius:5px;padding:2px 4px;font-size:.72rem;text-align:center;font-family:inherit" onchange="qbUpdateLaborOpQty('${o.id}',this.value)">
-      <span style="color:var(--mu);font-size:.67rem;margin:0 5px">×${o.qty}</span>
-      <button onclick="qbRemoveLaborOp('${o.id}')" style="background:none;border:none;color:#c00;cursor:pointer;font-size:.85rem;padding:0">✕</button>
-    </div>`;
-  }).join('');
-}
+// Labor ops removed in v2 — keep array for save/load backwards compat with saved quotes
+let qbLaborOps=[];
 
 let qbSpecies=QBdb.get('species');
 // Auto-refresh the cached catalog whenever QB_OCOOCH changes (new species or prices),
@@ -3487,6 +4346,56 @@ function qbSyncQtyPresets(){
     b.classList.toggle('sel', parseInt(b.dataset.q,10)===q);
   });
 }
+
+// Rush detection — checks need-by date and shows a badge + flags email
+function qbCheckRush(){
+  const el=document.getElementById('qb-needby');
+  const badge=document.getElementById('qb-rush-badge');
+  if(!el||!badge)return;
+  const val=el.value;
+  if(!val){badge.style.display='none';return;}
+  const daysOut=Math.ceil((new Date(val)-new Date())/(1000*60*60*24));
+  badge.style.display='flex';
+  if(daysOut<=0){
+    badge.innerHTML=`<span style="background:#f44336;color:#fff;font-size:.7rem;font-weight:800;padding:4px 10px;border-radius:20px;letter-spacing:.04em">🔥 OVERDUE</span>`;
+  }else if(daysOut<=14){
+    badge.innerHTML=`<span style="background:#f44336;color:#fff;font-size:.7rem;font-weight:800;padding:4px 10px;border-radius:20px;letter-spacing:.04em">⚠ RUSH · ${daysOut}d</span>`;
+  }else if(daysOut<=28){
+    badge.innerHTML=`<span style="background:#FF9800;color:#fff;font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.04em">⚠ RUSH · ${daysOut}d</span>`;
+  }else if(daysOut<=56){
+    badge.innerHTML=`<span style="background:#FFC107;color:#333;font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.04em">⏱ ${daysOut}d out</span>`;
+  }else{
+    badge.innerHTML=`<span style="background:var(--gxl);color:var(--green);font-size:.7rem;font-weight:600;padding:4px 10px;border-radius:20px">✓ ${daysOut}d out</span>`;
+  }
+}
+
+// Returns true if current quote is a rush (≤28 days to need-by)
+function qbIsRush(){
+  const val=document.getElementById('qb-needby')?.value;
+  if(!val)return false;
+  return Math.ceil((new Date(val)-new Date())/(1000*60*60*24))<=28;
+}
+
+// Auto-fill project name from current design specs
+function qbAutoName(){
+  const client=(document.getElementById('qb-client')?.value||'').trim();
+  const qty=document.getElementById('qb-qty')?.value||'100';
+  const bt=NM.bt[C.bt]||C.bt||'Box';
+  const wood=woodName()||'Wood';
+  const sz=C.sz==='custom'?`${C.cw}"×${C.cd}"×${C.ch}"`:{sm:'Small',md:'Medium',lg:'Large'}[C.sz]||'';
+  const parts=[client,sz,bt,wood,`qty ${qty}`].filter(Boolean);
+  const nameEl=document.getElementById('qb-name');
+  if(nameEl){nameEl.value=parts.join(' · ');nameEl.focus();}
+}
+
+// Color-code the status select to match its value
+function qbUpdateStatusColor(){
+  const el=document.getElementById('qb-status');
+  if(!el)return;
+  const colors={draft:'#888',sent:'#2196F3',followup:'#FF9800',won:'#4CAF50',lost:'#f44336'};
+  el.style.color=colors[el.value]||'';
+  el.style.fontWeight='600';
+}
 // Tap any number field and its value is pre-selected, so you can just type the new one
 (function(){document.addEventListener('focusin',function(e){var t=e.target;if(t&&t.tagName==='INPUT'&&t.type==='number'){setTimeout(function(){try{t.select();}catch(_){}},0);}});})();
 // Material thickness edited → keep shared C.cmat in sync (affects the 3D wall look + price)
@@ -3522,6 +4431,11 @@ function qbSyncFromDesign(){
   }
   qbCalcPanels();
   qbSyncConfigCosts(); // auto-fill hardware/insert/finish/engraving from C state
+  qbUpdateStatusColor();
+  qbCheckRush();
+  // Init mat path buttons
+  document.querySelectorAll('.qb-mp-btn').forEach(b=>b.classList.toggle('sel',b.dataset.mp===qbMatPath));
+  qbSetMatPath(qbMatPath);
   const calc=qbUpdateAll();
   renderSyncReadout(calc);
   qbCheckThickness();
@@ -3916,6 +4830,38 @@ function qbCalcYield(){
     }
   }
 
+  // Show Ocooch board selection when in solid/mix path
+  if(qbMatPath==='solid'||qbMatPath==='mix'){
+    const spId=document.getElementById('qb-species')?.value;
+    const sp=(typeof qbSpecies!=='undefined'?qbSpecies:[]).find(s=>s.id===spId);
+    if(sp&&sp.name){
+      const t=parseFloat(document.getElementById('qb-matT')?.value)||0.25;
+      const kerf=parseFloat(document.getElementById('qb-kerf')?.value)||0.125;
+      const W=parseFloat(document.getElementById('qb-dim-w')?.value)||C.cw||6;
+      const D=parseFloat(document.getElementById('qb-dim-d')?.value)||C.cd||9;
+      const H=parseFloat(document.getElementById('qb-dim-h')?.value)||C.ch||3;
+      const T=t;
+      const extW=W+2*T, extD=D+2*T, extH=H+T;
+      const panels=[
+        {w:W,h:D},{w:extW,h:extH},{w:extW,h:extH},
+        {w:D,h:extH},{w:D,h:extH},
+      ];
+      const sel=ocoochSelectBoard(sp.name,panels,T,kerf);
+      const yldEl=document.getElementById('qb-yield-content');
+      if(sel&&yldEl){
+        yldEl.innerHTML+=`<div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--bo)">
+          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:4px">🪵 Ocooch board selection</div>
+          <div class="qb-yield-row"><span>Best stock size</span><span class="qb-val">${sel.boardSize}</span></div>
+          <div class="qb-yield-row"><span>Boards needed</span><span class="qb-val">${sel.boardsNeeded} x $${sel.pricePerBoard.toFixed(2)}</span></div>
+          <div class="qb-yield-row"><span>Material cost</span><span class="qb-val">$${sel.totalCost.toFixed(2)}</span></div>
+          <div class="qb-yield-row ${sel.wastePercent>30?'style="color:#c44"':''}"><span>Waste / offcut</span><span class="qb-val">${sel.wastePercent}%</span></div>
+        </div>`;
+      } else if(!sel&&yldEl&&sp.name){
+        yldEl.innerHTML+=`<div style="margin-top:6px;padding:6px 9px;background:#fdecea;border:1.5px solid #c2453a;border-radius:7px;font-size:.67rem;color:#7e1d15;font-weight:600">One or more panels exceed available Ocooch stock widths. This box requires a manual quote.</div>`;
+      }
+    }
+  }
+
   return{woodCostTotal,details:panelResults,totalSheets,avgYield,wcMode,wcPerBox,wcTotal,packCost,areaPerBox,pctSheet};
 }
 
@@ -3982,31 +4928,95 @@ function qbRenderCustoms(){
 }
 
 function qbOpenPresets(){
+  // Prices sourced from Woodchuck component pricing sheet + MDF Forte supplier sheet (2026).
+  // Each entry: {hdr} for section dividers, or {item,sku,qty,unitCost} for clickable presets.
   const presets=[
-    {item:'Piano Hinge (12")',qty:1,unitCost:8.00},
-    {item:'Hinges (pair)',qty:1,unitCost:4.50},
-    {item:'Latch / Clasp',qty:1,unitCost:3.50},
-    {item:'Magnet Closure (pair)',qty:1,unitCost:2.00},
-    {item:'Gold Lid Hardware',qty:1,unitCost:4.50},
-    {item:'Corner Brackets',qty:4,unitCost:0.80},
-    {item:'Eco-Foam Lining (sq ft)',qty:1,unitCost:3.00},
-    {item:'PU Foam (sq ft)',qty:1,unitCost:5.50},
-    {item:'Velvet Lining (sq ft)',qty:1,unitCost:5.00},
-    {item:'Wood Glue (4 oz)',qty:1,unitCost:4.00},
-    {item:'Sandpaper Pack',qty:1,unitCost:5.00},
-    {item:'Stain (qt)',qty:1,unitCost:18.00},
-    {item:'Polyurethane (qt)',qty:1,unitCost:22.00},
-    {item:'Laser Engraving Setup',qty:1,unitCost:15.00},
-    {item:'Logo Silkscreen Setup',qty:1,unitCost:25.00},
+    // ── Hardware – individual components (per piece unless noted)
+    {hdr:'🔩 Hardware — Individual Components'},
+    {item:'Hinge – Brass/Silver (each)',         sku:'HNG001',qty:1,unitCost:0.38},
+    {item:'Hinge – Antique Brass (each)',         sku:'HNG002',qty:1,unitCost:0.38},
+    {item:'Hinge – Black (each)',                 sku:'HNG003',qty:1,unitCost:0.38},
+    {item:'Swing Latch – Brass',                  sku:'LTH001',qty:1,unitCost:1.33},
+    {item:'Swing Latch – Antique Brass',          sku:'LTH002',qty:1,unitCost:1.33},
+    {item:'Swing Latch – Black',                  sku:'LTH003',qty:1,unitCost:1.33},
+    {item:'Stop Hinge – China Brass (each)',      sku:'',       qty:1,unitCost:0.27},
+    {item:'Stop Hinge – China Black (each)',      sku:'',       qty:1,unitCost:0.32},
+    {item:'Stop Hinge – China Silver (each)',     sku:'',       qty:1,unitCost:0.25},
+    {item:'Stop Hinge – China Antique Copper',    sku:'',       qty:1,unitCost:0.26},
+    {item:'Stop Hinge – Rockler Brass (each)',    sku:'',       qty:1,unitCost:3.99},
+    {item:'Stop Hinge – Rockler Black (each)',    sku:'',       qty:1,unitCost:4.99},
+    {item:'Stop Hinge – Rockler Silver (each)',   sku:'',       qty:1,unitCost:3.99},
+    {item:'Chicago Screw Set 1/8" – Brass',       sku:'',       qty:1,unitCost:0.20},
+    {item:'Chicago Screw Set 1/8" – Black',       sku:'',       qty:1,unitCost:0.20},
+    {item:'Chicago Screw Set 1/8" – Silver',      sku:'',       qty:1,unitCost:0.20},
+    {item:'Screw Gold/Black – 6mm (each)',         sku:'',       qty:1,unitCost:0.05},
+    {item:'Screw Gold/Black – 8mm (each)',         sku:'',       qty:1,unitCost:0.11},
+    {item:'Screw Silver/Antique – 6mm (each)',    sku:'',       qty:1,unitCost:0.09},
+    {item:'Screw Silver/Antique – 8mm (each)',    sku:'',       qty:1,unitCost:0.11},
+    // ── Box Components / Inserts
+    {hdr:'🎁 Box Components / Inserts'},
+    {item:'Flask – 3 oz',                         sku:'FSK001', qty:1,unitCost:4.45},
+    {item:'Flask – 6 oz',                         sku:'FSK002', qty:1,unitCost:1.32},
+    {item:'Funnel (for flask)',                    sku:'FSK003', qty:1,unitCost:0.56},
+    {item:'Bottle Opener – CC Sized',             sku:'BTL001', qty:1,unitCost:0.56},
+    {item:'Bottle Opener – Long',                 sku:'BTL002', qty:1,unitCost:1.07},
+    {item:'Candle – 8 oz',                        sku:'',       qty:1,unitCost:4.89},
+    {item:'Candle – 5 oz',                        sku:'CND001', qty:1,unitCost:4.13},
+    {item:'Candle – 3 oz (Small)',                sku:'CND002', qty:1,unitCost:3.04},
+    {item:'Classic Journal – Blank',              sku:'CLJ002', qty:1,unitCost:4.20},
+    {item:'Classic Journal – Lined',              sku:'CLJ001', qty:1,unitCost:4.20},
+    {item:'Spiral Journal (Blank/Lined/Dotted)',  sku:'PPR005', qty:1,unitCost:3.20},
+    {item:'Spiral Journal – Wine',                sku:'PPR007', qty:1,unitCost:6.13},
+    {item:'Spiral Journal – Planner',             sku:'PPR008', qty:1,unitCost:6.13},
+    {item:'Pocket Journal – Blank',               sku:'PKJ016', qty:1,unitCost:6.22},
+    {item:'Spiral Pocket Flip Journal',           sku:'PKJ001', qty:1,unitCost:1.47},
+    {item:'Cuff Links – Pair',                    sku:'CFL001', qty:1,unitCost:4.34},
+    {item:'Money Clip',                           sku:'MNC001', qty:1,unitCost:0.84},
+    {item:'Luggage Tag',                          sku:'LET004', qty:1,unitCost:0.64},
+    {item:'Keychain Ring – Standard',             sku:'KYC001', qty:1,unitCost:0.08},
+    {item:'Clip Board',                           sku:'CLB001', qty:1,unitCost:0.49},
+    {item:'Business Card Holder',                 sku:'BSH001', qty:1,unitCost:1.36},
+    {item:'Zippo Lighter',                        sku:'LIT001', qty:1,unitCost:6.58},
+    {item:'Real Wood Pen – Cherry',               sku:'PEN001', qty:1,unitCost:1.68},
+    {item:'Real Wood Pen – Maple',                sku:'PEN002', qty:1,unitCost:1.68},
+    {item:'Real Wood Pen – Walnut',               sku:'PEN003', qty:1,unitCost:1.68},
+    {item:'Grill Scraper',                        sku:'SWGS001',qty:1,unitCost:20.00},
+    // ── Finishing supplies (per container, bulk consumption — add 1 per quote for job cost)
+    {hdr:'🎨 Finishing Supplies'},
+    {item:'Polyurethane Satin – 1 qt',            sku:'',       qty:1,unitCost:12.50},
+    {item:'Mineral Oil – 1 gallon',               sku:'',       qty:1,unitCost:26.50},
+    {item:'Black Paint – 1 gallon',               sku:'',       qty:1,unitCost:48.46},
+    // ── Sheet materials (full-sheet cost — use Sheet Calc below to prorate per part)
+    {hdr:'📄 Sheet Materials — Full Sheet Price'},
+    {item:'Baltic Birch 5×5 – 1/8" (3mm)',       sku:'BBR001', qty:1,unitCost:15.40},
+    {item:'Baltic Birch 5×5 – 1/4" (6mm)',       sku:'BBR002', qty:1,unitCost:25.80},
+    {item:'Baltic Birch 5×5 – 3/8" (9mm)',       sku:'BBR003', qty:1,unitCost:30.80},
+    {item:'Raw MDF 4×8 – 1/8" (RMDF001)',        sku:'RMDF001',qty:1,unitCost:10.50},
+    {item:'Raw MDF 4×8 – 1/4" (RMDF002)',        sku:'RMDF002',qty:1,unitCost:18.41},
+    {item:'Raw MDF 4×8 – 3/8" (RMDF003)',        sku:'RMDF003',qty:1,unitCost:28.96},
+    {item:'3/4" Maple MDF 4×8',                  sku:'',       qty:1,unitCost:150.00},
+    {item:'Clear Acrylic 1/8" – 2×4\'',          sku:'ACY001', qty:1,unitCost:21.25},
+    {item:'Clear Acrylic 1/8" – Full Sheet',      sku:'',       qty:1,unitCost:85.00},
+    {item:'Cardboard Sheet 48×96"',               sku:'',       qty:1,unitCost:4.20},
+    // ── Packaging
+    {hdr:'📦 Packaging'},
+    {item:'Poly Bag w/ Cardboard Top',            sku:'',       qty:1,unitCost:0.09},
+    {item:'Reclosable Bag (small)',               sku:'',       qty:1,unitCost:0.40},
+    {item:'Shrink Wrap 5" roll',                 sku:'',       qty:1,unitCost:9.65},
+    {item:'Gold Bubble Mailer (bulk lot)',        sku:'',       qty:1,unitCost:23.00},
   ];
   const el=document.getElementById('qb-preset-list');
-  if(el)el.innerHTML=presets.map(p=>`
-    <div onclick="qbAddMaterial('${p.item.replace(/'/g,"\\'")}',${p.qty},${p.unitCost});qbCloseModal('qb-preset-modal')"
-      style="padding:9px 12px;border-radius:8px;margin-bottom:6px;background:#f8f4ee;border:1px solid var(--bo);font-size:.82rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:.14s"
+  if(el)el.innerHTML=presets.map(p=>{
+    if(p.hdr)return`<div style="width:100%;font-size:.59rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--green);margin:10px 0 3px;padding-top:8px;border-top:1px solid var(--bo)">${p.hdr}</div>`;
+    const total=(p.qty*p.unitCost).toFixed(2);
+    const skuStr=p.sku?`<span style="font-size:.62rem;color:var(--mu);margin-left:5px">${p.sku}</span>`:'';
+    return`<div onclick="qbAddMaterial('${p.item.replace(/'/g,"\\'")}',${p.qty},${p.unitCost});qbCloseModal('qb-preset-modal')"
+      style="padding:7px 10px;border-radius:7px;margin-bottom:4px;background:#f8f4ee;border:1px solid var(--bo);font-size:.8rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:.12s"
       onmouseover="this.style.background='#f0e8d8'" onmouseout="this.style.background='#f8f4ee'">
-      <span>${p.item}</span>
-      <span style="font-weight:700;color:var(--green)">$${(p.qty*p.unitCost).toFixed(2)}</span>
-    </div>`).join('');
+      <span>${p.item}${skuStr}</span>
+      <span style="font-weight:700;color:var(--green);white-space:nowrap;margin-left:8px">$${total}</span>
+    </div>`;
+  }).join('');
   document.getElementById('qb-preset-modal').style.display='flex';
 }
 function qbCloseModal(id){document.getElementById(id).style.display='none';}
@@ -4045,32 +5055,10 @@ function qbUpdateAll(){
   // Materials
   const matTotal=qbMaterials.reduce((s,m)=>s+(m.qty*m.unitCost),0);
 
-  // Labor — manual hours + ops from production sheet
-  const setup=parseFloat(document.getElementById('qb-setup')?.value)||0;
-  const cut=parseFloat(document.getElementById('qb-cut')?.value)||0;
-  const assembly=parseFloat(document.getElementById('qb-assembly')?.value)||0;
-  const finish=parseFloat(document.getElementById('qb-finish')?.value)||0;
-  const rate=parseFloat(document.getElementById('qb-rate')?.value)||65;
-  const manualHrsPerUnit=cut+assembly+finish;
-
-  // Labor ops: each op has minsPerUnit × ratePerMin → cost per box (not time-based)
-  const opsLaborPerBox=qbLaborOps.reduce((s,o)=>{
-    const ratePerMin=WC_LABOR_RATES[o.rate]||0.47;
-    return s+(o.minsPerUnit*ratePerMin*o.qty);
-  },0);
-  const opsMinsPerBox=qbLaborOps.reduce((s,o)=>s+o.minsPerUnit*o.qty,0);
-  const hrsPerUnit=manualHrsPerUnit+(opsMinsPerBox/60);
-  const totalHrs=setup+hrsPerUnit*qty;
-  const manualLaborCost=(setup+manualHrsPerUnit*qty)*rate;
-  const laborTotal=manualLaborCost+opsLaborPerBox*qty;
-
-  const laborEl=document.getElementById('qb-labor-content');
-  if(laborEl)laborEl.innerHTML=`
-    <div class="qb-yield-row"><span>Setup (one-time)</span><span class="qb-val">${setup}h · $${(setup*rate).toFixed(2)}</span></div>
-    <div class="qb-yield-row"><span>Manual hrs / unit</span><span class="qb-val">${manualHrsPerUnit.toFixed(2)}h</span></div>`
-    +(qbLaborOps.length?`<div class="qb-yield-row"><span>Ops labor / unit (${qbLaborOps.length} ops)</span><span class="qb-val">$${opsLaborPerBox.toFixed(2)}</span></div>`:'')
-    +`<div class="qb-yield-row"><span>Total hours (${qty} units)</span><span class="qb-val">${totalHrs.toFixed(2)}h</span></div>
-    <div class="qb-yield-row" style="border-top:1px solid var(--bo);margin-top:4px;padding-top:4px"><span><strong>Labor cost</strong></span><span class="qb-val"><strong>$${laborTotal.toFixed(2)}</strong></span></div>`;
+  // Labor removed in v2 — quoted separately
+  const laborTotal=0;
+  const totalHrs=0;
+  const hrsPerUnit=0;
 
   // Customizations (qty × unitCost per line; supports legacy {cost} items)
   const customTotal=qbCustoms.reduce((s,c)=>s+((c.qty??1)*(c.unitCost??c.cost??0)),0);
@@ -4082,7 +5070,8 @@ function qbUpdateAll(){
   const engPer=g('qb-cc-eng');   // always count if rep entered a value; row visibility is just a UX hint
   const logoPer=g('qb-cc-logo');
   const pkgPer=g('qb-cc-pkg');
-  const configPerUnit=hwPer+intPer+finPer+engPer+logoPer+pkgPer;
+  const joinPer=g('qb-cc-join');
+  const configPerUnit=hwPer+intPer+finPer+engPer+logoPer+pkgPer+joinPer;
   const configTotal=configPerUnit*qty;
   // Update config total display
   const ccTotalBox=document.getElementById('qb-cc-total');
@@ -4090,12 +5079,14 @@ function qbUpdateAll(){
   if(ccTotalBox){ccTotalBox.style.display=configPerUnit>0?'flex':'none';}
   if(ccTotalVal)ccTotalVal.textContent='$'+configPerUnit.toFixed(2)+' / unit · $'+configTotal.toFixed(2)+' total';
 
-  // Combined margin (overhead + profit combined into one %)
-  const margin=parseFloat(document.getElementById('qb-margin')?.value)||50;
+  // Margin is locked to quantity table — read-only
+  const marginRow=qbMarginForQty(qty);
+  const margin=marginRow.margin;
+  qbUpdateMarginDisplay(qty);
   const subMat=woodTotal+matTotal;
-  const costBase=subMat+laborTotal+customTotal+configTotal;
-  const marginAmt=costBase*(margin/100);
-  const grandTotal=costBase+marginAmt;
+  const costBase=subMat+customTotal+configTotal;
+  const grandTotal=margin<100?costBase/(1-margin/100):costBase*2;
+  const marginAmt=grandTotal-costBase;
   const perUnit=grandTotal/qty;
 
   // Keep legacy hidden inputs in sync (for save/load compat)
@@ -4106,13 +5097,13 @@ function qbUpdateAll(){
   // Render summary
   const sumEl=document.getElementById('qb-summary');
   if(sumEl){
+    const matPathLabel={'solid':'Ocooch Solid Wood','mix':'Mix (Solid/MDF)','mdf':'MDF Sheet'}[qbMatPath]||'';
     const rows=[
-      [`Wood · ${qty} boxes ($${(woodTotal/qty).toFixed(2)}/box)`, woodTotal],
+      [`Wood · ${matPathLabel} · ${qty} boxes ($${woodTotal>0?(woodTotal/qty).toFixed(2):'0.00'}/box)`, woodTotal],
       configTotal>0?[`Config (HW · finish · pkg) · ${qty} boxes`, configTotal]:null,
       matTotal>0?['Additional Materials', matTotal]:null,
-      laborTotal>0?[`Labor ($${(laborTotal/qty).toFixed(2)}/box)`, laborTotal]:null,
       customTotal>0?['Customizations', customTotal]:null,
-      [`Margin & overhead (${margin}%)`, marginAmt],
+      [`Margin & overhead (${margin}% — ${marginRow.label} units)`, marginAmt],
     ].filter(Boolean);
     sumEl.innerHTML=rows.map(([l,v])=>`<div class="qb-sum-row"><span>${l}</span><span>$${v.toFixed(2)}</span></div>`).join('')
       +`<div class="qb-sum-total"><span class="qb-sum-total-lbl">TOTAL</span><span class="qb-sum-total-val">$${grandTotal.toFixed(2)}</span></div>`
@@ -4127,8 +5118,15 @@ function qbUpdateAll(){
     cpbVal.textContent='$'+perUnit.toFixed(2);
   }else if(cpbBox){cpbBox.style.display='none';}
 
+  // Quantity breaks display
+  qbUpdateQtyBreaks(qty,perUnit);
+  // Custom insert flag
+  qbUpdateCustomInsert();
+  // Engraving pricing
+  qbUpdateEngPricing();
   // Woodchuck volume tiers — anchor per-unit RETAIL off the variable cost
-  return{woodTotal,matTotal,laborTotal,customTotal,configTotal,overheadAmt,markupAmt,grandTotal,perUnit,totalHrs,hrsPerUnit,yld,margin};
+  if(typeof qtUpdateFooter==='function')qtUpdateFooter(perUnit,grandTotal,qty);
+  return{woodTotal,matTotal,laborTotal:0,customTotal,configTotal,overheadAmt,markupAmt,grandTotal,perUnit,totalHrs:0,hrsPerUnit:0,yld,margin};
 }
 
 // ════════════════════════════════════════════════════════════════════════
@@ -4147,6 +5145,8 @@ function qbSaveQuote(){
     name,
     client:document.getElementById('qb-client')?.value||'',
     rep:document.getElementById('qb-rep')?.value.trim()||'',
+    status:document.getElementById('qb-status')?.value||'draft',
+    needBy:document.getElementById('qb-needby')?.value||'',
     date:document.getElementById('qb-date')?.value||new Date().toISOString().slice(0,10),
     notes:document.getElementById('qb-notes')?.value||'',
     qty,
@@ -4175,7 +5175,13 @@ function qbSaveQuote(){
     overhead:parseFloat(document.getElementById('qb-overhead')?.value)||15,
     markup:parseFloat(document.getElementById('qb-markup')?.value)||35,
     rate:parseFloat(document.getElementById('qb-rate')?.value)||65,
+    setupHrs:parseFloat(document.getElementById('qb-setup')?.value)||0,
+    cutHrs:parseFloat(document.getElementById('qb-cut')?.value)||0,
+    assemblyHrs:parseFloat(document.getElementById('qb-assembly')?.value)||0,
+    finishHrs:parseFloat(document.getElementById('qb-finish')?.value)||0,
+    laborSuggested:!['setup','cut','assembly','finish'].some(f=>document.getElementById('qb-'+f)?.dataset?.manualEdit),
     configCostTotal:calc.configTotal||0,
+    joinery:document.getElementById('qb-cc-join-sel')?.value||'0',
     materials:[...qbMaterials],
     customs:[...qbCustoms],
     laborOps:[...qbLaborOps],
@@ -4207,7 +5213,7 @@ function qbRenderLibrary(){
       <div style="display:flex;justify-content:space-between;align-items:start;gap:10px">
         <div style="flex:1;min-width:0">
           <div class="qb-qc-name">${q.name}</div>
-          <div class="qb-qc-meta">${q.date} · ${q.client||'No client'} · ${q.qty} units${q.rep?' · '+q.rep:''}</div>
+          <div class="qb-qc-meta">${q.date} · ${q.client||'No client'} · ${q.qty} units${q.rep?' · '+q.rep:''} ${(()=>{const sc={draft:'#aaa',sent:'#2196F3',followup:'#FF9800',won:'#4CAF50',lost:'#f44336'};const sl={draft:'📝 Draft',sent:'📤 Sent',followup:'🔔 Follow-up',won:'✅ Won',lost:'❌ Lost'};const s=q.status||'draft';return`<span style="color:${sc[s]||'#aaa'};font-weight:700">${sl[s]||s}</span>`;})()}${(()=>{if(!q.needBy)return'';const d=Math.ceil((new Date(q.needBy)-new Date())/(864e5));if(d<=0)return` <span style="background:#f44336;color:#fff;font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:20px">🔥 OVERDUE</span>`;if(d<=14)return` <span style="background:#f44336;color:#fff;font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:20px">⚠ RUSH·${d}d</span>`;if(d<=28)return` <span style="background:#FF9800;color:#fff;font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:20px">⚠ RUSH·${d}d</span>`;return'';})()}</div>
           <div class="qb-qc-tags">
             ${q.speciesName?`<span class="qb-qc-tag">${q.speciesName}</span>`:''}
             ${q.boxType?`<span class="qb-qc-tag">${NM.bt[q.boxType]||q.boxType}</span>`:''}
@@ -4282,14 +5288,27 @@ function qbCloneQuote(id){
   const nameEl=document.getElementById('qb-name'); if(nameEl)nameEl.value='Copy of '+q.name;
   const clientEl=document.getElementById('qb-client'); if(clientEl)clientEl.value=q.client||'';
   const repEl=document.getElementById('qb-rep'); if(repEl)repEl.value=q.rep||'';
+  const statusEl=document.getElementById('qb-status'); if(statusEl){statusEl.value=q.status||'draft';qbUpdateStatusColor();}
+  const needByEl=document.getElementById('qb-needby'); if(needByEl){needByEl.value=q.needBy||'';qbCheckRush();}
   const qtyEl=document.getElementById('qb-qty'); if(qtyEl)qtyEl.value=q.qty||100;
   const rateEl=document.getElementById('qb-rate'); if(rateEl)rateEl.value=q.rate||65;
   const ohEl=document.getElementById('qb-overhead'); if(ohEl)ohEl.value=q.overhead||15;
   const mkEl=document.getElementById('qb-markup'); if(mkEl)mkEl.value=q.markup||35;
   qbMaterials=(q.materials||[]).map(m=>({...m,id:qbS4()}));
   qbCustoms=(q.customs||[]).map(c=>({...c,id:qbS4()}));
-  qbLaborOps=(q.laborOps||[]).map(o=>({...o,id:qbS4LO()}));
-  qbRenderMaterials();qbRenderCustoms();qbRenderLaborOps();
+  qbLaborOps=(q.laborOps||[]).map(o=>({...o,id:qbS4()}));
+  // Restore manual labor hours if they were saved
+  [['setup','setupHrs'],['cut','cutHrs'],['assembly','assemblyHrs'],['finish','finishHrs']].forEach(([f,key])=>{
+    const el=document.getElementById('qb-'+f);
+    if(el&&q[key]!=null){
+      el.value=q[key];
+      if(q.laborSuggested===false)el.dataset.manualEdit='1'; else delete el.dataset.manualEdit;
+    }
+  });
+  // Restore joinery selection
+  const joinSelEl=document.getElementById('qb-cc-join-sel');
+  if(joinSelEl&&q.joinery!=null){joinSelEl.value=q.joinery;qbSetJoinery(q.joinery);}
+  qbRenderMaterials();qbRenderCustoms();
   drawBox();updateLabel();updateChips();
   qbSyncFromDesign();qbUpdateAll();
   showToast('Quote cloned — edit and save as new.');
@@ -4327,7 +5346,173 @@ function qbExport(){
   qbRenderMaterials();
   qbRenderCustoms();
   qbSyncConfigCosts(); // seed hardware/insert/finish costs from default C state
+  // Init mat path buttons and margin display
+  document.querySelectorAll('.qb-mp-btn').forEach(b=>b.classList.toggle('sel',b.dataset.mp===qbMatPath));
+  const initQty=parseInt(document.getElementById('qb-qty')?.value)||100;
+  qbUpdateMarginDisplay(initQty);
+  // Sync tree inputs from initial C state
+  if(typeof qtDC==='function')qtDC();
+  if(typeof qtSyncFromState==='function')qtSyncFromState();
 })();
+
+// ══════════════════════════════════════════════════════════════════════════
+// DECISION TREE — qt* functions
+// ══════════════════════════════════════════════════════════════════════════
+let qtActive=1;
+function qtEdit(step){
+  const el=document.getElementById('qt-step-'+step);
+  if(!el||el.classList.contains('qt-locked'))return;
+  qtActive=step;
+  for(let i=1;i<=6;i++){
+    const s=document.getElementById('qt-step-'+i);
+    if(!s)continue;
+    s.classList.remove('qt-active','qt-done');
+    if(i<step)s.classList.add('qt-done');
+    else if(i===step)s.classList.add('qt-active');
+  }
+}
+function qtNext(step){
+  qtUpdChip(step);
+  const next=document.getElementById('qt-step-'+(step+1));
+  if(next){next.classList.remove('qt-locked');qtEdit(step+1);}
+  qbUpdateAll();
+}
+function qtSD(axis,delta){
+  const inp=document.getElementById('qt-c'+axis);if(!inp)return;
+  const mn=axis==='h'?1:2;
+  inp.value=Math.max(mn,Math.min(24,Math.round(((parseFloat(inp.value)||0)+delta)*4)/4));
+  qtDC();
+}
+function qtDC(){
+  const w=parseFloat(document.getElementById('qt-cw')?.value)||6;
+  const d=parseFloat(document.getElementById('qt-cd')?.value)||9;
+  const h=parseFloat(document.getElementById('qt-ch')?.value)||3;
+  document.getElementById('qb-dim-w').value=w;
+  document.getElementById('qb-dim-d').value=d;
+  document.getElementById('qb-dim-h').value=h;
+  setCustomDim('cw',w); setCustomDim('cd',d); setCustomDim('ch',h);
+}
+function qtSetSz(sz){
+  const D={sm:{w:4,d:6,h:2},md:{w:6,d:9,h:3},lg:{w:9,d:12,h:4}};
+  const dim=D[sz];if(!dim)return;
+  document.getElementById('qt-cw').value=dim.w;
+  document.getElementById('qt-cd').value=dim.d;
+  document.getElementById('qt-ch').value=dim.h;
+  ['sm','md','lg'].forEach(k=>document.getElementById('qt-sz-'+k)?.classList.toggle('sel',k===sz));
+  qtDC();
+}
+function qtPBt(bt,el){
+  document.querySelectorAll('.qt-bts').forEach(b=>b.classList.toggle('sel',b.dataset.bt===bt));
+  document.querySelectorAll('#qb-btchips .qb-btchip').forEach(b=>b.classList.toggle('sel',b.dataset.bt===bt));
+  C.bt=bt; drawBox(); updateLabel(); updateChips(); flashLive(); updatePrice(); drawFlatLayout(); fillSum();
+  qbReflectDesign(); qbSyncConfigCosts();
+}
+function qtSetPath(path,el){
+  document.querySelectorAll('.qt-path').forEach(b=>b.classList.toggle('sel',b.dataset.mp===path));
+  qbSetMatPath(path);
+}
+function qtPFin(fin,el){
+  document.querySelectorAll('.qt-fo').forEach(b=>b.classList.remove('sel'));
+  if(el)el.classList.add('sel');
+  P('fin',fin,null,false);
+}
+function qtPHw(hw,el){
+  document.querySelectorAll('.qt-hw').forEach(b=>b.classList.toggle('sel',b.dataset.hw===hw));
+  P('hw',hw,null,false); qbSyncConfigCosts();
+}
+function qtPInt(int,el){
+  document.querySelectorAll('.qt-int').forEach(b=>b.classList.toggle('sel',b.dataset.int===int));
+  P('int',int,null,false); qbSyncConfigCosts();
+}
+function qtSEng(text){
+  C.engrave=text;
+  document.getElementById('engv').value=text;
+  setEngrave(text); qbSyncConfigCosts();
+}
+function qtUpdBrand(){
+  const clr=document.getElementById('qt-logo-clr');
+  if(clr)clr.style.display=C.logo?'block':'none';
+  qtUpdChip(4);
+}
+function qtSQ(qty){
+  qty=parseInt(qty)||100;
+  document.getElementById('qt-qty').value=qty;
+  document.getElementById('qb-qty').value=qty; C.qty=qty;
+  document.querySelectorAll('.qt-qp').forEach(b=>b.classList.toggle('sel',parseInt((b.textContent||'').replace(/,/g,''))===qty));
+  qbUpdateAll(); qtUpdChip(6);
+}
+function qtSQI(val){
+  const qty=parseInt(val)||100;
+  document.getElementById('qb-qty').value=qty; C.qty=qty;
+  document.querySelectorAll('.qt-qp').forEach(b=>b.classList.toggle('sel',parseInt((b.textContent||'').replace(/,/g,''))===qty));
+  qbUpdateAll();
+}
+function qtSetJoin(val){
+  const sel=document.getElementById('qb-cc-join-sel');if(sel)sel.value=val;
+  qbSetJoinery(val);
+}
+function qtToggleDetail(){
+  const d=document.getElementById('qt-drawer');
+  const f=document.getElementById('qt-footer');
+  if(!d)return;
+  d.classList.toggle('open');
+  if(f)f.classList.toggle('drawer-open',d.classList.contains('open'));
+}
+function qtOpenSend(){
+  const d=document.getElementById('qt-drawer');
+  if(d){d.classList.add('open');const f=document.getElementById('qt-footer');if(f)f.classList.add('drawer-open');}
+  const s=document.getElementById('qt-send-sec');
+  if(s)setTimeout(()=>s.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+}
+function qtTogMats(hdr){
+  const b=document.getElementById('qt-mats-body');if(!b)return;
+  const open=b.style.display!=='none';b.style.display=open?'none':'block';
+  const ic=hdr?.querySelector('span:last-child');if(ic)ic.textContent=open?'▼':'▲';
+}
+function qtTogCust(hdr){
+  const b=document.getElementById('qt-cust-body');if(!b)return;
+  const open=b.style.display!=='none';b.style.display=open?'none':'block';
+  const ic=hdr?.querySelector('span:last-child');if(ic)ic.textContent=open?'▼':'▲';
+}
+function qtTogAdv(hdr){
+  const b=document.getElementById('qt-adv-body');if(!b)return;
+  const open=b.style.display!=='none';b.style.display=open?'none':'block';
+  const ic=hdr?.querySelector('span:last-child');if(ic)ic.textContent=open?'▼':'▲';
+}
+function qtUpdChip(step){
+  switch(step){
+    case 1:{const w=document.getElementById('qt-cw')?.value||6,d=document.getElementById('qt-cd')?.value||9,h=document.getElementById('qt-ch')?.value||3;
+      const e=document.getElementById('qt-s1-txt');if(e)e.textContent=`${w}"×${d}"×${h}" · ${NM.bt[C.bt]||C.bt}`;break;}
+    case 2:{const sp=C.species||NM.wood[C.wood]||C.wood||'—';const mp={'solid':'Solid Wood','mix':'Mix','mdf':'MDF'}[qbMatPath]||qbMatPath;
+      const e=document.getElementById('qt-s2-txt');if(e)e.textContent=`${mp} · ${sp}`;break;}
+    case 3:{const e=document.getElementById('qt-s3-txt');if(e)e.textContent=`${NM.fin[C.fin]||C.fin} · ${NM.hw[C.hw]||C.hw} hardware`;break;}
+    case 4:{const hasE=!!C.engrave,hasL=!!C.logo;const e=document.getElementById('qt-s4-txt');if(!e)break;
+      if(!hasE&&!hasL){e.textContent='No branding';break;}
+      const p=[];if(hasE)p.push(`"${C.engrave.slice(0,18)}${C.engrave.length>18?'…':''}"`);if(hasL)p.push('Logo ✓');e.textContent=p.join(' · ');break;}
+    case 5:{const e=document.getElementById('qt-s5-txt');if(e)e.textContent=NM.int[C.int]||C.int;break;}
+    case 6:{const qty=document.getElementById('qt-qty')?.value||100;const pu=document.getElementById('qt-fp-unit')?.textContent||'—';
+      const e=document.getElementById('qt-s6-txt');if(e)e.textContent=`${qty} units · ${pu}/unit`;break;}
+  }
+}
+function qtUpdateFooter(perUnit,grandTotal,qty){
+  const uEl=document.getElementById('qt-fp-unit'),tEl=document.getElementById('qt-fp-total');
+  if(uEl)uEl.textContent=perUnit>0?'$'+perUnit.toFixed(2):'—';
+  if(tEl)tEl.textContent=(grandTotal>0&&qty>0)?`$${grandTotal.toFixed(0)} total · ${qty.toLocaleString()} units`:'Configure above to price';
+  qtUpdChip(6);
+}
+// Sync tree UI from C state (called after clone/restore)
+function qtSyncFromState(){
+  try{
+    const w=C.cw||6,d=C.cd||9,h=C.ch||3;
+    const qw=document.getElementById('qt-cw'),qd=document.getElementById('qt-cd'),qh=document.getElementById('qt-ch');
+    if(qw)qw.value=w;if(qd)qd.value=d;if(qh)qh.value=h;
+    document.querySelectorAll('.qt-bts').forEach(b=>b.classList.toggle('sel',b.dataset.bt===C.bt));
+    document.querySelectorAll('.qt-path').forEach(b=>b.classList.toggle('sel',b.dataset.mp===qbMatPath));
+    const qty=C.qty||100;
+    const qtQty=document.getElementById('qt-qty');if(qtQty)qtQty.value=qty;
+    document.querySelectorAll('.qt-qp').forEach(b=>b.classList.toggle('sel',parseInt((b.textContent||'').replace(/,/g,''))===qty));
+  }catch(_){}
+}
 </script>
 </body>
 </html>
