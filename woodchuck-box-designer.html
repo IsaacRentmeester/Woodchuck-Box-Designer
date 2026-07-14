@@ -1573,21 +1573,27 @@ function qbSyncConfigCosts(){
   if(el('qb-cc-fin-hint'))el('qb-cc-fin-hint').textContent=finK==='natural'?'no coating — natural wood':`${surfArea.toFixed(0)} sq.in × $${(QB_FIN_SQIN[finK]||0).toFixed(4)}/sq.in`;
   const finRow=el('qb-cc-fin-row'); if(finRow)finRow.style.opacity=finCost===0?'0.4':'1';
 
-  // Engraving — auto-fill when text added; auto-clear when text removed
+  // Engraving + logo — tiered by total placement count across all locations
+  // "multiple laser engravings at different locations" → count goes up → per-placement rate drops
   const hasEng=!!C.engrave;
+  const hasLogo=!!C.logo;
+  const engPlaceCt=hasEng?1:0;                       // text engraving = 1 placement
+  const logoPlaceCt=hasLogo?(C.pl==='both'?2:1):0;   // logo top+front = 2; one side = 1
+  const totalPlacements=engPlaceCt+logoPlaceCt;
+  // Look up per-placement rate for the total count
+  const engRate=(()=>{if(!totalPlacements)return QB_ENG_RATES[0].rate;const r=QB_ENG_RATES.find(x=>totalPlacements>=x.min&&totalPlacements<=x.max)||QB_ENG_RATES[QB_ENG_RATES.length-1];return r.rate;})();
+  const logoRate=(()=>{if(!totalPlacements)return QB_LOGO_RATES[0].rate;const r=QB_LOGO_RATES.find(x=>totalPlacements>=x.min&&totalPlacements<=x.max)||QB_LOGO_RATES[QB_LOGO_RATES.length-1];return r.rate;})();
+
   if(el('qb-cc-eng-row'))el('qb-cc-eng-row').style.opacity=hasEng?'1':'0.45';
-  if(el('qb-cc-eng-hint'))el('qb-cc-eng-hint').textContent=C.engrave?`"${C.engrave.slice(0,22)}"`:  '—';
-  if(el('qb-cc-eng')){
-    if(hasEng&&parseFloat(el('qb-cc-eng').value)===0)el('qb-cc-eng').value=QB_ENG_COST.toFixed(2);
-    if(!hasEng&&!el('qb-cc-eng').dataset.manualEdit)el('qb-cc-eng').value='0'; // clear cost when text removed
+  if(el('qb-cc-eng-hint'))el('qb-cc-eng-hint').textContent=hasEng
+    ?`"${C.engrave.slice(0,22)}" · $${engRate.toFixed(2)}/ea (${totalPlacements} total placement${totalPlacements!==1?'s':''})`:'—';
+  if(el('qb-cc-eng')&&!el('qb-cc-eng').dataset.manualEdit){
+    el('qb-cc-eng').value=hasEng?(engRate*engPlaceCt).toFixed(2):'0';
   }
 
-  // Logo burn — auto-fill when logo uploaded; auto-clear when removed
-  const hasLogo=!!C.logo;
   if(el('qb-cc-logo-row'))el('qb-cc-logo-row').style.opacity=hasLogo?'1':'0.45';
-  if(el('qb-cc-logo')){
-    if(hasLogo&&parseFloat(el('qb-cc-logo').value)===0)el('qb-cc-logo').value=QB_LOGO_COST.toFixed(2);
-    if(!hasLogo&&!el('qb-cc-logo').dataset.manualEdit)el('qb-cc-logo').value='0';
+  if(el('qb-cc-logo')&&!el('qb-cc-logo').dataset.manualEdit){
+    el('qb-cc-logo').value=hasLogo?(logoRate*logoPlaceCt).toFixed(2):'0';
   }
 
   qbUpdateAll();
