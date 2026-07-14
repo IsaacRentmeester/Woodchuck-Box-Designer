@@ -5491,6 +5491,9 @@ function qtPBt(bt,el){
   document.querySelectorAll('#qb-btchips .qb-btchip').forEach(b=>b.classList.toggle('sel',b.dataset.bt===bt));
   C.bt=bt; drawBox(); updateLabel(); updateChips(); flashLive(); updatePrice(); drawFlatLayout(); fillSum();
   qbReflectDesign(); qbSyncConfigCosts();
+  // Show clamshell H-convention hint
+  const hh=document.getElementById('qt-clam-h-hint');
+  if(hh)hh.style.display=bt==='clamshell'?'block':'none';
 }
 function qtSetPath(path,el){
   document.querySelectorAll('.qt-path').forEach(b=>b.classList.toggle('sel',b.dataset.mp===path));
