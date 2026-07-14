@@ -5562,10 +5562,50 @@ function qtUpdChip(step){
       const e=document.getElementById('qt-s6-txt');if(e)e.textContent=`${qty} units · ${pu}/unit`;break;}
   }
 }
+// Oversize flag — set by qbCalcYield when ocoochSelectBoard returns null
+let _qtOversizeFlag=false;
+
+// Compute quote confidence level from current state
+function qtGetConfidence(){
+  const path=qbMatPath;
+  if(_qtOversizeFlag){
+    return{level:'red',emoji:'🔴',label:'Manual Quote',detail:'Panel exceeds stock board size'};
+  }
+  if(C.int==='custom'){
+    return{level:'yellow',emoji:'🟡',label:'Estimate',detail:'Custom insert priced separately'};
+  }
+  if(path==='mdf'){
+    return{level:'green',emoji:'🟢',label:'Full Quote',detail:'MDF + production pricing'};
+  }
+  if(path==='mix'){
+    return{level:'yellow',emoji:'🟡',label:'Estimate',detail:'Mix path — estimated'};
+  }
+  // Solid path: check if species has real Ocooch board prices
+  const spId=document.getElementById('qb-species')?.value;
+  const sp=(typeof qbSpecies!=='undefined'?qbSpecies:[]).find(s=>s.id===spId);
+  const sname=sp?.name||'';
+  const hasRealPrices=!!QB_OCOOCH_BOARDS[sname];
+  if(sname&&!hasRealPrices&&!wcSheetCost(sname,parseFloat(document.getElementById('qb-matT')?.value)||0.25)){
+    return{level:'yellow',emoji:'🟡',label:'Estimate',detail:`${sname}: estimated pricing`};
+  }
+  return{level:'green',emoji:'🟢',label:'Full Quote',detail:'Ready to send'};
+}
+
 function qtUpdateFooter(perUnit,grandTotal,qty){
   const uEl=document.getElementById('qt-fp-unit'),tEl=document.getElementById('qt-fp-total');
   if(uEl)uEl.textContent=perUnit>0?'$'+perUnit.toFixed(2):'—';
   if(tEl)tEl.textContent=(grandTotal>0&&qty>0)?`$${grandTotal.toFixed(0)} total · ${qty.toLocaleString()} units`:'Configure above to price';
+  // Update confidence badge
+  const badgeEl=document.getElementById('qt-conf-badge');
+  if(badgeEl&&perUnit>0){
+    const c=qtGetConfidence();
+    badgeEl.className=`qt-conf qt-conf-${c.level}`;
+    badgeEl.title=c.detail;
+    badgeEl.textContent=c.emoji+' '+c.label;
+    badgeEl.style.display='inline-flex';
+  }else if(badgeEl){
+    badgeEl.style.display='none';
+  }
   qtUpdChip(6);
 }
 // Sync tree UI from C state (called after clone/restore)
