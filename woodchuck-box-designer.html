@@ -4899,6 +4899,7 @@ function qbCalcYield(){
   }
 
   // Show Ocooch board selection when in solid/mix path
+  _qtOversizeFlag=false; // reset before recalculating
   if(qbMatPath==='solid'||qbMatPath==='mix'){
     const spId=document.getElementById('qb-species')?.value;
     const sp=(typeof qbSpecies!=='undefined'?qbSpecies:[]).find(s=>s.id===spId);
@@ -4915,17 +4916,26 @@ function qbCalcYield(){
         {w:D,h:extH},{w:D,h:extH},
       ];
       const sel=ocoochSelectBoard(sp.name,panels,T,kerf);
+      _qtOversizeFlag=!sel;
       const yldEl=document.getElementById('qb-yield-content');
       if(sel&&yldEl){
+        const usePct=100-sel.wastePercent;
+        const barColor=sel.wastePercent>35?'#c44':'#3d4f43';
+        const wasteBar=`<div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+          <div style="flex:1;height:6px;background:#e0d8cc;border-radius:3px;overflow:hidden">
+            <div style="width:${usePct}%;height:100%;background:${barColor};border-radius:3px;transition:width .3s"></div>
+          </div>
+          <span style="font-size:.62rem;color:${barColor};font-weight:700;white-space:nowrap">${usePct}% used</span>
+        </div>`;
         yldEl.innerHTML+=`<div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--bo)">
           <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:4px">🪵 Ocooch board selection</div>
           <div class="qb-yield-row"><span>Best stock size</span><span class="qb-val">${sel.boardSize}</span></div>
-          <div class="qb-yield-row"><span>Boards needed</span><span class="qb-val">${sel.boardsNeeded} x $${sel.pricePerBoard.toFixed(2)}</span></div>
+          <div class="qb-yield-row"><span>Boards needed</span><span class="qb-val">${sel.boardsNeeded} × $${sel.pricePerBoard.toFixed(2)}</span></div>
           <div class="qb-yield-row"><span>Material cost</span><span class="qb-val">$${sel.totalCost.toFixed(2)}</span></div>
-          <div class="qb-yield-row ${sel.wastePercent>30?'style="color:#c44"':''}"><span>Waste / offcut</span><span class="qb-val">${sel.wastePercent}%</span></div>
+          <div class="qb-yield-row"><span>Board usage</span><span class="qb-val" style="flex:1">${wasteBar}</span></div>
         </div>`;
       } else if(!sel&&yldEl&&sp.name){
-        yldEl.innerHTML+=`<div style="margin-top:6px;padding:6px 9px;background:#fdecea;border:1.5px solid #c2453a;border-radius:7px;font-size:.67rem;color:#7e1d15;font-weight:600">One or more panels exceed available Ocooch stock widths. This box requires a manual quote.</div>`;
+        yldEl.innerHTML+=`<div style="margin-top:6px;padding:6px 9px;background:#fdecea;border:1.5px solid #c2453a;border-radius:7px;font-size:.67rem;color:#7e1d15;font-weight:600">⚠️ One or more panels exceed available Ocooch stock widths — manual quote required.</div>`;
       }
     }
   }
