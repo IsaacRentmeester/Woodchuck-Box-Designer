@@ -5626,6 +5626,21 @@ function qtUpdateFooter(perUnit,grandTotal,qty){
   }else if(badgeEl){
     badgeEl.style.display='none';
   }
+  // Proximity nudge: "Add X more units to unlock next price break"
+  const nudgeEl=document.getElementById('qt-fp-total');
+  if(nudgeEl&&grandTotal>0&&perUnit>0&&qty>0){
+    const nextTier=QB_MARGIN_TABLE.find(r=>r.lo>qty);
+    if(nextTier){
+      const diff=nextTier.lo-qty;
+      const currentMargin=qbMarginForQty(qty).margin;
+      const costBase=perUnit*(1-currentMargin/100);
+      const nextPerUnit=costBase/(1-(nextTier.margin/100));
+      const savingsPerUnit=perUnit-nextPerUnit;
+      if(diff<=20&&savingsPerUnit>0.01){
+        nudgeEl.textContent=`$${grandTotal.toFixed(0)} total · ${qty.toLocaleString()} units — 💡 Add ${diff} more to save $${savingsPerUnit.toFixed(2)}/unit`;
+      }
+    }
+  }
   qtUpdChip(6);
 }
 // Sync tree UI from C state (called after clone/restore)
