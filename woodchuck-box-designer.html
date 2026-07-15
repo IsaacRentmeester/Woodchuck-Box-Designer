@@ -1278,6 +1278,12 @@ function qbMarginForQty(qty){
   return row;
 }
 
+// Lightweight localStorage wrapper — must be defined before any usage below
+const QBdb={
+  get:k=>{try{return JSON.parse(localStorage.getItem('wqb_'+k))||null}catch{return null}},
+  set:(k,v)=>localStorage.setItem('wqb_'+k,JSON.stringify(v))
+};
+
 // Material path state: 'solid' | 'mix' | 'mdf'
 let qbMatPath=QBdb.get('matPath')||'solid';
 function qbSetMatPath(path){
