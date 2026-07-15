@@ -5587,9 +5587,6 @@ function qtUpdChip(step){
       const e=document.getElementById('qt-s6-txt');if(e)e.textContent=`${qty} units · ${pu}/unit`;break;}
   }
 }
-// Oversize flag — set by qbCalcYield when ocoochSelectBoard returns null
-let _qtOversizeFlag=false;
-
 // Compute quote confidence level from current state
 function qtGetConfidence(){
   const path=qbMatPath;
