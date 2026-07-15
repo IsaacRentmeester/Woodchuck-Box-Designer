@@ -4846,6 +4846,9 @@ function qbBestFit(sL,sW,pL,pW,kerf){
   return Math.max(pA,pB,hybABr,hybABb,hybBAr,hybBAb,0);
 }
 
+// Oversize flag — set by qbCalcYield when ocoochSelectBoard returns null
+let _qtOversizeFlag=false;
+
 function qbCalcYield(){
   const sL=parseFloat(document.getElementById('qb-sheetL')?.value)||24;
   const sW=parseFloat(document.getElementById('qb-sheetW')?.value)||6;
