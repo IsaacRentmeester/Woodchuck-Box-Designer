@@ -3992,10 +3992,6 @@ function cfgTab(name){
 // QUOTING ENGINE DATA
 // ════════════════════════════════════════════════════════════════════════
 function qbS4(){return Math.random().toString(36).slice(2,10)}
-const QBdb={
-  get:k=>{try{return JSON.parse(localStorage.getItem('wqb_'+k))||null}catch{return null}},
-  set:(k,v)=>localStorage.setItem('wqb_'+k,JSON.stringify(v))
-};
 
 // Full Ocooch Hardwoods thin-wood catalog. Price = current retail for a
 // 1/4" × 6" × 24" board (matches the 24×6 default stock size). Source:
