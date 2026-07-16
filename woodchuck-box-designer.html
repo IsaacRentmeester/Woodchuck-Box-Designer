@@ -258,6 +258,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qb-wsw-chip img{width:100%;height:100%;object-fit:cover;display:block}
 .qb-wsw-name{font-size:.56rem;font-weight:700;color:var(--green);text-align:center;padding:3px 2px 1px;line-height:1.12;letter-spacing:-.01em}
 .qb-wsw-price{font-size:.52rem;color:var(--mu);text-align:center;padding:0 2px 4px}
+/* Nesting visualization — Req 2 */
+.qb-nest-wrap{margin:6px 0 4px;background:#f5f0e8;border-radius:8px;padding:7px 8px;border:1px solid var(--bo);display:none}
+.qb-nest-wrap.vis{display:block}
+.qb-nest-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-size:.62rem;font-weight:700;color:var(--green)}
+.qb-nest-stats{font-size:.58rem;color:var(--mu);font-weight:400}
+.qb-nest-oversize{background:rgba(244,67,54,.1);border:1.5px solid #f44336;border-radius:7px;padding:8px 10px;font-size:.68rem;color:#c62828;font-weight:700;margin:4px 0;display:none}
+.qb-nest-oversize.vis{display:block}
+#qb-nesting-canvas{display:block;width:100%;border-radius:5px;image-rendering:pixelated}
 .qb-wsw.sel .qb-wsw-name{color:var(--gold-d)}
 @media(max-width:520px){.qb-wood-grid{grid-template-columns:repeat(3,1fr)}}
 /* ── physical-size validation (Ocooch real stock limits) ── */
