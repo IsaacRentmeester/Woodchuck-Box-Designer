@@ -5846,6 +5846,42 @@ function qtUpdateFooter(perUnit,grandTotal,qty){
   }
   qtUpdChip(6);
 }
+// Req 10: populate right-column cost breakdown
+function qtUpdateSummaryRight(calc){
+  if(!calc)return;
+  const costSec=document.getElementById('qt-r-cost-sec');
+  if(calc.perUnit>0){
+    const woodEl=document.getElementById('qt-r-wood');
+    const cfgEl=document.getElementById('qt-r-config');
+    const mrgEl=document.getElementById('qt-r-margin');
+    if(woodEl)woodEl.textContent='$'+(calc.woodTotal||0).toFixed(2);
+    if(cfgEl)cfgEl.textContent='$'+(calc.configTotal||0).toFixed(2);
+    const ovhd=(calc.overheadAmt||0)+(calc.markupAmt||0);
+    if(mrgEl)mrgEl.textContent='$'+ovhd.toFixed(2)+' ('+qbMarginForQty(calc.qty||C.qty||100).margin+'%)';
+    if(costSec)costSec.style.display='';
+  } else {
+    if(costSec)costSec.style.display='none';
+  }
+}
+// Req 10: update board info chip in right column (called from qbSyncNesting + qbLoadSpeciesPrice)
+let _lastNestLayout=null;
+function qtUpdateBoardInfo(){
+  const boardSec=document.getElementById('qt-r-board-sec');
+  const boardEl=document.getElementById('qt-r-board');
+  if(!boardEl)return;
+  const spId=document.getElementById('qb-species')?.value;
+  const sp=(typeof qbSpecies!=='undefined'?qbSpecies:[]).find(s=>s.id===spId);
+  const name=sp?sp.name:'';
+  if(!name){if(boardSec)boardSec.style.display='none';return;}
+  if(boardSec)boardSec.style.display='';
+  if(qbMatPath==='mdf'){
+    boardEl.textContent='MDF · '+name+(qbMdfSpecies?'':'')+' — sheet pricing';
+    return;
+  }
+  if(!_lastNestLayout){boardEl.textContent=name+' — select qty to price';return;}
+  const {boardW,boardL,boardCount,wastePercent}=_lastNestLayout;
+  boardEl.textContent=`${boardW}"×${boardL}" ${name} · ${boardCount} board${boardCount!==1?'s':''} · ${wastePercent}% waste`;
+}
 // Sync tree UI from C state (called after clone/restore)
 function qtSyncFromState(){
   try{
