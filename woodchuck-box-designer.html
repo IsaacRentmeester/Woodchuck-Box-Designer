@@ -5460,6 +5460,15 @@ function qtPBt(bt,el){
   document.querySelectorAll('#qb-btchips .qb-btchip').forEach(b=>b.classList.toggle('sel',b.dataset.bt===bt));
   C.bt=bt; drawBox(); updateLabel(); updateChips(); flashLive(); updatePrice(); drawFlatLayout(); fillSum();
   qbReflectDesign(); qbSyncConfigCosts();
+  // Req 4: clamshell H must split evenly — snap to nearest 0.5" on switch
+  if(bt==='clamshell'){
+    const hInp=document.getElementById('qt-ch');
+    if(hInp){
+      const cur=parseFloat(hInp.value)||3;
+      const snapped=Math.max(1,Math.round(cur*2)/2);
+      if(snapped!==cur){hInp.value=snapped;qtDC();}
+    }
+  }
   // Show clamshell H-convention hint
   const hh=document.getElementById('qt-clam-h-hint');
   if(hh)hh.style.display=bt==='clamshell'?'block':'none';
