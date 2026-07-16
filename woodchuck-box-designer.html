@@ -5104,9 +5104,7 @@ function qbUpdateAll(){
   const matTotal=qbMaterials.reduce((s,m)=>s+(m.qty*m.unitCost),0);
 
   // Labor removed in v2 — quoted separately
-  const laborTotal=0;
-  const totalHrs=0;
-  const hrsPerUnit=0;
+  // Labor: removed in v2 — quoted separately
 
   // Customizations (qty × unitCost per line; supports legacy {cost} items)
   const customTotal=qbCustoms.reduce((s,c)=>s+((c.qty??1)*(c.unitCost??c.cost??0)),0);
