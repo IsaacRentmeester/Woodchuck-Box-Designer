@@ -2398,7 +2398,6 @@ function printSpecSheet(){
     ['Wood / Panel Material','woodTotal'],
     ['Config (hardware, finish, insert)','configTotal'],
     ['Additional Materials','matTotal'],
-    ['Labor','laborTotal'],
     ['Custom / Extras','customTotal'],
   ].filter(([,k])=>(calc[k]||0)>0)
    .map(([label,k])=>`<tr><td>${label}</td><td>$${(calc[k]||0).toFixed(2)}</td></tr>`).join('');
