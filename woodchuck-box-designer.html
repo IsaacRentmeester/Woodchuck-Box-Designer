@@ -4639,6 +4639,7 @@ function qbSyncFromDesign(){
     if(sel){sel.value=best.id;qbLoadSpeciesPrice(true);}
   }
   qbCalcPanels();
+  qbSyncNesting();             // Req 2: refresh nesting canvas after sync
   qbSyncConfigCosts(); // auto-fill hardware/insert/finish/engraving from C state
   qbUpdateStatusColor();
   qbCheckRush();
