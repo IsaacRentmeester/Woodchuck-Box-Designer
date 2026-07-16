@@ -5638,6 +5638,10 @@ function qbExport(){
   a.click();
 }
 
+// Req 10: last nesting layout result — shared between qbSyncNesting and qtUpdateBoardInfo
+// Must be declared before the qbInit IIFE to avoid TDZ when qbSyncNesting is called at startup
+let _lastNestLayout=null;
+
 // ════════════════════════════════════════════════════════════════════════
 // QUOTE TAB INIT
 // ════════════════════════════════════════════════════════════════════════
