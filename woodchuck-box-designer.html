@@ -1644,28 +1644,7 @@ function calcBoxPanelArea(W,D,H,T,bt){
   return floor + trayFB + traySides + lidTop + lidFB + lidSides;
 }
 
-function calcRealisticPrice(){
-  const W=C.cw||6, D=C.cd||9, H=C.ch||3, T=C.cmat||0.25;
-  const sqIn = calcBoxPanelArea(W,D,H,T,C.bt);
-  const wastedSqIn = sqIn * 1.12; // 12% waste/kerf (matches quote tab default)
-  const woodPerUnit = wastedSqIn * (WOOD_UNIT_COST[C.wood]||0.096);
-  const finPer  = FIN_COST[C.fin]||0;
-  const hwPer   = HW_COST[C.hw]||0;
-  const intPer  = INT_COST[C.int]||0;
-  const engPer  = C.engrave ? 8.00 : 0;
-  // Labor scales with box volume; base 0.55 hrs + size factor
-  const vol = W*D*H;
-  const hrsPerUnit = 0.55 + vol/1800;
-  const laborPer = hrsPerUnit * 65; // $65/hr shop rate (matches quote tab default)
-  const sub = woodPerUnit + finPer + hwPer + intPer + engPer + laborPer;
-  const withOverhead = sub * 1.50; // 50% combined margin (matches quote tab default)
-  // Volume discount
-  const qty = C.qty||100;
-  const vm = VOL_MULT.find(([threshold])=>qty>=threshold)?.[1] || 1.0;
-  const perUnit = withOverhead * vm;
-  const total   = perUnit * qty;
-  return {perUnit, total, woodPerUnit, laborPer, finPer, hwPer, intPer, hrsPerUnit};
-}
+// calcRealisticPrice() removed in v2 — labor quoted separately, not in this tool.
 
 // ─── LIVE PRICE ESTIMATE (Packlane-style real-time pricing) ──────────────
 const PRICE_WOOD={birch:26,maple:30,walnutmaple:40,mahogany:46,cedar:42,walnut:52};
