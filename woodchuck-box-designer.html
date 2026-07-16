@@ -5172,7 +5172,7 @@ function qbUpdateAll(){
   qbUpdateEngPricing();
   // Woodchuck volume tiers — anchor per-unit RETAIL off the variable cost
   if(typeof qtUpdateFooter==='function')qtUpdateFooter(perUnit,grandTotal,qty);
-  return{woodTotal,matTotal,laborTotal:0,customTotal,configTotal,overheadAmt,markupAmt,grandTotal,perUnit,totalHrs:0,hrsPerUnit:0,yld,margin};
+  return{woodTotal,matTotal,customTotal,configTotal,overheadAmt,markupAmt,grandTotal,perUnit,yld,margin};
 }
 
 // ════════════════════════════════════════════════════════════════════════
