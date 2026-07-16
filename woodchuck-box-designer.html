@@ -1349,6 +1349,7 @@ function qbSetMatPath(path){
   if(path==='solid')qbSetPriceSrc('ocooch');
   else if(path==='mix')qbSetPriceSrc('ocooch');
   else qbSetPriceSrc('mdf');
+  qbSyncNesting(); // Req 2: refresh nesting on path change
   qbUpdateAll();
 }
 
