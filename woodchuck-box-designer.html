@@ -2402,14 +2402,7 @@ function printSpecSheet(){
   ].filter(([,k])=>(calc[k]||0)>0)
    .map(([label,k])=>`<tr><td>${label}</td><td>$${(calc[k]||0).toFixed(2)}</td></tr>`).join('');
   const margin=parseFloat(document.getElementById('qb-margin')?.value)||50;
-  const marginAmt=calc?(calc.grandTotal-(calc.woodTotal+calc.configTotal+calc.matTotal+calc.laborTotal+calc.customTotal)):0;
-
-  // Labor hours detail
-  const setupH=parseFloat(document.getElementById('qb-setup')?.value)||0;
-  const cutH=parseFloat(document.getElementById('qb-cut')?.value)||0;
-  const assemblyH=parseFloat(document.getElementById('qb-assembly')?.value)||0;
-  const finishH=parseFloat(document.getElementById('qb-finish')?.value)||0;
-  const totalHrs=calc?.totalHrs||0;
+  const marginAmt=calc?(calc.grandTotal-(calc.woodTotal+calc.configTotal+calc.matTotal+calc.customTotal)):0;
 
   // Spec rows helper
   const SR=(k,v)=>v?`<tr><td class="sk">${k}</td><td>${v}</td></tr>`:'';
