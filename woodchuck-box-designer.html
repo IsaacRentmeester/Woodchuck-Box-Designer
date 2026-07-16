@@ -1684,7 +1684,9 @@ function qbSyncNesting(){
     const cost=layout.boardCount*board.price;
     if(cost<bestCost){bestCost=cost;bestLayout=layout;}
   });
+  _lastNestLayout=bestLayout;  // Req 10: expose for right-panel board info
   qbRenderNesting(bestLayout,sp.name);
+  if(typeof qtUpdateBoardInfo==='function')qtUpdateBoardInfo();
 }
 
 // Update margin display and tiers from current qty
