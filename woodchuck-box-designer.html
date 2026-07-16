@@ -1744,6 +1744,21 @@ function qbUpdateQtyBreaks(qty,perUnit){
       el.innerHTML=`<div style="padding:5px 9px;background:rgba(200,160,96,.1);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;font-size:.67rem;font-weight:700;color:#7a5c1e;margin-bottom:7px">💡 Add just ${diff} more unit${diff!==1?'s':''} to unlock the next price break!</div>`+el.innerHTML;
     }
   }
+  // Req 10: also populate compact break list in right panel
+  const rSec=document.getElementById('qt-r-breaks-sec');
+  const rEl=document.getElementById('qt-r-breaks');
+  if(rEl&&nextTiers.length&&perUnit>0){
+    if(rSec)rSec.style.display='';
+    rEl.innerHTML=nextTiers.map(r=>{
+      const nq=r.lo;
+      const cb=perUnit*(1-currentMargin/100);
+      const np=r.margin<100?cb/(1-r.margin/100):cb*2;
+      const sv=perUnit-np;
+      return`<div class="qtr-break-row"><span class="qtr-br-qty">${nq.toLocaleString()} units</span><span class="qtr-br-price">$${np.toFixed(2)}/unit</span><span class="qtr-br-save">-$${sv.toFixed(2)}</span></div>`;
+    }).join('');
+  } else if(rSec){
+    rSec.style.display='none';
+  }
 }
 
 // Custom insert: show/hide flag
