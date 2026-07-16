@@ -5431,7 +5431,10 @@ function qtNext(step){
 function qtSD(axis,delta){
   const inp=document.getElementById('qt-c'+axis);if(!inp)return;
   const mn=axis==='h'?1:2;
-  inp.value=Math.max(mn,Math.min(24,Math.round(((parseFloat(inp.value)||0)+delta)*4)/4));
+  let v=Math.max(mn,Math.min(24,Math.round(((parseFloat(inp.value)||0)+delta)*4)/4));
+  // Req 4: clamshell H must be even in 0.5" steps so each half = H÷2 is a clean 0.25"
+  if(axis==='h'&&C.bt==='clamshell') v=Math.max(1,Math.round(v*2)/2);
+  inp.value=v;
   qtDC();
 }
 function qtDC(){
