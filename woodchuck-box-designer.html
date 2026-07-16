@@ -2695,7 +2695,7 @@ function getGrainColor(){
   return blendHex(woodGrain,FC[C.fin],FIN_OPAC[C.fin]*0.5||0.35);
 }
 function getHwColor(){return{gold:'#D4AF37',silver:'#B8B8B8',black:'#383838',brass:'#B5935A',none:'#888'}[C.hw]||'#D4AF37';}
-function getIntColor(){return{eco:'#7A9468',pu:'#E0D0B8',velvet:'#1E3A2E',wood:'#C89858',excelsior:'#C8A840'}[C.int]||null;}
+function getIntColor(){return{velvet:'#1E3A2E',wood:'#C89858'}[C.int]||null;}
 
 const LIGHT=[0.45,1.0,-0.6];
 const LIGHT2=[-0.72,0.18,0.32]; // strong fill from viewer-left to brighten the visible side face
