@@ -5445,6 +5445,11 @@ function qbUpdateAll(){
 // SAVE / LIBRARY / EXPORT
 // ════════════════════════════════════════════════════════════════════════
 function qbSaveQuote(){
+  // Req 10: right-panel inputs are primary; sync to hidden fields first
+  const rName=document.getElementById('qt-r-name');
+  const rClient=document.getElementById('qt-r-client');
+  if(rName&&rName.value){const e=document.getElementById('qb-name');if(e)e.value=rName.value;}
+  if(rClient&&rClient.value){const e=document.getElementById('qb-client');if(e)e.value=rClient.value;}
   const name=document.getElementById('qb-name')?.value.trim();
   if(!name){showToast('Enter a project name to save.');return;}
   const calc=qbUpdateAll();
