@@ -5747,14 +5747,17 @@ function qtSetJoin(val){
 }
 function qtToggleDetail(){
   const d=document.getElementById('qt-drawer');
-  const f=document.getElementById('qt-footer');
   if(!d)return;
   d.classList.toggle('open');
-  if(f)f.classList.toggle('drawer-open',d.classList.contains('open'));
 }
 function qtOpenSend(){
   const d=document.getElementById('qt-drawer');
-  if(d){d.classList.add('open');const f=document.getElementById('qt-footer');if(f)f.classList.add('drawer-open');}
+  if(d)d.classList.add('open');
+  // Copy right-panel name/client into drawer fields
+  const rName=document.getElementById('qt-r-name');
+  const rClient=document.getElementById('qt-r-client');
+  if(rName&&rName.value){const e=document.getElementById('qt-d-name');if(e&&!e.value)e.value=rName.value;}
+  if(rClient&&rClient.value){const e=document.getElementById('qt-d-client');if(e&&!e.value)e.value=rClient.value;}
   const s=document.getElementById('qt-send-sec');
   if(s)setTimeout(()=>s.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
 }
