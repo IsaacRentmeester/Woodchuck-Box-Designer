@@ -4690,7 +4690,7 @@ function qbRenderWoodGrid(){
       const price='$'+result.cost.toFixed(2)+'/sht';
       const sel=qbMdfSpecies===name?'sel':'';
       return `<div class="qb-wsw ${sel}" data-mdf="${name}" onclick="qbPickMdfSpecies('${name}')" title="${name}">`
-        +`<div class="qb-wsw-chip" style="background:linear-gradient(135deg,${lightenHex(t.base,0.06)},${t.base} 45%,${t.grain})">${QB_SPECIES_IMG[s.name]?'<img src="'+QB_SPECIES_IMG[s.name]+'" style="width:100%;height:100%;object-fit:cover;display:block">':''}</div>`
+        +`<div class="qb-wsw-chip" style="background:linear-gradient(135deg,${lightenHex(t.base,0.06)},${t.base} 45%,${t.grain})">${QB_SPECIES_IMG[name]?'<img src="'+QB_SPECIES_IMG[name]+'" style="width:100%;height:100%;object-fit:cover;display:block">':''}</div>`
         +`<div class="qb-wsw-name">${name}</div>`
         +`<div class="qb-wsw-price">${price}</div></div>`;
     }).join('');
