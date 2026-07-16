@@ -1478,6 +1478,147 @@ function ocoochSelectBoard(speciesName,panels,t,kerf){
   return best;
 }
 
+// ── Req 2: Nesting layout + canvas renderer ───────────────────────────────
+// Computes panel placement coordinates for the selected board.
+// Returns {boardW, boardL, boardCount, boards:[{panels:[{x,y,w,h,label}]}], wastePercent}
+function qbNestLayout(board,panels,kerf){
+  const k=kerf||0.125;
+  const bW=board.width, bL=board.length;
+  const allBoards=[{panels:[],usedL:0}];
+  panels.forEach((p,i)=>{
+    // Orient so narrower dim is cross-board (fits within bW)
+    const pw=Math.min(p.w,p.h)<=bW?Math.min(p.w,p.h):Math.max(p.w,p.h);
+    const pl=(pw===Math.min(p.w,p.h))?Math.max(p.w,p.h):Math.min(p.w,p.h);
+    const needed=pl+k;
+    let cur=allBoards[allBoards.length-1];
+    if(cur.usedL+needed>bL){cur={panels:[],usedL:0};allBoards.push(cur);}
+    cur.panels.push({x:cur.usedL,y:0,w:pl,h:pw,label:p.label||`P${i+1}`});
+    cur.usedL+=needed;
+  });
+  const totalArea=panels.reduce((s,p)=>s+p.w*p.h,0);
+  const boardArea=allBoards.length*bW*bL;
+  const wastePercent=Math.max(0,Math.round((1-totalArea/boardArea)*100));
+  return{boardW:bW,boardL:bL,boardCount:allBoards.length,boards:allBoards,wastePercent};
+}
+
+// Draw the nesting layout on the canvas in Step 2.
+function qbRenderNesting(layout,species){
+  const wrap=document.getElementById('qb-nest-wrap');
+  const cv=document.getElementById('qb-nesting-canvas');
+  const oversizeEl=document.getElementById('qb-nest-oversize');
+  if(!cv||!wrap){return;}
+
+  if(!layout){
+    wrap.classList.remove('vis');
+    if(oversizeEl){oversizeEl.classList.add('vis');}
+    return;
+  }
+  oversizeEl&&oversizeEl.classList.remove('vis');
+  wrap.classList.add('vis');
+
+  // Scale: fit the board width to canvas width (max 380px), with padding
+  const PAD=12, GAP=8;
+  const totalBoards=layout.boardCount;
+  const dpr=window.devicePixelRatio||1;
+  const cssW=cv.parentElement.clientWidth||320;
+  const scaleX=(cssW-PAD*2)/layout.boardL; // px per inch (length runs horizontally)
+  const boardH_px=Math.min(48,Math.round(layout.boardW*scaleX));
+  const canvasH=PAD+totalBoards*(boardH_px+GAP)+PAD;
+
+  cv.width=Math.round(cssW*dpr);
+  cv.height=Math.round(canvasH*dpr);
+  cv.style.height=canvasH+'px';
+  const ctx=cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,cssW,canvasH);
+
+  // Colors
+  const WOOD_BG='#E8C88A';
+  const PANEL_COLORS=['#C8A060','#B08040','#D4AA70','#A07030','#BF9050','#CFA860'];
+  const WASTE_FILL='rgba(0,0,0,0.06)';
+  const BORDER='rgba(0,0,0,0.25)';
+
+  layout.boards.forEach((board,bi)=>{
+    const bx=PAD;
+    const by=PAD+bi*(boardH_px+GAP);
+    const bw_px=layout.boardL*scaleX;
+
+    // Board background (wood grain look)
+    const grad=ctx.createLinearGradient(bx,by,bx,by+boardH_px);
+    grad.addColorStop(0,'#E8C88A');grad.addColorStop(0.4,'#D4AA70');grad.addColorStop(1,'#C49850');
+    ctx.fillStyle=grad;
+    ctx.beginPath();ctx.roundRect(bx,by,bw_px,boardH_px,4);ctx.fill();
+
+    // Waste/unused fill
+    ctx.fillStyle=WASTE_FILL;
+    ctx.fillRect(bx+(board.usedL*scaleX),by,bw_px-(board.usedL*scaleX),boardH_px);
+
+    // Panels
+    board.panels.forEach((p,pi)=>{
+      const px=bx+p.x*scaleX;
+      const pw=p.w*scaleX;
+      const ph=Math.min(p.h*scaleX,boardH_px-4);
+      const py=by+(boardH_px-ph)/2;
+      ctx.fillStyle=PANEL_COLORS[pi%PANEL_COLORS.length];
+      ctx.beginPath();ctx.roundRect(px+1,py+1,pw-2,ph-2,3);ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,0.55)';ctx.lineWidth=0.8;
+      ctx.beginPath();ctx.roundRect(px+1,py+1,pw-2,ph-2,3);ctx.stroke();
+      // Panel label if wide enough
+      if(pw>20){
+        ctx.fillStyle='rgba(255,255,255,0.9)';
+        ctx.font=`bold ${Math.min(9,boardH_px*0.22)}px system-ui,sans-serif`;
+        ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(p.label,px+pw/2,by+boardH_px/2);
+      }
+    });
+
+    // Board outline
+    ctx.strokeStyle=BORDER;ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.roundRect(bx,by,bw_px,boardH_px,4);ctx.stroke();
+
+    // Board # label
+    ctx.fillStyle='#7a7268';
+    ctx.font=`${Math.min(8,boardH_px*0.18)}px system-ui,sans-serif`;
+    ctx.textAlign='right';ctx.textBaseline='top';
+    if(totalBoards>1)ctx.fillText(`Board ${bi+1}`,bx+bw_px-3,by+2);
+  });
+
+  // Update stats label
+  const label=document.getElementById('qb-nest-label');
+  const stats=document.getElementById('qb-nest-stats');
+  if(label)label.textContent=`📐 ${layout.boardW}"×${layout.boardL}" board — ${layout.boardCount} needed`;
+  if(stats)stats.textContent=`${layout.wastePercent}% waste`;
+}
+
+// Call after species/panel change to refresh nesting canvas.
+function qbSyncNesting(){
+  const oversizeEl=document.getElementById('qb-nest-oversize');
+  const wrap=document.getElementById('qb-nest-wrap');
+  // Only relevant for solid/mix paths
+  if(qbMatPath==='mdf'){
+    if(wrap)wrap.classList.remove('vis');
+    if(oversizeEl)oversizeEl.classList.remove('vis');
+    return;
+  }
+  const spId=document.getElementById('qb-species')?.value;
+  const sp=(typeof qbSpecies!=='undefined'?qbSpecies:[]).find(s=>s.id===spId);
+  if(!sp){if(wrap)wrap.classList.remove('vis');return;}
+  const panels=qbBoxPanels.map(p=>({w:p.extW,h:p.extH,label:p.face.slice(0,2).toUpperCase()}));
+  if(!panels.length){if(wrap)wrap.classList.remove('vis');return;}
+  const boards=ocoochBoardsForSpecies(sp.name,C.cmat||0.25);
+  if(!boards||!boards.length){if(wrap)wrap.classList.remove('vis');return;}
+  // Try each board size; find cheapest that fits all panels
+  let bestLayout=null, bestCost=Infinity;
+  boards.forEach(board=>{
+    const fitsAll=panels.every(p=>p.w<=board.width||p.h<=board.width);
+    if(!fitsAll)return;
+    const layout=qbNestLayout(board,panels);
+    const cost=layout.boardCount*board.price;
+    if(cost<bestCost){bestCost=cost;bestLayout=layout;}
+  });
+  qbRenderNesting(bestLayout,sp.name);
+}
+
 // Update margin display and tiers from current qty
 function qbUpdateMarginDisplay(qty){
   const row=qbMarginForQty(qty);
