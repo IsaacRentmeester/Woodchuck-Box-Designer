@@ -1085,6 +1085,61 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     </div><!-- qt-drawer -->
 
+  </div><!-- qt-left -->
+
+  <!-- RIGHT COLUMN: live price summary, always visible -->
+  <div class="qt-right" id="qt-right">
+
+    <!-- Project meta — fill before saving -->
+    <div class="qtr-section qtr-meta">
+      <input class="qtr-inp" id="qt-r-name" type="text" placeholder="Project name"
+        oninput="['qb-name','qt-d-name'].forEach(function(id){var e=document.getElementById(id);if(e)e.value=this.value}.bind(this))">
+      <input class="qtr-inp" id="qt-r-client" type="text" placeholder="Client company"
+        oninput="['qb-client','qt-d-client'].forEach(function(id){var e=document.getElementById(id);if(e)e.value=this.value}.bind(this))">
+    </div>
+
+    <!-- Board / material info -->
+    <div class="qtr-section" id="qt-r-board-sec" style="display:none">
+      <div class="qtr-lbl">🪵 Board</div>
+      <div class="qtr-board-txt" id="qt-r-board">—</div>
+    </div>
+
+    <!-- Cost breakdown -->
+    <div class="qtr-section" id="qt-r-cost-sec" style="display:none">
+      <div class="qtr-lbl">Cost breakdown</div>
+      <div class="qtr-row"><span>Wood / Material</span><span id="qt-r-wood">—</span></div>
+      <div class="qtr-row"><span>Config (HW · finish)</span><span id="qt-r-config">—</span></div>
+      <div class="qtr-row"><span>Margin &amp; overhead</span><span id="qt-r-margin">—</span></div>
+    </div>
+
+    <!-- Live price — uses existing IDs that qtUpdateFooter writes to -->
+    <div class="qtr-section qtr-price-sec">
+      <div class="qt-fp-big"><span class="qt-fp-unit" id="qt-fp-unit">—</span><span class="qt-fp-each">/unit</span></div>
+      <div class="qt-fp-total" id="qt-fp-total">Configure above to price</div>
+      <span class="qt-conf" id="qt-conf-badge" style="display:none"></span>
+    </div>
+
+    <!-- Qty price breaks -->
+    <div class="qtr-section" id="qt-r-breaks-sec" style="display:none">
+      <div class="qtr-lbl">📊 Price breaks</div>
+      <div id="qt-r-breaks"></div>
+    </div>
+
+    <!-- Print / action row -->
+    <div class="qtr-section" style="display:flex;gap:5px;padding:7px 11px">
+      <button class="qt-fb" onclick="printSpecSheet()" title="Print spec sheet" style="background:#f0ebe0;border-color:#ddd6c8;color:#3d4f43">🖨</button>
+      <button class="qt-fb" onclick="printBoxTemplate()" title="Print cut sheet" style="background:#f0ebe0;border-color:#ddd6c8;color:#3d4f43">📐</button>
+    </div>
+
+    <!-- Save / send -->
+    <div class="qtr-actions">
+      <button class="qtr-btn-save" onclick="qbSaveQuote()">✦ Save Quote</button>
+      <button class="qtr-btn-send" onclick="qtOpenSend()">✉ Send</button>
+      <button class="qtr-btn-send" style="background:#4a5c50;flex:0 0 auto;padding:7px 10px" onclick="qtToggleDetail()" title="Materials, extras, advanced">⋯</button>
+    </div>
+
+  </div><!-- qt-right -->
+
   </div><!-- qt-wrap -->
 
 </div><!-- end ct-quote -->
