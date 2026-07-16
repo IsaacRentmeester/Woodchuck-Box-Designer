@@ -5880,7 +5880,7 @@ function qtUpdateFooter(perUnit,grandTotal,qty){
   }
   qtUpdChip(6);
 }
-// Req 10: populate right-column cost breakdown
+// Req 10: populate right-column cost breakdown (called from qbUpdateAll)
 function qtUpdateSummaryRight(calc){
   if(!calc)return;
   const costSec=document.getElementById('qt-r-cost-sec');
