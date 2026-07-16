@@ -1604,7 +1604,11 @@ function qbSyncNesting(){
   const spId=document.getElementById('qb-species')?.value;
   const sp=(typeof qbSpecies!=='undefined'?qbSpecies:[]).find(s=>s.id===spId);
   if(!sp){if(wrap)wrap.classList.remove('vis');return;}
-  const panels=qbBoxPanels.map(p=>({w:p.extW,h:p.extH,label:p.face.slice(0,2).toUpperCase()}));
+  // qbBoxPanels uses {pL, pW, name, count} — expand multi-count panels for layout
+  const panels=qbBoxPanels.flatMap(p=>{
+    const entry={w:p.pL,h:p.pW,label:(p.name||'').slice(0,2).toUpperCase()};
+    return Array(p.count||1).fill(entry);
+  });
   if(!panels.length){if(wrap)wrap.classList.remove('vis');return;}
   const boards=ocoochBoardsForSpecies(sp.name,C.cmat||0.25);
   if(!boards||!boards.length){if(wrap)wrap.classList.remove('vis');return;}
