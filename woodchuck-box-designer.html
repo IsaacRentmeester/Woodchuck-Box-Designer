@@ -1672,7 +1672,7 @@ const PRICE_WOOD={birch:26,maple:30,walnutmaple:40,mahogany:46,cedar:42,walnut:5
 const PRICE_FIN={natural:0,goldenoak:4,mahstain:5,walstain:5,black:6,white:6};
 const PRICE_SZ={sm:0.72,md:1.0,lg:1.54};
 const PRICE_HW={none:0,gold:3,silver:3,black:3,brass:4};
-const PRICE_INT={none:0,eco:8,pu:11,velvet:15,wood:13,excelsior:7};
+const PRICE_INT={none:0,velvet:15,wood:13,custom:0};
 function getUnitPrice(){
   const base=(PRICE_WOOD[C.wood]||30)*(PRICE_SZ[C.sz]||1)+(PRICE_FIN[C.fin]||0)+(PRICE_HW[C.hw]||0)+(PRICE_INT[C.int]||0);
   const vol=C.qty>=5000?0.70:C.qty>=1000?0.78:C.qty>=500?0.85:C.qty>=250?0.92:1.0;
