@@ -4910,10 +4910,20 @@ function qbLoadSpeciesPrice(skipGrainUpdate){
     if(elP)elP.value=wc.cost.toFixed(2);
     qbActiveCost={mode:'wc',sheetCost:wc.cost,sheetSqin:WC_SHEET_SQIN,wood:wc.wood,key:wc.key,flag:wc.flag};
   }else{
-    if(elL)elL.value=24;                              // Ocooch board
-    if(elW)elW.value=6;
-    if(sp.sheet&&elP)elP.value=sp.sheet;
-    qbActiveCost={mode:'ocooch',sheetCost:sp.sheet||0,sheetSqin:24*6,wood:sp.name,key:null,flag:null};
+    // Ocooch: pick the cheapest-per-sqin board for this species (most efficient yield)
+    const oBds=QB_OCOOCH_BOARDS[sp.name];
+    let bL=24,bW=6,bP=sp.sheet||0;
+    if(oBds){
+      const best=Object.entries(oBds)
+        .filter(([k,p])=>p!=null)
+        .map(([k,p])=>{const[ws,ls]=k.split('x');const w=parseInt(ws),l=parseInt(ls);return{w,l,p,psi:p/(w*l)};})
+        .sort((a,b)=>a.psi-b.psi)[0];
+      if(best){bW=best.w;bL=best.l;bP=best.p;}
+    }
+    if(elL)elL.value=bL;
+    if(elW)elW.value=bW;
+    if(elP)elP.value=bP.toFixed(2);
+    qbActiveCost={mode:'ocooch',sheetCost:bP,sheetSqin:bL*bW,wood:sp.name,key:null,flag:null};
   }
   qbRenderSourceNote(sp);
   C.species=sp.name;
