@@ -1302,15 +1302,31 @@ function qbSetMatPath(path){
       jNote.style.display='none';
     }
   }
-  // Keep joinery selector in sync — laser stitch only available on MDF
+  // Req 4: Laser stitch = MDF ONLY. Filter joinery options and reset if switching away.
   const joinSel=document.getElementById('qb-cc-join-sel');
   if(joinSel){
+    const laserVals=new Set(['1.99','4.95']); // Laser Cut Butt Joint, Laser Cut Miter
+    const sawVals  =new Set(['7.10','9.31']); // Saw Cut Butt Joint, Saw Cut Miter
+    const currentVal=joinSel.value;
     Array.from(joinSel.options).forEach(o=>{
-      if(o.value==='1.99'||o.value==='4.95'){
-        // Laser cut options — only valid for mdf path (laser stitch) or always for miter/butt
-        // Keep all options, just note via the select hint which path applies
+      if(path==='mdf'){
+        // MDF: show laser options, hide saw-cut options
+        o.hidden=sawVals.has(o.value);
+        o.disabled=sawVals.has(o.value);
+      } else {
+        // Solid / Mix: hide laser options, show saw-cut options
+        o.hidden=laserVals.has(o.value);
+        o.disabled=laserVals.has(o.value);
       }
     });
+    // If the currently selected joinery is no longer valid, reset to Standard
+    if(path!=='mdf'&&laserVals.has(currentVal)){
+      joinSel.value='0';
+      qbSetJoinery('0');
+    } else if(path==='mdf'&&sawVals.has(currentVal)){
+      joinSel.value='0';
+      qbSetJoinery('0');
+    }
   }
   // Sync price source for legacy pricing engine
   if(path==='solid')qbSetPriceSrc('ocooch');
