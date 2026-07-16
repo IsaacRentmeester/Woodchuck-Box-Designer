@@ -1672,9 +1672,7 @@ function updatePrice(){
     const calc=qbUpdateAll();                   // so this matches the QUOTE tab exactly.
     if(calc){perUnit=calc.perUnit;total=calc.grandTotal;}
   }catch(e){}
-  if(!isFinite(perUnit)||perUnit<=0){           // safety net so the box never shows $0/NaN
-    const r=calcRealisticPrice();perUnit=r.perUnit;total=r.total;
-  }
+  if(!isFinite(perUnit)||perUnit<=0) return;    // no fallback — labor-free pricing or nothing
   const fmt=v=>v>=1000?'$'+(v/1000).toFixed(1)+'k':'$'+v.toFixed(0);
   el.innerHTML=`<span class="lp-unit">$${perUnit.toFixed(2)}<span class="lp-each">/unit</span></span><span class="lp-total">${fmt(total)} total</span>`;
 }
