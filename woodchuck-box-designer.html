@@ -5597,6 +5597,7 @@ function qbUpdateAll(){
       configTotal>0?[`Config (HW · finish · pkg) · ${qty} boxes`, configTotal]:null,
       matTotal>0?['Additional Materials', matTotal]:null,
       customTotal>0?['Customizations', customTotal]:null,
+      machineTotal>0?[`Machine Time (${[cncMins>0?`CNC ${cncMins}m`:'',laserMins>0?`Laser ${laserMins}m`:''].filter(Boolean).join(' + ')} @ $0.42/min)`, machineTotal]:null,
       defAmt>0?[`Defectives / Overage (${defPct}%)`, defAmt]:null,
       [`Margin & overhead (${margin}% — ${marginRow.label} units)`, marginAmt],
     ].filter(Boolean);
