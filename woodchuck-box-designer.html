@@ -5120,7 +5120,6 @@ function qbCalcPanels(){
   }
 
   const rowsEl=document.getElementById('qb-panel-rows');
-  const qty=parseInt(document.getElementById('qb-qty')?.value)||100;
   // Board-fit limit is source-aware: Woodchuck sheets are 48×96 glued stock; Ocooch
   // thin wood is solid, capped at a 12×24 board.
   const wcMode=qbActiveCost&&qbActiveCost.mode==='wc';
