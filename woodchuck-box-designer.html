@@ -5618,7 +5618,14 @@ function qbUpdateAll(){
   const laserCostEl=document.getElementById('qt-laser-cost');
   if(cncCostEl)cncCostEl.textContent='$'+(cncMins*MACHINE_RATE).toFixed(2);
   if(laserCostEl)laserCostEl.textContent='$'+(laserMins*MACHINE_RATE).toFixed(2);
-  const costBase=subMat+customTotal+configTotal+machineTotal;
+  // One-time fee (named, price × qty — added once to run total, not per-unit)
+  const feeName=document.getElementById('qb-fee-name')?.value||'';
+  const feePrice=parseFloat(document.getElementById('qb-fee-price')?.value)||0;
+  const feeQty=Math.max(1,parseFloat(document.getElementById('qb-fee-qty')?.value)||1);
+  const feeTotal=feePrice*feeQty;
+  const feeTotalEl=document.getElementById('qt-fee-total');
+  if(feeTotalEl)feeTotalEl.textContent='$'+feeTotal.toFixed(2);
+  const costBase=subMat+customTotal+configTotal+machineTotal+feeTotal;
   // Defectives/Overage — applies to total pre-margin cost (sheet standard: 3–5%)
   // Accounts for defective finished goods that must be remade at full cost
   const defPct=parseFloat(document.getElementById('qb-defectives')?.value)||0;
