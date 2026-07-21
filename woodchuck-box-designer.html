@@ -2811,11 +2811,12 @@ function printSpecSheet(){
   ].filter(([,k])=>(calc[k]||0)>0)
    .map(([label,k])=>`<tr><td>${label}</td><td>$${(calc[k]||0).toFixed(2)}</td></tr>`).join('');
   const defRow=calc&&calc.defAmt>0?`<tr><td>Defectives / Overage (${calc.defPct||0}%)</td><td>$${(calc.defAmt||0).toFixed(2)}</td></tr>`:'';
-  const machineRow=(calc&&calc.machineTotal>0)?`<tr><td>Machine Time (${[calc.cncMins>0?`CNC ${calc.cncMins}m`:'',calc.laserMins>0?`Laser ${calc.laserMins}m`:''].filter(Boolean).join(' + ')} @ $0.42/min)</td><td>$${(calc.machineTotal||0).toFixed(2)}</td></tr>`:'';
+  const laborRow=(calc&&calc.laborTotal>0)?`<tr><td>Labor (${[calc.laborLadiesMins>0?`Ladies ${calc.laborLadiesMins}m`:'',calc.laborSkilledMins>0?`Skilled ${calc.laborSkilledMins}m`:'',calc.laborWoodshopMins>0?`WS ${calc.laborWoodshopMins}m`:''].filter(Boolean).join(' + ')})</td><td>$${(calc.laborTotal||0).toFixed(2)}</td></tr>`:'';
+  const machineRow=(calc&&calc.machineTotal>0)?`<tr><td>Machine Time (${[calc.cncMins>0?`CNC ${calc.cncMins}m @$1.25`:'',calc.laserMins>0?`Laser ${calc.laserMins}m @$0.42`:''].filter(Boolean).join(' + ')})</td><td>$${(calc.machineTotal||0).toFixed(2)}</td></tr>`:'';
   const feeTotalPrint=calc&&calc.feeTotal>0?calc.feeTotal:0;
   const feeRow=feeTotalPrint>0?`<tr><td>${calc.feeName||'One-Time Fee'}${(calc.feeQty||1)>1?' (×'+calc.feeQty+')':''}</td><td>$${feeTotalPrint.toFixed(2)}</td></tr>`:'';
-  const margin=parseFloat(document.getElementById('qb-margin')?.value)||50;
-  const costBeforeMargin=(calc.woodTotal||0)+(calc.configTotal||0)+(calc.matTotal||0)+(calc.customTotal||0)+(calc.machineTotal||0)+(calc.feeTotal||0)+(calc.defAmt||0);
+  const overheadRow=(calc&&calc.overheadAmt>0)?`<tr><td>Overhead ×${(calc.overheadMult||1.06).toFixed(2)}</td><td>$${(calc.overheadAmt||0).toFixed(2)}</td></tr>`:'';
+  const costBeforeMargin=(calc.woodTotal||0)+(calc.configTotal||0)+(calc.matTotal||0)+(calc.customTotal||0)+(calc.machineTotal||0)+(calc.laborTotal||0)+(calc.feeTotal||0)+(calc.defAmt||0)+(calc.overheadAmt||0);
   const marginAmt=calc?calc.grandTotal-costBeforeMargin:0;
 
   // Spec rows helper
