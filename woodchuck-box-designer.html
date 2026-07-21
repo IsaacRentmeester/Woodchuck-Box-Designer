@@ -1456,15 +1456,18 @@ const QB_LOGO_RATES=[{min:1,max:1,rate:5.00},{min:2,max:2,rate:4.00},{min:3,max:
 const QB_ENG_COST=8.00;   // kept for legacy compat
 const QB_LOGO_COST=5.00;  // kept for legacy compat
 
-// Quantity-driven margin table — locked, read-only
+// Quantity-driven margin table — calibrated to Nate's actual Google Sheet pricing
+// Margins derived empirically from moss lid & MASTER tab price/cost ratios
 const QB_MARGIN_TABLE=[
-  {lo:1,   hi:9,    margin:66, label:'1–9'},
-  {lo:10,  hi:24,   margin:57, label:'10–24'},
-  {lo:25,  hi:49,   margin:54, label:'25–49'},
-  {lo:50,  hi:249,  margin:52, label:'50–249'},
-  {lo:250, hi:499,  margin:51, label:'250–499'},
-  {lo:500, hi:999,  margin:50, label:'500–999'},
-  {lo:1000,hi:99999,margin:49, label:'1000+'},
+  {lo:1,    hi:1,      margin:65.5, label:'1 unit'},
+  {lo:2,    hi:9,      margin:64,   label:'2–9'},
+  {lo:10,   hi:49,     margin:62,   label:'10–49'},
+  {lo:50,   hi:99,     margin:61,   label:'50–99'},
+  {lo:100,  hi:499,    margin:60.3, label:'100–499'},
+  {lo:500,  hi:999,    margin:55.7, label:'500–999'},
+  {lo:1000, hi:9999,   margin:54,   label:'1000–9999'},
+  {lo:10000,hi:49999,  margin:52.4, label:'10K–49K'},
+  {lo:50000,hi:9999999,margin:50,   label:'50K+'},
 ];
 function qbMarginForQty(qty){
   const row=QB_MARGIN_TABLE.find(r=>qty>=r.lo&&qty<=r.hi)||QB_MARGIN_TABLE[QB_MARGIN_TABLE.length-1];
