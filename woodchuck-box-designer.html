@@ -4244,11 +4244,14 @@ window.addEventListener('load',()=>{
       const s=document.getElementById('qt-step-'+i);
       if(s)s.classList.remove('qt-locked');
     });
-    // Populate every chip label with the current default values
-    for(let i=1;i<=6;i++){if(typeof qtUpdChip==='function')qtUpdChip(i);}
     // Run full pricing so right panel is populated on fresh load
     if(typeof qbCalcPanels==='function')qbCalcPanels();
     if(typeof qbUpdateAll==='function')qbUpdateAll();
+    // Chip labels depend on species/state that may finish loading after this rAF —
+    // re-run after a short settle so all chip text reflects the live defaults.
+    setTimeout(()=>{
+      for(let i=1;i<=6;i++){if(typeof qtUpdChip==='function')qtUpdChip(i);}
+    },150);
   }));
 });
 
