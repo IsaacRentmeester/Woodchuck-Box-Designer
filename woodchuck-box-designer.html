@@ -5375,15 +5375,15 @@ function qbCalcYield(){
   const wcSheetArea=WC_SHEET_SQIN; // always 4608 sq in for official pricing
   const pctSheet=intSurfSqIn/wcSheetArea;
   const wcPerBoxBase=pctSheet*officialSheetPrice;
-  // Apply overage/waste factor in WC mode too (defects, miscuts, sanding loss)
-  const wcWasteMult=1+(wastePct/100);
-  const wcPerBox=wcPerBoxBase*wcWasteMult;
+  // 2026 official: NO waste factor on wood cost — waste/defects come from qb-defectives on total cost
+  const wcPerBox=wcPerBoxBase;
   const wcTotal=wcPerBox*qty;
   // Panel-sum area kept for display reference
   const areaPerBox=qbBoxPanels.reduce((s,p)=>s+p.pL*p.pW*p.count,0);
 
-  // In Woodchuck mode the interior-area formula is authoritative; Ocooch mode uses packing.
-  const woodCostTotal=wcMode?wcTotal:packCost;
+  // 2026 official Woodchuck pricing always uses the sheet-based interior-area formula.
+  // packCost (Ocooch board packing) is shown in the yield display only — not used for pricing.
+  const woodCostTotal=wcTotal;
 
   const el=document.getElementById('qb-yield-content');
   if(el){
