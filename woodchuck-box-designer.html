@@ -4973,10 +4973,11 @@ function qbLoadSpeciesPrice(skipGrainUpdate){
   const wc=(qbPriceSrc==='wc')?wcSheetCost(sp.name,T):null;
   const elL=document.getElementById('qb-sheetL'),elW=document.getElementById('qb-sheetW'),elP=document.getElementById('qb-sheetPrice');
   if(wc){
-    if(elL)elL.value=WC_SHEET_DIMS.L;                 // 96"
-    if(elW)elW.value=WC_SHEET_DIMS.W;                 // 48"
+    const wcDims=wcSheetDims(wc.wood);
+    if(elL)elL.value=wcDims.L;                        // 96" for PS/MDF, 60" for Baltic Birch
+    if(elW)elW.value=wcDims.W;                        // 48" for PS/MDF, 60" for Baltic Birch
     if(elP)elP.value=wc.cost.toFixed(2);
-    qbActiveCost={mode:'wc',sheetCost:wc.cost,sheetSqin:WC_SHEET_SQIN,wood:wc.wood,key:wc.key,flag:wc.flag};
+    qbActiveCost={mode:'wc',sheetCost:wc.cost,sheetSqin:wcSheetSqin(wc.wood),wood:wc.wood,key:wc.key,flag:wc.flag};
   }else{
     // Ocooch: pick the cheapest-per-sqin board for this species (most efficient yield)
     const oBds=QB_OCOOCH_BOARDS[sp.name];
