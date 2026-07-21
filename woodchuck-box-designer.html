@@ -6341,26 +6341,31 @@ function qtUpdateFooter(perUnit,grandTotal,qty){
   }else if(badgeEl){
     badgeEl.style.display='none';
   }
-  // Floor & Retail reference prices
+  // 6-tier price table (matches Box Calculator Tool Google Sheet)
   const priceMeta=document.getElementById('qt-r-price-meta');
-  const floorEl=document.getElementById('qt-r-floor');
-  const retailEl=document.getElementById('qt-r-retail');
   const spreadHint=document.getElementById('qt-r-spread-hint');
   if(perUnit>0&&qty>0){
-    // 2026 pricing: reverse-engineer costPerUnit from current perUnit, then show FLOOR and RETAIL
     const curTier=QB_PRICING_TIERS.find(r=>qty>=r.lo&&qty<=r.hi)||QB_PRICING_TIERS[0];
     const floorMult=2.28, retailMult=2.28*1.9;
-    // costPerUnit = perUnit / (floorMult + curTier.factor * (retailMult - floorMult))
     const pricingFactor=floorMult+curTier.factor*(retailMult-floorMult);
     const costPerUnitEst=perUnit/pricingFactor;
-    const floorPU=costPerUnitEst*floorMult;
-    const retailPU=costPerUnitEst*retailMult;
-    if(floorEl)floorEl.textContent='$'+floorPU.toFixed(2);
-    if(retailEl)retailEl.textContent='$'+retailPU.toFixed(2);
-    if(spreadHint){
-      const spread=((retailPU/floorPU-1)*100).toFixed(0);
-      spreadHint.textContent=`Spread: ${spread}% above floor · ${curTier.label} units`;
-    }
+    // All 6 tiers: id, factor, lo (used to detect active tier)
+    const TIERS=[
+      {id:'qt-t-retail', cellId:'qt-tier-retail', factor:1.0,  lo:1},
+      {id:'qt-t-25',     cellId:'qt-tier-25',     factor:0.45, lo:25},
+      {id:'qt-t-100',    cellId:'qt-tier-100',    factor:0.25, lo:100},
+      {id:'qt-t-500',    cellId:'qt-tier-500',    factor:0.10, lo:500},
+      {id:'qt-t-1k',     cellId:'qt-tier-1k',     factor:0.04, lo:1000},
+      {id:'qt-t-floor',  cellId:'qt-tier-floor',  factor:0,    lo:10000},
+    ];
+    TIERS.forEach(t=>{
+      const valEl=document.getElementById(t.id);
+      const cellEl=document.getElementById(t.cellId);
+      const p=costPerUnitEst*(floorMult+t.factor*(retailMult-floorMult));
+      if(valEl)valEl.textContent='$'+p.toFixed(2);
+      if(cellEl)cellEl.classList.toggle('active',curTier.lo===t.lo);
+    });
+    if(spreadHint)spreadHint.textContent=`Active tier: ${curTier.label} units · highlighted above`;
     if(priceMeta)priceMeta.classList.add('vis');
   }else{
     if(priceMeta)priceMeta.classList.remove('vis');
