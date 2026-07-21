@@ -5661,15 +5661,17 @@ function qbUpdateAll(){
   const margin=marginRow.margin;
   qbUpdateMarginDisplay(qty);
   const subMat=woodTotal+matTotal;
-  // Machine time costs ($0.42/min — CNC and Laser) — run-level production costs
-  const MACHINE_RATE=0.42;
+  // Machine time costs — CNC $1.25/min, Laser $0.42/min (Nate's sheet rates)
+  const CNC_RATE=1.25, LASER_RATE=0.42;
   const cncMins=parseFloat(document.getElementById('qb-cnc-mins')?.value)||0;
   const laserMins=parseFloat(document.getElementById('qb-laser-mins')?.value)||0;
-  const machineTotal=(cncMins+laserMins)*MACHINE_RATE;
+  const cncCost=cncMins*CNC_RATE;
+  const laserCost=laserMins*LASER_RATE;
+  const machineTotal=cncCost+laserCost;
   const cncCostEl=document.getElementById('qt-cnc-cost');
   const laserCostEl=document.getElementById('qt-laser-cost');
-  if(cncCostEl)cncCostEl.textContent='$'+(cncMins*MACHINE_RATE).toFixed(2);
-  if(laserCostEl)laserCostEl.textContent='$'+(laserMins*MACHINE_RATE).toFixed(2);
+  if(cncCostEl)cncCostEl.textContent='$'+cncCost.toFixed(2);
+  if(laserCostEl)laserCostEl.textContent='$'+laserCost.toFixed(2);
   // One-time fee (named, price × qty — added once to run total, not per-unit)
   const feeName=document.getElementById('qb-fee-name')?.value||'';
   const feePrice=parseFloat(document.getElementById('qb-fee-price')?.value)||0;
