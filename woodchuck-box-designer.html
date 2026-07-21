@@ -6009,12 +6009,13 @@ function qtUpdateSummaryRight(calc){
     const costPuEl=document.getElementById('qt-r-cost-pu');
     const profitPuEl=document.getElementById('qt-r-profit-pu');
     const marginRow=qbMarginForQty(qty);
-    const costPerUnit=(calc.woodTotal+calc.configTotal+(calc.matTotal||0)+(calc.customTotal||0))/qty;
+    const costBaseTotal=(calc.woodTotal||0)+(calc.configTotal||0)+(calc.matTotal||0)+(calc.customTotal||0);
+    const costPerUnit=costBaseTotal/qty;
     const profitPerUnit=calc.perUnit-costPerUnit;
+    const actualMarginAmt=calc.grandTotal-costBaseTotal;
     if(woodEl)woodEl.textContent='$'+(calc.woodTotal||0).toFixed(2)+' ($'+((calc.woodTotal||0)/qty).toFixed(2)+'/unit)';
     if(cfgEl)cfgEl.textContent='$'+(calc.configTotal||0).toFixed(2)+' ($'+((calc.configTotal||0)/qty).toFixed(2)+'/unit)';
-    const ovhd=(calc.overheadAmt||0)+(calc.markupAmt||0);
-    if(mrgEl)mrgEl.textContent='$'+ovhd.toFixed(2)+' ('+marginRow.margin+'%)';
+    if(mrgEl)mrgEl.textContent='$'+actualMarginAmt.toFixed(2)+' ('+marginRow.margin+'%)';
     if(costPuEl)costPuEl.textContent='$'+costPerUnit.toFixed(2);
     if(profitPuEl)profitPuEl.textContent='$'+profitPerUnit.toFixed(2)+' ('+marginRow.margin+'% margin)';
     if(costSec)costSec.style.display='';
