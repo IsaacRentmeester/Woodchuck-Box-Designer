@@ -5730,11 +5730,11 @@ function qbUpdateAll(){
   // Woodchuck volume tiers — anchor per-unit RETAIL off the variable cost
   if(typeof qtUpdateFooter==='function')qtUpdateFooter(perUnit,grandTotal,qty);
   // Req 10: update right-panel summary
-  const calc10={woodTotal,matTotal,customTotal,configTotal,machineTotal,cncMins,laserMins,feeTotal,feeName,feePrice,feeQty,defAmt,defPct,overheadAmt,markupAmt,grandTotal,perUnit,yld,margin,qty};
+  const calc10={woodTotal,matTotal,customTotal,configTotal,machineTotal,laborTotal,laborLadiesCost,laborSkilledCost,laborWoodshopCost,laborLadiesMins,laborSkilledMins,laborWoodshopMins,cncMins,laserMins,feeTotal,feeName,feePrice,feeQty,defAmt,defPct,overheadMult,overheadAmt,markupAmt,grandTotal,perUnit,yld,margin,qty};
   if(typeof qtUpdateSummaryRight==='function')qtUpdateSummaryRight(calc10);
   if(typeof qbUpdateQtyBreaks==='function')qbUpdateQtyBreaks(qty,perUnit);
   if(typeof qtUpdateBoardInfo==='function')qtUpdateBoardInfo();
-  return{woodTotal,matTotal,customTotal,configTotal,machineTotal,cncMins,laserMins,feeTotal,feeName,feePrice,feeQty,defAmt,defPct,overheadAmt,markupAmt,grandTotal,perUnit,yld,margin};
+  return{woodTotal,matTotal,customTotal,configTotal,machineTotal,laborTotal,laborLadiesCost,laborSkilledCost,laborWoodshopCost,laborLadiesMins,laborSkilledMins,laborWoodshopMins,cncMins,laserMins,feeTotal,feeName,feePrice,feeQty,defAmt,defPct,overheadMult,overheadAmt,markupAmt,grandTotal,perUnit,yld,margin};
 }
 
 // ════════════════════════════════════════════════════════════════════════
