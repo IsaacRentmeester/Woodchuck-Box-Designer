@@ -6055,11 +6055,18 @@ function qtUpdateSummaryRight(calc){
     const costBaseTotal=(calc.woodTotal||0)+(calc.configTotal||0)+(calc.matTotal||0)+(calc.customTotal||0);
     const costPerUnit=costBaseTotal/qty;
     const profitPerUnit=calc.perUnit-costPerUnit;
-    const actualMarginAmt=calc.grandTotal-costBaseTotal;
+    const defTotal=calc.defAmt||0;
+    const costWithDef=costBaseTotal+defTotal;
+    const actualMarginAmt=calc.grandTotal-costWithDef;
+    const costPerUnitWithDef=costWithDef/qty;
+    const profitPerUnit=calc.perUnit-costPerUnitWithDef;
     if(woodEl)woodEl.textContent='$'+(calc.woodTotal||0).toFixed(2)+' ($'+((calc.woodTotal||0)/qty).toFixed(2)+'/unit)';
-    if(cfgEl)cfgEl.textContent='$'+(calc.configTotal||0).toFixed(2)+' ($'+((calc.configTotal||0)/qty).toFixed(2)+'/unit)';
+    if(cfgEl){
+      const cfgTotal=(calc.configTotal||0)+(calc.matTotal||0)+(calc.customTotal||0)+defTotal;
+      cfgEl.textContent='$'+cfgTotal.toFixed(2)+' ($'+(cfgTotal/qty).toFixed(2)+'/unit)'+(defTotal>0?` (incl. ${calc.defPct||0}% defectives)`:'');
+    }
     if(mrgEl)mrgEl.textContent='$'+actualMarginAmt.toFixed(2)+' ('+marginRow.margin+'%)';
-    if(costPuEl)costPuEl.textContent='$'+costPerUnit.toFixed(2);
+    if(costPuEl)costPuEl.textContent='$'+costPerUnitWithDef.toFixed(2);
     if(profitPuEl)profitPuEl.textContent='$'+profitPerUnit.toFixed(2)+' ('+marginRow.margin+'% margin)';
     if(costSec)costSec.style.display='';
   } else {
