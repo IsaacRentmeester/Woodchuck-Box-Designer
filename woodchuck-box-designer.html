@@ -4506,6 +4506,21 @@ const WC_BB_SHEET_SQIN=3600;             // 60" × 60" Baltic Birch sheet
 const WC_BB_SHEET_DIMS={L:60,W:60};
 function wcSheetSqin(wood){return (wood==='Baltic Birch')?WC_BB_SHEET_SQIN:WC_SHEET_SQIN;}
 function wcSheetDims(wood){return (wood==='Baltic Birch')?WC_BB_SHEET_DIMS:WC_SHEET_DIMS;}
+// ── Official 2026 Woodchuck Box Pricing — per-species sheet prices (4608 sq in) ──
+// Source: Woodchuck WoodPrices tab. Formula: woodCost = (interiorSurfArea / 4608) * sheetPrice
+// Interior surface area = 2*(W*D) + 2*(W*H) + 2*(D*H) using INTERIOR dims.
+const WOOD_SHEET_PRICES={
+  'Walnut':123.06,'PS Walnut':123.06,
+  'Maple':64.61,'Hard Maple':64.61,'Curly Maple':64.61,'PS White Maple':64.61,
+  'Cherry':89.16,
+  'Mahogany':81.40,'PS Mahogany':81.40,
+  'Cedar':106.89,'PS Cedar':106.89,'Spanish Cedar':106.89,'Red Cedar (Aromatic)':106.89,
+  'Walnut / Maple':97.03,'Walnut / Walnut':97.03,'Walnut / Birch':97.03,
+  'Clear Acrylic':66.28,'Black Acrylic':66.28,'White Acrylic':66.28,'Colored Acrylic':66.28,
+  'Raw MDF':11.13,
+  // Baltic Birch / birch-family fallback
+  'Baltic Birch':25.80,'Basswood':25.80,'Aspen':25.80,'Poplar':25.80,'Alder':25.80,
+};
 // Cost per full 48×96 sheet, [wood][thicknessKey]. Thickness keys are the sheet's
 // own nominal columns: 1/8"≈0.155, 1/4"=0.24, 3/8"=0.36 (raw-MDF cols differ).
 const WC_SHEET_COST={
