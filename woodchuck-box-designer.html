@@ -5636,6 +5636,8 @@ function qbSaveQuote(){
     pricePerUnit:calc.perUnit,
     margin:parseFloat(document.getElementById('qb-margin')?.value)||50,
     configCostTotal:calc.configTotal||0,
+    defectivesPct:parseFloat(document.getElementById('qb-defectives')?.value)||0,
+    defectivesAmt:calc.defAmt||0,
     joinery:document.getElementById('qb-cc-join-sel')?.value||'0',
     materials:[...qbMaterials],
     customs:[...qbCustoms],
