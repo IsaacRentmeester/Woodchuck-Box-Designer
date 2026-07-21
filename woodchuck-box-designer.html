@@ -5701,10 +5701,12 @@ function qbUpdateAll(){
       configTotal>0?[`Config (HW · finish · pkg) · ${qty} boxes`, configTotal]:null,
       matTotal>0?['Additional Materials', matTotal]:null,
       customTotal>0?['Customizations', customTotal]:null,
-      machineTotal>0?[`Machine Time (${[cncMins>0?`CNC ${cncMins}m`:'',laserMins>0?`Laser ${laserMins}m`:''].filter(Boolean).join(' + ')} @ $0.42/min)`, machineTotal]:null,
+      laborTotal>0?[`Labor (Ladies ${laborLadiesMins>0?laborLadiesMins+'m·':''} Skilled ${laborSkilledMins>0?laborSkilledMins+'m·':''} WS ${laborWoodshopMins>0?laborWoodshopMins+'m':''})`.replace(/·\s*\)/,')')||'Labor', laborTotal]:null,
+      machineTotal>0?[`Machine Time (${[cncMins>0?`CNC ${cncMins}m @$1.25`:'',laserMins>0?`Laser ${laserMins}m @$0.42`:''].filter(Boolean).join(' + ')})`, machineTotal]:null,
       feeTotal>0?[`${feeName||'One-Time Fee'}${feeQty>1?' (×'+feeQty+')':''}`, feeTotal]:null,
       defAmt>0?[`Defectives / Overage (${defPct}%)`, defAmt]:null,
-      [`Margin & overhead (${margin}% — ${marginRow.label} units)`, marginAmt],
+      overheadAmt>0?[`Overhead ×${overheadMult.toFixed(2)}`, overheadAmt]:null,
+      [`Margin (${margin}% — ${marginRow.label} units)`, markupAmt],
     ].filter(Boolean);
     sumEl.innerHTML=rows.map(([l,v])=>`<div class="qb-sum-row"><span>${l}</span><span>$${v.toFixed(2)}</span></div>`).join('')
       +`<div class="qb-sum-total"><span class="qb-sum-total-lbl">TOTAL</span><span class="qb-sum-total-val">$${grandTotal.toFixed(2)}</span></div>`
