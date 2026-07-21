@@ -4098,7 +4098,7 @@ function initCanvas(){
     lt=t;drawBox();
   },{passive:true});
   window.addEventListener('resize',()=>{
-    _dpr=window.devicePixelRatio||1;_cW=bCv.offsetWidth||600;
+    _dpr=window.devicePixelRatio||1;_cW=bCv.offsetWidth||600;_cH=window.innerWidth<=1024?300:440;
     bCv.width=_cW*_dpr;bCv.height=_cH*_dpr;
     bCv.style.width=_cW+'px';bCv.style.height=_cH+'px';
     bCtx=bCv.getContext('2d');bCtx.scale(_dpr,_dpr);drawBox();
