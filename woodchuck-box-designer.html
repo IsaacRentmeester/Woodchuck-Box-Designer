@@ -1081,6 +1081,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             </select>
           </div>
           <button class="qb-labor-preset-btn" onclick="qbSyncConfigCosts()">↺ Re-sync config from design</button>
+          <div style="height:1px;background:var(--bo);margin:10px 0"></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-size:.73rem;font-weight:700;flex-shrink:0">⚠️ Defectives / Overage</span>
+            <input type="number" id="qt-defectives-inp" value="3" min="0" max="15" step="0.5"
+              style="width:54px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
+              oninput="document.getElementById('qb-defectives').value=this.value;qbUpdateAll()">
+            <span style="font-size:.72rem;color:var(--mu)">% of total cost (sheet standard: 3–5%)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px" id="qt-adhesive-row">
+            <span style="font-size:.73rem;font-weight:700;flex-shrink:0">🔧 Adhesive</span>
+            <button id="qt-adhesive-btn" class="qb-labor-preset-btn" style="font-size:.68rem"
+              onclick="qtToggleAdhesive(this)">+ $37.25/sheet</button>
+            <span style="font-size:.68rem;color:var(--mu)">adds veneer adhesive to sheet cost</span>
+          </div>
         </div>
       </div>
 
