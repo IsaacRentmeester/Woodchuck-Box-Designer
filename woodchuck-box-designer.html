@@ -5564,7 +5564,16 @@ function qbUpdateAll(){
   const margin=marginRow.margin;
   qbUpdateMarginDisplay(qty);
   const subMat=woodTotal+matTotal;
-  const costBase=subMat+customTotal+configTotal;
+  // Machine time costs ($0.42/min — CNC and Laser) — run-level production costs
+  const MACHINE_RATE=0.42;
+  const cncMins=parseFloat(document.getElementById('qb-cnc-mins')?.value)||0;
+  const laserMins=parseFloat(document.getElementById('qb-laser-mins')?.value)||0;
+  const machineTotal=(cncMins+laserMins)*MACHINE_RATE;
+  const cncCostEl=document.getElementById('qt-cnc-cost');
+  const laserCostEl=document.getElementById('qt-laser-cost');
+  if(cncCostEl)cncCostEl.textContent='$'+(cncMins*MACHINE_RATE).toFixed(2);
+  if(laserCostEl)laserCostEl.textContent='$'+(laserMins*MACHINE_RATE).toFixed(2);
+  const costBase=subMat+customTotal+configTotal+machineTotal;
   // Defectives/Overage — applies to total pre-margin cost (sheet standard: 3–5%)
   // Accounts for defective finished goods that must be remade at full cost
   const defPct=parseFloat(document.getElementById('qb-defectives')?.value)||0;
