@@ -1097,6 +1097,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               onclick="qtToggleAdhesive(this)">+ $37.25/sheet</button>
             <span style="font-size:.68rem;color:var(--mu)">adds veneer adhesive to sheet cost</span>
           </div>
+          <div style="height:1px;background:var(--bo);margin:10px 0"></div>
+          <div style="font-size:.73rem;font-weight:700;margin-bottom:6px">⚙️ Machine Time — $0.42/min</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:.73rem;flex-shrink:0;width:52px">CNC</span>
+            <input type="number" id="qt-cnc-mins" value="0" min="0" step="1"
+              style="width:54px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
+              oninput="document.getElementById('qb-cnc-mins').value=this.value;qbUpdateAll()">
+            <span style="font-size:.72rem;color:var(--mu)">min → <span id="qt-cnc-cost">$0.00</span></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:.73rem;flex-shrink:0;width:52px">Laser</span>
+            <input type="number" id="qt-laser-mins" value="0" min="0" step="1"
+              style="width:54px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
+              oninput="document.getElementById('qb-laser-mins').value=this.value;qbUpdateAll()">
+            <span style="font-size:.72rem;color:var(--mu)">min → <span id="qt-laser-cost">$0.00</span></span>
+          </div>
         </div>
       </div>
 
