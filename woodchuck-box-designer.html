@@ -1137,7 +1137,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="qtr-section qtr-price-sec">
       <div class="qt-fp-big"><span class="qt-fp-unit" id="qt-fp-unit">—</span><span class="qt-fp-each">/unit</span></div>
       <div class="qt-fp-total" id="qt-fp-total">Configure above to price</div>
+      <!-- Floor & Retail reference prices -->
+      <div class="qt-fp-ref" id="qt-r-price-meta">
+        <div class="qt-pr-grid">
+          <div class="qt-pr-cell">
+            <span class="qt-pr-clbl">📉 Floor (1000+)</span>
+            <span class="qt-pr-cval" id="qt-r-floor">—</span>
+          </div>
+          <div class="qt-pr-cell retail">
+            <span class="qt-pr-clbl">🏷 Retail (1–24)</span>
+            <span class="qt-pr-cval" id="qt-r-retail">—</span>
+          </div>
+        </div>
+        <div class="qt-pr-hint" id="qt-r-spread-hint"></div>
+      </div>
       <span class="qt-conf" id="qt-conf-badge" style="display:none"></span>
+    </div>
+
+    <!-- Run materials mini-summary -->
+    <div class="qt-run-sec" id="qt-r-run-sec">
+      <div class="qtr-lbl">📐 Run summary</div>
+      <div class="qt-run-grid">
+        <div class="qt-run-row"><span>Boards needed</span><span class="qt-run-val" id="qt-r-boards">—</span></div>
+        <div class="qt-run-row"><span>Surface area / unit</span><span class="qt-run-val" id="qt-r-surf">—</span></div>
+        <div class="qt-run-row"><span>Total finish area</span><span class="qt-run-val" id="qt-r-surf-total">—</span></div>
+        <div class="qt-run-row"><span>Est. stain / run</span><span class="qt-run-val" id="qt-r-stain">—</span></div>
+      </div>
     </div>
 
     <!-- Qty price breaks -->
