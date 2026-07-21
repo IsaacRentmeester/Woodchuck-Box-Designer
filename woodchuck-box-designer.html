@@ -5879,6 +5879,17 @@ function qbCloneQuote(id){
   if(cncUI)cncUI.value=q.cncMins||0;
   if(laserEl)laserEl.value=q.laserMins||0;
   if(laserUI)laserUI.value=q.laserMins||0;
+  // Restore one-time fee
+  const feeNameEl=document.getElementById('qb-fee-name');const feeNameUI=document.getElementById('qt-fee-name');
+  const feePriceEl=document.getElementById('qb-fee-price');const feePriceUI=document.getElementById('qt-fee-price');
+  const feeQtyEl=document.getElementById('qb-fee-qty');const feeQtyUI=document.getElementById('qt-fee-qty');
+  if(feeNameEl)feeNameEl.value=q.feeName||'';if(feeNameUI)feeNameUI.value=q.feeName||'';
+  if(feePriceEl)feePriceEl.value=q.feePrice||0;if(feePriceUI)feePriceUI.value=q.feePrice||0;
+  if(feeQtyEl)feeQtyEl.value=q.feeQty||1;if(feeQtyUI)feeQtyUI.value=q.feeQty||1;
+  // Restore engraving location count
+  C.engCount=q.engCount||1;
+  const engCountUI=document.getElementById('qt-eng-count');
+  if(engCountUI)engCountUI.value=C.engCount;
   qbRenderMaterials();qbRenderCustoms();
   drawBox();updateLabel();updateChips();
   qbSyncFromDesign();qbUpdateAll();
