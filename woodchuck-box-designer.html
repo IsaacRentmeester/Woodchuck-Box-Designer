@@ -1107,6 +1107,74 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="qtr-row" style="border-top:1px solid #e8e0d4;margin-top:3px;padding-top:3px"><span style="font-weight:600">Profit / unit</span><span id="qt-r-profit-pu" style="font-weight:800;color:#2e7d32">—</span></div>
     </div>
 
+    <!-- Advanced Config — always accessible in right panel -->
+    <div class="qtr-section" id="qt-r-adv-sec" style="padding:0">
+      <div onclick="qtTogRightAdv()" style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;cursor:pointer;user-select:none;background:#f0ebe0;border-bottom:1px solid #e2d0b0">
+        <div style="font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green)">⚙️ Advanced Config</div>
+        <span id="qt-r-adv-arrow" style="font-size:.68rem;color:var(--green);font-weight:700;transition:transform .18s">▼</span>
+      </div>
+      <div id="qt-adv-body" style="display:none;padding:10px 11px 12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:.73rem;font-weight:700;flex-shrink:0">🔗 Joinery</span>
+          <select id="qt-join-sel" class="qt-dinp" style="flex:1;font-size:.7rem;padding:4px" onchange="qtSetJoin(this.value)">
+            <option value="0">Standard — $0.00</option>
+            <option value="1.99">Laser Cut Butt Joint — +$1.99</option>
+            <option value="4.95">Laser Cut Miter — +$4.95</option>
+            <option value="7.10">Saw Cut Butt Joint — +$7.10</option>
+            <option value="9.31">Saw Cut Miter — +$9.31</option>
+          </select>
+        </div>
+        <button class="qb-labor-preset-btn" onclick="qbSyncConfigCosts()">↺ Re-sync config from design</button>
+        <div style="height:1px;background:var(--bo);margin:10px 0"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:.73rem;font-weight:700;flex-shrink:0">⚠️ Defectives / Overage</span>
+          <input type="number" id="qt-defectives-inp" value="3" min="0" max="15" step="0.5"
+            style="width:54px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
+            oninput="document.getElementById('qb-defectives').value=this.value;qbUpdateAll()">
+          <span style="font-size:.72rem;color:var(--mu)">% of total cost (3–5% standard)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px" id="qt-adhesive-row">
+          <span style="font-size:.73rem;font-weight:700;flex-shrink:0">🔧 Adhesive</span>
+          <button id="qt-adhesive-btn" class="qb-labor-preset-btn" style="font-size:.68rem"
+            onclick="qtToggleAdhesive(this)">+ $37.25/sheet</button>
+          <span style="font-size:.68rem;color:var(--mu)">veneer adhesive per sheet</span>
+        </div>
+        <div style="height:1px;background:var(--bo);margin:10px 0"></div>
+        <div style="font-size:.73rem;font-weight:700;margin-bottom:6px">⚙️ Machine Time — $0.42/min</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span style="font-size:.73rem;flex-shrink:0;width:52px">CNC</span>
+          <input type="number" id="qt-cnc-mins" value="0" min="0" step="1"
+            style="width:54px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
+            oninput="document.getElementById('qb-cnc-mins').value=this.value;qbUpdateAll()">
+          <span style="font-size:.72rem;color:var(--mu)">min → <span id="qt-cnc-cost">$0.00</span></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="font-size:.73rem;flex-shrink:0;width:52px">Laser</span>
+          <input type="number" id="qt-laser-mins" value="0" min="0" step="1"
+            style="width:54px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
+            oninput="document.getElementById('qb-laser-mins').value=this.value;qbUpdateAll()">
+          <span style="font-size:.72rem;color:var(--mu)">min → <span id="qt-laser-cost">$0.00</span></span>
+        </div>
+        <div style="height:1px;background:var(--bo);margin:10px 0"></div>
+        <div style="font-size:.73rem;font-weight:700;margin-bottom:6px">💰 One-Time Fee</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">
+          <input type="text" id="qt-fee-name" placeholder="Fee label (e.g. NRE, setup, artwork)"
+            style="flex:1;min-width:100px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.73rem;font-family:inherit"
+            oninput="document.getElementById('qb-fee-name').value=this.value;qbUpdateAll()">
+          <span style="font-size:.72rem;color:var(--mu);flex-shrink:0">$</span>
+          <input type="number" id="qt-fee-price" value="0" min="0" step="1"
+            style="width:62px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
+            oninput="document.getElementById('qb-fee-price').value=this.value;qbUpdateAll()">
+          <span style="font-size:.72rem;color:var(--mu);flex-shrink:0">×</span>
+          <input type="number" id="qt-fee-qty" value="1" min="1" step="1"
+            style="width:46px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
+            oninput="document.getElementById('qb-fee-qty').value=this.value;qbUpdateAll()">
+          <span style="font-size:.72rem;color:var(--mu);flex-shrink:0">= <span id="qt-fee-total">$0.00</span></span>
+        </div>
+        <div style="font-size:.68rem;color:var(--mu);margin-top:2px">Added once to the run total (not per-unit)</div>
+      </div>
+    </div>
+
     <!-- Live price — uses existing IDs that qtUpdateFooter writes to -->
     <div class="qtr-section qtr-price-sec">
       <div class="qt-fp-big"><span class="qt-fp-unit" id="qt-fp-unit">—</span><span class="qt-fp-each">/unit</span></div>
