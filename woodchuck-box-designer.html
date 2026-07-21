@@ -4238,6 +4238,17 @@ window.addEventListener('load',()=>{
     // QUOTE is now the only/default config tab — fully populate it (species tone on the
     // box, panel breakdown, yield, labor, summary) so nothing waits for a tab click.
     if(typeof qbSyncFromDesign==='function')qbSyncFromDesign();
+    // Unlock all steps immediately — the tool is fully usable with defaults on first load.
+    // Steps 2-6 stay collapsed but are clickable; step 1 stays expanded (active).
+    [2,3,4,5,6].forEach(i=>{
+      const s=document.getElementById('qt-step-'+i);
+      if(s)s.classList.remove('qt-locked');
+    });
+    // Populate every chip label with the current default values
+    for(let i=1;i<=6;i++){if(typeof qtUpdChip==='function')qtUpdChip(i);}
+    // Run full pricing so right panel is populated on fresh load
+    if(typeof qbCalcPanels==='function')qbCalcPanels();
+    if(typeof qbUpdateAll==='function')qbUpdateAll();
   }));
 });
 
