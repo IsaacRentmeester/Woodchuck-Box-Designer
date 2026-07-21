@@ -5620,8 +5620,22 @@ function qbUpdateAll(){
   // Materials
   const matTotal=qbMaterials.reduce((s,m)=>s+(m.qty*m.unitCost),0);
 
-  // Labor removed in v2 — quoted separately
-  // Labor: removed in v2 — quoted separately
+  // Labor — Ladies assembly ($0.28/min), Skilled Ma ($0.32/min), Woodshop ($0.46/min)
+  const LABOR_LADIES_RATE=0.28, LABOR_SKILLED_RATE=0.32, LABOR_WOODSHOP_RATE=0.46;
+  const laborLadiesMins=parseFloat(document.getElementById('qb-labor-ladies')?.value)||0;
+  const laborSkilledMins=parseFloat(document.getElementById('qb-labor-skilled')?.value)||0;
+  const laborWoodshopMins=parseFloat(document.getElementById('qb-labor-woodshop')?.value)||0;
+  const laborLadiesCost=laborLadiesMins*LABOR_LADIES_RATE;
+  const laborSkilledCost=laborSkilledMins*LABOR_SKILLED_RATE;
+  const laborWoodshopCost=laborWoodshopMins*LABOR_WOODSHOP_RATE;
+  const laborTotal=(laborLadiesCost+laborSkilledCost+laborWoodshopCost)*qty;
+  // Update labor cost displays
+  const llc=document.getElementById('qt-labor-ladies-cost');
+  const lsc=document.getElementById('qt-labor-skilled-cost');
+  const lwc=document.getElementById('qt-labor-woodshop-cost');
+  if(llc)llc.textContent='$'+laborLadiesCost.toFixed(2);
+  if(lsc)lsc.textContent='$'+laborSkilledCost.toFixed(2);
+  if(lwc)lwc.textContent='$'+laborWoodshopCost.toFixed(2);
 
   // Customizations (qty × unitCost per line; supports legacy {cost} items)
   const customTotal=qbCustoms.reduce((s,c)=>s+((c.qty??1)*(c.unitCost??c.cost??0)),0);
