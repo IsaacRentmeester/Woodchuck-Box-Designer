@@ -5746,8 +5746,9 @@ function qbUpdateAll(){
       machineTotal>0?[`Machine Time (${[cncMins>0?`CNC ${cncMins}m @$1.25`:'',laserMins>0?`Laser ${laserMins}m @$0.42`:''].filter(Boolean).join(' + ')})`, machineTotal]:null,
       feeTotal>0?[`${feeName||'One-Time Fee'}${feeQty>1?' (×'+feeQty+')':''}`, feeTotal]:null,
       defAmt>0?[`Defectives / Overage (${defPct}%)`, defAmt]:null,
-      overheadAmt>0?[`Overhead ×${overheadMult.toFixed(2)}`, overheadAmt]:null,
-      [`Margin (${margin}% — ${marginRow.label} units)`, markupAmt],
+      overheadAmt>0?[`Overhead (Mat ×1.15 · Labor ×1.29)`, overheadAmt]:null,
+      bopoPerUnit>0?[`BOPO + Packaging ($${bopoPerUnit.toFixed(2)}/unit × ${qty})`, bopoPerUnit*qty]:null,
+      [`2026 Pricing (${marginRow.label} units · ×${(2.28+marginRow.factor*(2.28*1.9-2.28)).toFixed(2)} floor mult)`, markupAmt],
     ].filter(Boolean);
     sumEl.innerHTML=rows.map(([l,v])=>`<div class="qb-sum-row"><span>${l}</span><span>$${v.toFixed(2)}</span></div>`).join('')
       +`<div class="qb-sum-total"><span class="qb-sum-total-lbl">TOTAL</span><span class="qb-sum-total-val">$${grandTotal.toFixed(2)}</span></div>`
