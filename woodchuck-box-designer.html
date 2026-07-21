@@ -1875,24 +1875,26 @@ function qbUpdateQtyBreaks(qty,perUnit){
   const sec=document.getElementById('qb-breaks-sec');
   const el=document.getElementById('qb-breaks-content');
   if(!sec||!el)return;
-  const currentRow=qbMarginForQty(qty);
-  // Find tiers above current
-  const nextTiers=QB_MARGIN_TABLE.filter(r=>r.lo>qty).slice(0,3);
+  // Find tiers above current (sort ascending by qty threshold)
+  const nextTiers=QB_PRICING_TIERS.filter(r=>r.lo>qty).sort((a,b)=>a.lo-b.lo).slice(0,3);
   if(!nextTiers.length||!perUnit||perUnit<=0){sec.style.display='none';return;}
   sec.style.display='block';
-  // For each next tier, estimate what the unit price would be
-  // Same cost base, lower margin => lower price
-  const currentMargin=currentRow.margin;
+  // Reverse-engineer costPerUnit from current perUnit using current tier's factor
+  const curTier=QB_PRICING_TIERS.find(r=>qty>=r.lo&&qty<=r.hi)||QB_PRICING_TIERS[0];
+  const floorMult=2.28, retailMult=2.28*1.9;
+  const pFactorNow=floorMult+curTier.factor*(retailMult-floorMult);
+  const costPerUnitEst=perUnit/pFactorNow;
   el.innerHTML=nextTiers.map(r=>{
     const nextQty=r.lo;
-    const costBase=perUnit*(1-currentMargin/100); // reverse-engineer cost
-    const nextPerUnit=r.margin<100?costBase/(1-r.margin/100):costBase*2;
+    const nextPFactor=floorMult+r.factor*(retailMult-floorMult);
+    const nextPerUnit=costPerUnitEst*nextPFactor;
     const savings=perUnit-nextPerUnit;
     const totalSavings=savings*nextQty;
     const diff=nextQty-qty;
+    const effMargin=(+(100-100/nextPFactor)).toFixed(1);
     return`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:${r===nextTiers[0]?'rgba(61,79,67,.06)':'var(--gxl)'};border-radius:8px;margin-bottom:5px;border:1px solid var(--bo)">
       <div>
-        <div style="font-size:.75rem;font-weight:700;color:var(--green)">${nextQty.toLocaleString()} units <span style="font-size:.62rem;font-weight:600;color:var(--gold)">(${r.margin}% margin)</span></div>
+        <div style="font-size:.75rem;font-weight:700;color:var(--green)">${nextQty.toLocaleString()} units <span style="font-size:.62rem;font-weight:600;color:var(--gold)">(${effMargin}% margin)</span></div>
         <div style="font-size:.62rem;color:var(--mu);margin-top:1px">Add ${diff} more · $${totalSavings.toFixed(0)} total savings</div>
       </div>
       <div style="text-align:right">
