@@ -1225,16 +1225,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="qtr-section qtr-price-sec">
       <div class="qt-fp-big"><span class="qt-fp-unit" id="qt-fp-unit">—</span><span class="qt-fp-each">/unit</span></div>
       <div class="qt-fp-total" id="qt-fp-total">Configure above to price</div>
-      <!-- Floor & Retail reference prices -->
+      <!-- All-tier price table (matches Box Calculator Tool) -->
       <div class="qt-fp-ref" id="qt-r-price-meta">
-        <div class="qt-pr-grid">
-          <div class="qt-pr-cell">
-            <span class="qt-pr-clbl">📉 Floor</span>
-            <span class="qt-pr-cval" id="qt-r-floor">—</span>
+        <div class="qt-tier-hdr">All Price Tiers</div>
+        <div class="qt-tier-grid">
+          <div class="qt-tier-cell" id="qt-tier-retail">
+            <span class="qt-tier-lbl">Retail · 1–24</span>
+            <span class="qt-tier-val" id="qt-t-retail">—</span>
           </div>
-          <div class="qt-pr-cell retail">
-            <span class="qt-pr-clbl">🏷 Retail (1–24)</span>
-            <span class="qt-pr-cval" id="qt-r-retail">—</span>
+          <div class="qt-tier-cell" id="qt-tier-25">
+            <span class="qt-tier-lbl">25 units</span>
+            <span class="qt-tier-val" id="qt-t-25">—</span>
+          </div>
+          <div class="qt-tier-cell" id="qt-tier-100">
+            <span class="qt-tier-lbl">100 units</span>
+            <span class="qt-tier-val" id="qt-t-100">—</span>
+          </div>
+          <div class="qt-tier-cell" id="qt-tier-500">
+            <span class="qt-tier-lbl">500 units</span>
+            <span class="qt-tier-val" id="qt-t-500">—</span>
+          </div>
+          <div class="qt-tier-cell" id="qt-tier-1k">
+            <span class="qt-tier-lbl">1,000 units</span>
+            <span class="qt-tier-val" id="qt-t-1k">—</span>
+          </div>
+          <div class="qt-tier-cell floor" id="qt-tier-floor">
+            <span class="qt-tier-lbl">📉 Floor · 10K+</span>
+            <span class="qt-tier-val" id="qt-t-floor">—</span>
           </div>
         </div>
         <div class="qt-pr-hint" id="qt-r-spread-hint"></div>
