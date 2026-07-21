@@ -5089,11 +5089,34 @@ function qbCalcPanels(){
   box.style.display='';
   const extDims=document.getElementById('qb-ext-dims');
   if(extDims)extDims.innerHTML=`<span class="qb-int-dims"><strong>Interior (client specs):</strong> ${W.toFixed(2)}" × ${D.toFixed(2)}" × ${H.toFixed(2)}"</span><br><strong>Exterior (wood purchased):</strong> ${extL.toFixed(3)}" × ${extW.toFixed(3)}" × ${extH.toFixed(3)}" &nbsp;|&nbsp; <strong>Lid:</strong> ${lidType||'none'}`;
+  // Surface area calculations
+  const extSurfSqIn=2*(extL*extW)+2*(extL*extH)+2*(extW*extH);
+  const extSurfSqFt=extSurfSqIn/144;
+  const intSurfSqIn=2*(W*D)+2*(W*H)+2*(D*H);
+
   // Req: show interior/exterior dims visibly in step 1 summary row
   const dimSum=document.getElementById('qt-dim-summary');
   if(dimSum){
     dimSum.style.display='block';
-    dimSum.innerHTML=`<span class="qds-int">Interior: ${W.toFixed(2)}" W × ${D.toFixed(2)}" D × ${H.toFixed(2)}" H</span><span class="qds-ext"> &nbsp;·&nbsp; Exterior: ${extL.toFixed(3)}" × ${extW.toFixed(3)}" × ${extH.toFixed(3)}" &nbsp;·&nbsp; Lid: ${lidType||'none'}</span>`;
+    dimSum.innerHTML=`<span class="qds-int">Interior: ${W.toFixed(2)}" W × ${D.toFixed(2)}" D × ${H.toFixed(2)}" H</span><span class="qds-ext"> &nbsp;·&nbsp; Exterior: ${extL.toFixed(3)}" × ${extW.toFixed(3)}" × ${extH.toFixed(3)}" &nbsp;·&nbsp; Lid: ${lidType||'none'} &nbsp;·&nbsp; Surface: ${extSurfSqIn.toFixed(0)} in² (${extSurfSqFt.toFixed(2)} ft²)</span>`;
+  }
+
+  // Update run-materials summary in right panel
+  const qty=parseInt(document.getElementById('qb-qty')?.value)||100;
+  const totalSurfSqFt=extSurfSqFt*qty;
+  // Stain estimate: ~1 qt per 40 sq ft (2 coats on raw wood), round up
+  const stainQts=Math.ceil(totalSurfSqFt/40);
+  const stainLabel=stainQts>=4?`${(stainQts/4).toFixed(1)} gal`:stainQts+' qt';
+  const runSec=document.getElementById('qt-r-run-sec');
+  const runBoards=document.getElementById('qt-r-boards');
+  const runSurf=document.getElementById('qt-r-surf');
+  const runSurfTotal=document.getElementById('qt-r-surf-total');
+  const runStain=document.getElementById('qt-r-stain');
+  if(runSec){
+    runSec.classList.add('vis');
+    if(runSurf)runSurf.textContent=`${extSurfSqIn.toFixed(0)} in² (${extSurfSqFt.toFixed(2)} ft²)`;
+    if(runSurfTotal)runSurfTotal.textContent=`${totalSurfSqFt.toFixed(1)} ft²`;
+    if(runStain)runStain.textContent=stainLabel+' (est. 2 coats)';
   }
 
   const rowsEl=document.getElementById('qb-panel-rows');
