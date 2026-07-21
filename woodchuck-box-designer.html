@@ -1953,7 +1953,7 @@ function qbSyncConfigCosts(){
   // "multiple laser engravings at different locations" → count goes up → per-placement rate drops
   const hasEng=!!C.engrave;
   const hasLogo=!!C.logo;
-  const engPlaceCt=hasEng?1:0;                       // text engraving = 1 placement
+  const engPlaceCt=hasEng?(C.engCount||1):0;          // text engraving — user-set location count
   const logoPlaceCt=hasLogo?(C.pl==='both'?2:1):0;   // logo top+front = 2; one side = 1
   const totalPlacements=engPlaceCt+logoPlaceCt;
   // Look up per-placement rate for the total count
@@ -1962,7 +1962,7 @@ function qbSyncConfigCosts(){
 
   if(el('qb-cc-eng-row'))el('qb-cc-eng-row').style.opacity=hasEng?'1':'0.45';
   if(el('qb-cc-eng-hint'))el('qb-cc-eng-hint').textContent=hasEng
-    ?`"${C.engrave.slice(0,22)}" · $${engRate.toFixed(2)}/ea (${totalPlacements} total placement${totalPlacements!==1?'s':''})`:'—';
+    ?`"${C.engrave.slice(0,22)}" · $${engRate.toFixed(2)}/ea × ${engPlaceCt} location${engPlaceCt!==1?'s':''} (${totalPlacements} total placement${totalPlacements!==1?'s':''})`:'—';
   if(el('qb-cc-eng')&&!el('qb-cc-eng').dataset.manualEdit){
     el('qb-cc-eng').value=hasEng?(engRate*engPlaceCt).toFixed(2):'0';
   }
