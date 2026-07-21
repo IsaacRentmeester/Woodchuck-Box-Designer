@@ -1132,10 +1132,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="height:1px;background:var(--bo);margin:10px 0"></div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
           <span style="font-size:.73rem;font-weight:700;flex-shrink:0">⚠️ Defectives / Overage</span>
-          <input type="number" id="qt-defectives-inp" value="3" min="0" max="15" step="0.5"
+          <input type="number" id="qt-defectives-inp" value="10" min="0" max="30" step="0.5"
             style="width:54px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
             oninput="document.getElementById('qb-defectives').value=this.value;qbUpdateAll()">
-          <span style="font-size:.72rem;color:var(--mu)">% of total cost (3–5% standard)</span>
+          <span style="font-size:.72rem;color:var(--mu)">% (10% Nate standard · 3–5% simple runs)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:.73rem;font-weight:700;flex-shrink:0">🏭 Overhead ×</span>
+          <input type="number" id="qt-overhead-mult" value="1.06" min="1.00" max="2.00" step="0.01"
+            style="width:64px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
+            oninput="document.getElementById('qb-overhead-mult').value=this.value;qbUpdateAll()">
+          <span style="font-size:.72rem;color:var(--mu)">applied to all costs (Nate: 1.06)</span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px" id="qt-adhesive-row">
           <span style="font-size:.73rem;font-weight:700;flex-shrink:0">🔧 Adhesive</span>
