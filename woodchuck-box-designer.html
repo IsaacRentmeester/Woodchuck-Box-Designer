@@ -1391,13 +1391,13 @@ const QB_LOGO_COST=5.00;  // kept for legacy compat
 
 // Quantity-driven margin table — locked, read-only
 const QB_MARGIN_TABLE=[
-  {lo:1,   hi:24,   margin:65, label:'1–24'},
-  {lo:25,  hi:49,   margin:60, label:'25–49'},
-  {lo:50,  hi:99,   margin:55, label:'50–99'},
-  {lo:100, hi:249,  margin:50, label:'100–249'},
-  {lo:250, hi:499,  margin:45, label:'250–499'},
-  {lo:500, hi:999,  margin:40, label:'500–999'},
-  {lo:1000,hi:99999,margin:35, label:'1000+'},
+  {lo:1,   hi:9,    margin:66, label:'1–9'},
+  {lo:10,  hi:24,   margin:57, label:'10–24'},
+  {lo:25,  hi:49,   margin:54, label:'25–49'},
+  {lo:50,  hi:249,  margin:52, label:'50–249'},
+  {lo:250, hi:499,  margin:51, label:'250–499'},
+  {lo:500, hi:999,  margin:50, label:'500–999'},
+  {lo:1000,hi:99999,margin:49, label:'1000+'},
 ];
 function qbMarginForQty(qty){
   const row=QB_MARGIN_TABLE.find(r=>qty>=r.lo&&qty<=r.hi)||QB_MARGIN_TABLE[QB_MARGIN_TABLE.length-1];
@@ -4409,7 +4409,7 @@ const WC_SHEET_COST={
   'Red Oak (Rift)':{'0.155':103.12,'0.36':111.04},
   'Clear Acrylic':{'0.155':66.28,'0.24':130.28,'0.36':190.28},
   'Colored Acrylic':{'0.155':67.28,'0.24':157.85,'0.36':255.03},
-  'Raw MDF':{'0.125':10.50,'0.25':18.41,'0.375':28.96},
+  'Raw MDF':{'0.125':12.00,'0.25':18.41,'0.375':33.10},
 };
 // Prices updated from 2026 Woodchuck pricing sheet — all PS species verified.
 const WC_PRICE_FLAGS={}; // no current anomalies
@@ -4457,11 +4457,11 @@ let qbActiveCost=null;  // {mode:'wc'|'ocooch', sheetCost, sheetSqin, wood, key,
 
 // ── MDF sheet pricing (4×8 = 48×96 = 4608 sq in, same area as production sheets) ──
 // MDF Forte pricing (4×8 sheet) — verified against MDF Forte supplier sheet + Woodchuck pricing doc.
-// RMDF001=1/8"$10.50  RMDF002=1/4"$18.41  RMDF003=3/8"$28.96  3/4"MappleMDF=$150.00
-const WC_MDF_COST={'0.125':10.50,'0.25':18.41,'0.375':28.96,'0.75':150.00};
+// RMDF001=1/8"$12.00  RMDF002=1/4"$18.41  RMDF003=3/8"$33.10  3/4"MappleMDF=$150.00
+const WC_MDF_COST={'0.125':12.00,'0.25':18.41,'0.375':33.10,'0.75':150.00};
 const WC_MDF_LABELS={'0.125':'1/8" Raw MDF (RMDF001)','0.25':'1/4" Raw MDF (RMDF002)','0.375':'3/8" Raw MDF (RMDF003)','0.75':'3/4" Maple MDF'};
 const WC_MDF_SPECIES={
-  'Raw MDF':       {'0.125':10.50,'0.25':18.41,'0.375':28.96,'0.75':150.00},
+  'Raw MDF':       {'0.125':12.00,'0.25':18.41,'0.375':33.10,'0.75':150.00},
   'PS Walnut':     {'0.155':124.74,'0.24':129.44,'0.36':142.32},
   'PS White Maple':{'0.155':103.04,'0.24':107.00,'0.36':120.83},
   'PS Mahogany':   {'0.155':86.06,'0.24':90.77,'0.36':103.64},
@@ -5980,8 +5980,8 @@ function qtUpdateFooter(perUnit,grandTotal,qty){
   if(perUnit>0&&qty>0){
     const curMarginRow=qbMarginForQty(qty);
     const costBase=perUnit*(1-curMarginRow.margin/100);
-    const floorRow=QB_MARGIN_TABLE[QB_MARGIN_TABLE.length-1]; // 1000+ @ 35%
-    const retailRow=QB_MARGIN_TABLE[0];                       // 1–24 @ 65%
+    const floorRow=QB_MARGIN_TABLE[QB_MARGIN_TABLE.length-1]; // 1000+ @ 49%
+    const retailRow=QB_MARGIN_TABLE[0];                       // 1–9 @ 66%
     const floorPU=costBase/(1-floorRow.margin/100);
     const retailPU=costBase/(1-retailRow.margin/100);
     if(floorEl)floorEl.textContent='$'+floorPU.toFixed(2);
