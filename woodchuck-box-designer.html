@@ -5692,7 +5692,7 @@ let _lastNestLayout=null;
 // DECISION TREE — qt* functions
 // ══════════════════════════════════════════════════════════════════════════
 let qtActive=1;
-function qtEdit(step){
+function qtEdit(step,fromClick){
   const el=document.getElementById('qt-step-'+step);
   if(!el||el.classList.contains('qt-locked'))return;
   qtActive=step;
@@ -5703,6 +5703,8 @@ function qtEdit(step){
     if(i<step)s.classList.add('qt-done');
     else if(i===step)s.classList.add('qt-active');
   }
+  // Scroll step into view when user clicks a chip to edit (not on initial load)
+  if(fromClick)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),50);
 }
 function qtNext(step){
   qtUpdChip(step);
