@@ -1191,6 +1191,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 
 </div><!-- end .cfg -->
+  <div class="viewer-col">
+    <div class="canvas-card">
+      <canvas id="boxCanvas"></canvas>
+      <canvas id="flatCanvas"></canvas>
+      <div class="cv-label" id="clbl">Hinged Top · Maple · Golden Oak</div>
+      <div class="cv-hint" id="cvhint">Drag · Scroll/pinch to zoom</div>
+      <div class="cv-zoom-btns" id="cv-zoom">
+        <button onclick="zoom=Math.min(3.5,zoom*1.22);drawBox()" title="Zoom in">+</button>
+        <button onclick="zoom=Math.max(0.35,zoom/1.22);drawBox()" title="Zoom out">−</button>
+      </div>
+      <div class="flat-side-tabs" id="flatSideTabs">
+        <button class="fstab on" id="fst-out" onclick="setFlatSide('outside')">OUTSIDE</button>
+        <button class="fstab" id="fst-in" onclick="setFlatSide('inside')">INSIDE</button>
+      </div>
+      <div class="livebadge" id="lb">✶ Updated live</div>
+      <div class="box-btns">
+        <button class="bbtn on" id="bb-close" onclick="setBoxView('close')">CLOSED</button>
+        <button class="bbtn" id="bb-open" onclick="setBoxView('open')">OPEN</button>
+        <button class="bbtn" id="bb-flat" onclick="setBoxView('flat')">FLAT</button>
+      </div>
+      <button class="cvbtn-reset" onclick="resetView()">&#8635;</button>
+    </div>
+  </div>
 </div>
 
 <!-- Quote detail modal -->
