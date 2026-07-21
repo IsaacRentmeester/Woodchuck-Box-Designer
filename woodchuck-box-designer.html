@@ -668,6 +668,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qt-conf-green{background:rgba(76,175,80,.14);color:#2e7d32;border:1px solid rgba(76,175,80,.3)}
 .qt-conf-yellow{background:rgba(255,193,7,.14);color:#7a5c1e;border:1px solid rgba(255,193,7,.4)}
 .qt-conf-red{background:rgba(244,67,54,.14);color:#b71c1c;border:1px solid rgba(244,67,54,.3)}
+/* Floor / Retail reference prices */
+.qt-fp-ref{display:none;margin-top:7px;padding-top:6px;border-top:1px solid rgba(61,79,67,.13);gap:0}
+.qt-fp-ref.vis{display:block}
+.qt-pr-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.qt-pr-cell{background:rgba(61,79,67,.06);border-radius:6px;padding:4px 7px;text-align:left}
+.qt-pr-cell.retail{background:rgba(200,160,96,.10)}
+.qt-pr-clbl{font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--mu);display:block;margin-bottom:1px}
+.qt-pr-cval{font-size:.82rem;font-weight:900;color:#1e3228;display:block}
+.qt-pr-cell.retail .qt-pr-cval{color:#7a5c1e}
+.qt-pr-hint{font-size:.56rem;color:var(--mu);margin-top:4px;text-align:center;line-height:1.4}
+/* Run materials mini-summary */
+.qt-run-sec{padding:8px 11px;border-bottom:1px solid #e8e0d4;display:none}
+.qt-run-sec.vis{display:block}
+.qt-run-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;margin-top:3px}
+.qt-run-row{display:flex;justify-content:space-between;align-items:baseline;font-size:.63rem;color:#4a4038}
+.qt-run-val{font-weight:700;color:#1e3228}
 .qt-footer-btns{display:flex;gap:5px;align-items:center}
 .qt-fb{padding:5px 9px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);border-radius:6px;color:#fff;cursor:pointer;font-size:.72rem;font-family:inherit;transition:.14s}
 .qt-fb:hover{background:rgba(255,255,255,.2)}
