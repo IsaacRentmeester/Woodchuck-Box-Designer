@@ -6273,17 +6273,19 @@ function qtUpdateFooter(perUnit,grandTotal,qty){
   const retailEl=document.getElementById('qt-r-retail');
   const spreadHint=document.getElementById('qt-r-spread-hint');
   if(perUnit>0&&qty>0){
-    const curMarginRow=qbMarginForQty(qty);
-    const costBase=perUnit*(1-curMarginRow.margin/100);
-    const floorRow=QB_MARGIN_TABLE[QB_MARGIN_TABLE.length-1]; // 50K+ @ 50%
-    const retailRow=QB_MARGIN_TABLE[0];                       // 1 unit @ 65.5%
-    const floorPU=costBase/(1-floorRow.margin/100);
-    const retailPU=costBase/(1-retailRow.margin/100);
+    // 2026 pricing: reverse-engineer costPerUnit from current perUnit, then show FLOOR and RETAIL
+    const curTier=QB_PRICING_TIERS.find(r=>qty>=r.lo&&qty<=r.hi)||QB_PRICING_TIERS[0];
+    const floorMult=2.28, retailMult=2.28*1.9;
+    // costPerUnit = perUnit / (floorMult + curTier.factor * (retailMult - floorMult))
+    const pricingFactor=floorMult+curTier.factor*(retailMult-floorMult);
+    const costPerUnitEst=perUnit/pricingFactor;
+    const floorPU=costPerUnitEst*floorMult;
+    const retailPU=costPerUnitEst*retailMult;
     if(floorEl)floorEl.textContent='$'+floorPU.toFixed(2);
     if(retailEl)retailEl.textContent='$'+retailPU.toFixed(2);
     if(spreadHint){
       const spread=((retailPU/floorPU-1)*100).toFixed(0);
-      spreadHint.textContent=`Spread: ${spread}% · ${curMarginRow.margin}% margin at ${qty.toLocaleString()} units`;
+      spreadHint.textContent=`Spread: ${spread}% above floor · ${curTier.label} units`;
     }
     if(priceMeta)priceMeta.classList.add('vis');
   }else{
@@ -6292,12 +6294,14 @@ function qtUpdateFooter(perUnit,grandTotal,qty){
   // Proximity nudge: "Add X more units to unlock next price break"
   const nudgeEl=document.getElementById('qt-fp-total');
   if(nudgeEl&&grandTotal>0&&perUnit>0&&qty>0){
-    const nextTier=QB_MARGIN_TABLE.find(r=>r.lo>qty);
+    const nextTier=QB_PRICING_TIERS.find(r=>r.lo>qty);
     if(nextTier){
       const diff=nextTier.lo-qty;
-      const currentMargin=qbMarginForQty(qty).margin;
-      const costBase=perUnit*(1-currentMargin/100);
-      const nextPerUnit=costBase/(1-(nextTier.margin/100));
+      const curTierNow=QB_PRICING_TIERS.find(r=>qty>=r.lo&&qty<=r.hi)||QB_PRICING_TIERS[0];
+      const floorMult=2.28,retailMult=2.28*1.9;
+      const pFactorNow=floorMult+curTierNow.factor*(retailMult-floorMult);
+      const costPUEst=perUnit/pFactorNow;
+      const nextPerUnit=costPUEst*(floorMult+nextTier.factor*(retailMult-floorMult));
       const savingsPerUnit=perUnit-nextPerUnit;
       if(diff<=20&&savingsPerUnit>0.01){
         nudgeEl.textContent=`$${grandTotal.toFixed(0)} total · ${qty.toLocaleString()} units — 💡 Add ${diff} more to save $${savingsPerUnit.toFixed(2)}/unit`;
