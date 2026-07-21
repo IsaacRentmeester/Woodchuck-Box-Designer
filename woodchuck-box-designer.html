@@ -5238,7 +5238,8 @@ function qbCalcYield(){
     if(wcMode){
       const isMdf=qbActiveCost.mode==='mdf';
       const sheetLabel=isMdf?qbActiveCost.label:`${qbActiveCost.wood} ${wcThickLabel(qbActiveCost.key)}`;
-      const sheetDims=isMdf?'48×96 (4×8)':'48×96';
+      const isBB=qbActiveCost.wood==='Baltic Birch';
+      const sheetDims=isMdf?'48×96 (4×8)':isBB?'60×60 (5×5)':'48×96 (4×8)';
       const wasteRow=wastePct>0?`<div class="qb-yield-row"><span>Overage / defects (${wastePct}%)</span><span class="qb-val">+$${(wcPerBox-wcPerBoxBase).toFixed(2)} / box</span></div>`:'';
       el.innerHTML=
          `<div class="qb-yield-row"><span>Panel area / box</span><span class="qb-val">${areaPerBox.toFixed(1)} sq in</span></div>`
