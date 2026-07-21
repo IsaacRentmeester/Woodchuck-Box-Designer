@@ -5815,6 +5815,15 @@ function qbCloneQuote(id){
   const defVal=q.defectivesPct!=null?q.defectivesPct:3;
   if(defEl)defEl.value=defVal;
   if(defUI)defUI.value=defVal;
+  // Restore machine time
+  const cncEl=document.getElementById('qb-cnc-mins');
+  const cncUI=document.getElementById('qt-cnc-mins');
+  const laserEl=document.getElementById('qb-laser-mins');
+  const laserUI=document.getElementById('qt-laser-mins');
+  if(cncEl)cncEl.value=q.cncMins||0;
+  if(cncUI)cncUI.value=q.cncMins||0;
+  if(laserEl)laserEl.value=q.laserMins||0;
+  if(laserUI)laserUI.value=q.laserMins||0;
   qbRenderMaterials();qbRenderCustoms();
   drawBox();updateLabel();updateChips();
   qbSyncFromDesign();qbUpdateAll();
