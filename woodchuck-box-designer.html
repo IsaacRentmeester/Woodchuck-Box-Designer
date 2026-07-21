@@ -5934,6 +5934,28 @@ function qtUpdateFooter(perUnit,grandTotal,qty){
   }else if(badgeEl){
     badgeEl.style.display='none';
   }
+  // Floor & Retail reference prices
+  const priceMeta=document.getElementById('qt-r-price-meta');
+  const floorEl=document.getElementById('qt-r-floor');
+  const retailEl=document.getElementById('qt-r-retail');
+  const spreadHint=document.getElementById('qt-r-spread-hint');
+  if(perUnit>0&&qty>0){
+    const curMarginRow=qbMarginForQty(qty);
+    const costBase=perUnit*(1-curMarginRow.margin/100);
+    const floorRow=QB_MARGIN_TABLE[QB_MARGIN_TABLE.length-1]; // 1000+ @ 35%
+    const retailRow=QB_MARGIN_TABLE[0];                       // 1–24 @ 65%
+    const floorPU=costBase/(1-floorRow.margin/100);
+    const retailPU=costBase/(1-retailRow.margin/100);
+    if(floorEl)floorEl.textContent='$'+floorPU.toFixed(2);
+    if(retailEl)retailEl.textContent='$'+retailPU.toFixed(2);
+    if(spreadHint){
+      const spread=((retailPU/floorPU-1)*100).toFixed(0);
+      spreadHint.textContent=`Spread: ${spread}% · ${curMarginRow.margin}% margin at ${qty.toLocaleString()} units`;
+    }
+    if(priceMeta)priceMeta.classList.add('vis');
+  }else{
+    if(priceMeta)priceMeta.classList.remove('vis');
+  }
   // Proximity nudge: "Add X more units to unlock next price break"
   const nudgeEl=document.getElementById('qt-fp-total');
   if(nudgeEl&&grandTotal>0&&perUnit>0&&qty>0){
