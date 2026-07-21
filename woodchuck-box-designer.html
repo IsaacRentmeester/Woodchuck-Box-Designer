@@ -5362,16 +5362,27 @@ function qbCalcYield(){
   const totalSheets=panelResults.reduce((s,r)=>s+r.sheetsOrd,0);
   const avgYield=panelResults.reduce((s,r)=>s+r.yldEff,0)/panelResults.length;
 
-  // ── Woodchuck Excel model (area fraction × sheet cost) — the historical method ──
-  const areaPerBox=qbBoxPanels.reduce((s,p)=>s+p.pL*p.pW*p.count,0);
-  const pctSheet=areaPerBox/WC_SHEET_SQIN;
-  const wcPerBoxBase=pctSheet*shPrice;
+  // ── 2026 Official Woodchuck Model: interior surface area ÷ 4608 × sheet price ──
+  // Interior dims: C.cw/cd/ch (what the client specifies)
+  const intW=+(C.cw||parseFloat(document.getElementById('qb-dim-w')?.value)||6);
+  const intD=+(C.cd||parseFloat(document.getElementById('qb-dim-d')?.value)||9);
+  const intH=+(C.ch||parseFloat(document.getElementById('qb-dim-h')?.value)||3);
+  // Interior surface area: 2*(W*D) + 2*(W*H) + 2*(D*H)
+  const intSurfSqIn=2*(intW*intD)+2*(intW*intH)+2*(intD*intH);
+  // Official sheet price: look up WOOD_SHEET_PRICES first, fall back to shPrice input
+  const wcSpeciesName=qbActiveCost?qbActiveCost.wood:null;
+  const officialSheetPrice=(wcSpeciesName&&WOOD_SHEET_PRICES[wcSpeciesName])||shPrice;
+  const wcSheetArea=WC_SHEET_SQIN; // always 4608 sq in for official pricing
+  const pctSheet=intSurfSqIn/wcSheetArea;
+  const wcPerBoxBase=pctSheet*officialSheetPrice;
   // Apply overage/waste factor in WC mode too (defects, miscuts, sanding loss)
   const wcWasteMult=1+(wastePct/100);
   const wcPerBox=wcPerBoxBase*wcWasteMult;
   const wcTotal=wcPerBox*qty;
+  // Panel-sum area kept for display reference
+  const areaPerBox=qbBoxPanels.reduce((s,p)=>s+p.pL*p.pW*p.count,0);
 
-  // In Woodchuck mode the Excel area-ratio is authoritative; Ocooch mode uses packing.
+  // In Woodchuck mode the interior-area formula is authoritative; Ocooch mode uses packing.
   const woodCostTotal=wcMode?wcTotal:packCost;
 
   const el=document.getElementById('qb-yield-content');
