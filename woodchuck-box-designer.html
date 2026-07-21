@@ -5709,6 +5709,11 @@ function qtNext(step){
   const next=document.getElementById('qt-step-'+(step+1));
   if(next){next.classList.remove('qt-locked');qtEdit(step+1);}
   qbUpdateAll();
+  // Scroll the newly active step into view (handles both page scroll and qt-left inner scroll)
+  setTimeout(()=>{
+    const el=document.getElementById('qt-step-'+(step+1));
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  },60);
 }
 function qtSD(axis,delta){
   const inp=document.getElementById('qt-c'+axis);if(!inp)return;
