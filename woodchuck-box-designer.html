@@ -1917,8 +1917,8 @@ function qbUpdateQtyBreaks(qty,perUnit){
     if(rSec)rSec.style.display='';
     rEl.innerHTML=nextTiers.map(r=>{
       const nq=r.lo;
-      const cb=perUnit*(1-currentMargin/100);
-      const np=r.margin<100?cb/(1-r.margin/100):cb*2;
+      const nPFactor=floorMult+r.factor*(retailMult-floorMult);
+      const np=costPerUnitEst*nPFactor;
       const sv=perUnit-np;
       return`<div class="qtr-break-row"><span class="qtr-br-qty">${nq.toLocaleString()} units</span><span class="qtr-br-price">$${np.toFixed(2)}/unit</span><span class="qtr-br-save">-$${sv.toFixed(2)}</span></div>`;
     }).join('');
