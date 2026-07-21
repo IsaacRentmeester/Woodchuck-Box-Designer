@@ -1489,20 +1489,31 @@ const QB_LOGO_COST=5.00;  // kept for legacy compat
 
 // Quantity-driven margin table — calibrated to Nate's actual Google Sheet pricing
 // Margins derived empirically from moss lid & MASTER tab price/cost ratios
-const QB_MARGIN_TABLE=[
-  {lo:1,    hi:1,      margin:65.5, label:'1 unit'},
-  {lo:2,    hi:9,      margin:64,   label:'2–9'},
-  {lo:10,   hi:49,     margin:62,   label:'10–49'},
-  {lo:50,   hi:99,     margin:61,   label:'50–99'},
-  {lo:100,  hi:499,    margin:60.3, label:'100–499'},
-  {lo:500,  hi:999,    margin:55.7, label:'500–999'},
-  {lo:1000, hi:9999,   margin:54,   label:'1000–9999'},
-  {lo:10000,hi:49999,  margin:52.4, label:'10K–49K'},
-  {lo:50000,hi:9999999,margin:50,   label:'50K+'},
+// ── 2026 Official Pricing Structure ──
+// Pricing is now FLOOR×2.28 / RETAIL×FLOOR×1.9, interpolated by qty.
+// FLOOR = costPerUnit * 2.28  (≈56.1% margin)
+// RETAIL = floorPrice * 1.9   (≈76.9% margin)
+// factor = fractional blend from FLOOR (0) toward RETAIL (1.0)
+const QB_PRICING_TIERS=[
+  {lo:10000, hi:9999999, factor:0,    label:'10K+'},
+  {lo:1000,  hi:9999,   factor:0.04,  label:'1K–9.9K'},
+  {lo:500,   hi:999,    factor:0.10,  label:'500–999'},
+  {lo:100,   hi:499,    factor:0.25,  label:'100–499'},
+  {lo:25,    hi:99,     factor:0.45,  label:'25–99'},
+  {lo:1,     hi:24,     factor:1.0,   label:'1–24'},
 ];
+// Legacy QB_MARGIN_TABLE kept for any display references that enumerate tiers
+const QB_MARGIN_TABLE=QB_PRICING_TIERS.map(t=>({lo:t.lo,hi:t.hi,label:t.label,margin:+(100-100/(2.28+t.factor*(2.28*1.9-2.28))).toFixed(1),factor:t.factor}));
 function qbMarginForQty(qty){
-  const row=QB_MARGIN_TABLE.find(r=>qty>=r.lo&&qty<=r.hi)||QB_MARGIN_TABLE[QB_MARGIN_TABLE.length-1];
-  return row;
+  const row=QB_PRICING_TIERS.find(r=>qty>=r.lo&&qty<=r.hi)||QB_PRICING_TIERS[0];
+  return{lo:row.lo,hi:row.hi,factor:row.factor,label:row.label,margin:+(100-100/(2.28+row.factor*(2.28*1.9-2.28))).toFixed(1)};
+}
+// Compute per-unit price from cost-per-unit using the 2026 floor/retail structure
+function qbPriceFromCost(costPerUnit,qty){
+  const tier=QB_PRICING_TIERS.find(r=>qty>=r.lo&&qty<=r.hi)||QB_PRICING_TIERS[0];
+  const floorPrice=costPerUnit*2.28;
+  const retailPrice=floorPrice*1.9;
+  return floorPrice+(retailPrice-floorPrice)*tier.factor;
 }
 
 // Lightweight localStorage wrapper — must be defined before any usage below
