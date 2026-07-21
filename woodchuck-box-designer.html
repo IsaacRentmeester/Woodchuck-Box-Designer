@@ -5092,6 +5092,8 @@ function qbRenderSourceNote(sp){
   }else if(a.mode==='wc'){
     html=`<b>🏭 Woodchuck production sheet</b> — ${a.wood} ${wcThickLabel(a.key)} priced from the 2026 Excel at <b>$${a.sheetCost.toFixed(2)}</b> per 48×96 sheet. Wood cost = panel area ÷ 4608 sq in × sheet cost, so it updates automatically with thickness and the master sheet.`;
     if(sp&&!WC_WOOD_ALIAS[sp.name]&&!WC_SHEET_COST[sp.name]){/* never */}
+  }else if(sp&&sp.src==='menards'){
+    html=`<b>🏪 Menards board</b> — ${sp.name} at <b>$${(a.sheetCost||0).toFixed(2)}</b> per 1×12×8' board (11.25"×96" actual, 3/4" thick). Source: Menards — not an Ocooch thin-wood product. Verify current price before quoting.`;
   }else{
     const wcAvail=wcSheetCost(sp?sp.name:'',parseFloat(document.getElementById('qb-matT')?.value)||0.25);
     html=`<b>🪵 Ocooch board</b> — ${sp?sp.name:''} priced at <b>$${(a.sheetCost||0).toFixed(2)}</b> per 6×24 board (thin solid wood, good for prototypes / short runs).`
