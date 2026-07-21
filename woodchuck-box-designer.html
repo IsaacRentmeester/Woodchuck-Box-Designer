@@ -5048,6 +5048,12 @@ function qbCalcPanels(){
   box.style.display='';
   const extDims=document.getElementById('qb-ext-dims');
   if(extDims)extDims.innerHTML=`<span class="qb-int-dims"><strong>Interior (client specs):</strong> ${W.toFixed(2)}" × ${D.toFixed(2)}" × ${H.toFixed(2)}"</span><br><strong>Exterior (wood purchased):</strong> ${extL.toFixed(3)}" × ${extW.toFixed(3)}" × ${extH.toFixed(3)}" &nbsp;|&nbsp; <strong>Lid:</strong> ${lidType||'none'}`;
+  // Req: show interior/exterior dims visibly in step 1 summary row
+  const dimSum=document.getElementById('qt-dim-summary');
+  if(dimSum){
+    dimSum.style.display='';
+    dimSum.innerHTML=`<span class="qds-int">Interior: ${W.toFixed(2)}" W × ${D.toFixed(2)}" D × ${H.toFixed(2)}" H</span><span class="qds-ext"> &nbsp;·&nbsp; Exterior: ${extL.toFixed(3)}" × ${extW.toFixed(3)}" × ${extH.toFixed(3)}" &nbsp;·&nbsp; Lid: ${lidType||'none'}</span>`;
+  }
 
   const rowsEl=document.getElementById('qb-panel-rows');
   const qty=parseInt(document.getElementById('qb-qty')?.value)||100;
