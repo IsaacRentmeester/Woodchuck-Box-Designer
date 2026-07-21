@@ -6094,6 +6094,29 @@ function qtUpdateBoardInfo(){
   const runBoardsEl=document.getElementById('qt-r-boards');
   if(runBoardsEl)runBoardsEl.textContent=`${boardCount} board${boardCount!==1?'s':''} (${wastePercent}% waste)`;
 }
+// Toggle adhesive cost (+$37.25/sheet) — adds to the active sheet price field
+function qtToggleAdhesive(btn){
+  const ADHESIVE=37.25;
+  const priceInp=document.getElementById('qb-sheetPrice');
+  const adh=document.getElementById('qb-adhesive-per-sheet');
+  if(!priceInp||!adh)return;
+  const cur=parseFloat(adh.value)||0;
+  const active=cur>0;
+  if(active){
+    // Remove adhesive
+    adh.value=0;
+    priceInp.value=(parseFloat(priceInp.value)-ADHESIVE).toFixed(2);
+    btn.textContent='+ $37.25/sheet';
+    btn.style.background='';btn.style.color='';
+  }else{
+    // Add adhesive
+    adh.value=ADHESIVE;
+    priceInp.value=(parseFloat(priceInp.value)||0+ADHESIVE).toFixed(2);
+    btn.textContent='✓ $37.25 adhesive ON';
+    btn.style.background='var(--green)';btn.style.color='#fff';
+  }
+  qbUpdateAll();
+}
 // Sync tree UI from C state (called after clone/restore)
 function qtSyncFromState(){
   try{
