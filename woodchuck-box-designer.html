@@ -6084,7 +6084,7 @@ function qtUpdChip(step){
     case 3:{const e=document.getElementById('qt-s3-txt');if(e)e.textContent=`${NM.fin[C.fin]||C.fin} · ${NM.hw[C.hw]||C.hw} hardware`;break;}
     case 4:{const hasE=!!C.engrave,hasL=!!C.logo;const e=document.getElementById('qt-s4-txt');if(!e)break;
       if(!hasE&&!hasL){e.textContent='No branding';break;}
-      const p=[];if(hasE)p.push(`"${C.engrave.slice(0,18)}${C.engrave.length>18?'…':''}"`);if(hasL)p.push('Logo ✓');e.textContent=p.join(' · ');break;}
+      const p=[];if(hasE){const ct=C.engCount||1;p.push(`"${C.engrave.slice(0,18)}${C.engrave.length>18?'…':''}"${ct>1?' ×'+ct+' loc':''}`);}if(hasL)p.push('Logo ✓');e.textContent=p.join(' · ');break;}
     case 5:{const e=document.getElementById('qt-s5-txt');if(e)e.textContent=NM.int[C.int]||C.int;break;}
     case 6:{const qty=document.getElementById('qt-qty')?.value||100;const pu=document.getElementById('qt-fp-unit')?.textContent||'—';
       const e=document.getElementById('qt-s6-txt');if(e)e.textContent=`${qty} units · ${pu}/unit`;break;}
