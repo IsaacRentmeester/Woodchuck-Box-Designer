@@ -2726,8 +2726,10 @@ function printSpecSheet(){
     ['Custom / Extras','customTotal'],
   ].filter(([,k])=>(calc[k]||0)>0)
    .map(([label,k])=>`<tr><td>${label}</td><td>$${(calc[k]||0).toFixed(2)}</td></tr>`).join('');
+  const defRow=calc&&calc.defAmt>0?`<tr><td>Defectives / Overage (${calc.defPct||0}%)</td><td>$${(calc.defAmt||0).toFixed(2)}</td></tr>`:'';
   const margin=parseFloat(document.getElementById('qb-margin')?.value)||50;
-  const marginAmt=calc?(calc.grandTotal-(calc.woodTotal+calc.configTotal+calc.matTotal+calc.customTotal)):0;
+  const costBeforeMargin=(calc.woodTotal||0)+(calc.configTotal||0)+(calc.matTotal||0)+(calc.customTotal||0)+(calc.defAmt||0);
+  const marginAmt=calc?calc.grandTotal-costBeforeMargin:0;
 
   // Spec rows helper
   const SR=(k,v)=>v?`<tr><td class="sk">${k}</td><td>${v}</td></tr>`:'';
