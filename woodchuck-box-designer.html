@@ -5394,9 +5394,9 @@ function qbCalcYield(){
       const sheetDims=isMdf?'48×96 (4×8)':isBB?'60×60 (5×5)':'48×96 (4×8)';
       const wasteRow=wastePct>0?`<div class="qb-yield-row"><span>Overage / defects (${wastePct}%)</span><span class="qb-val">+$${(wcPerBox-wcPerBoxBase).toFixed(2)} / box</span></div>`:'';
       el.innerHTML=
-         `<div class="qb-yield-row"><span>Panel area / box</span><span class="qb-val">${areaPerBox.toFixed(1)} sq in</span></div>`
-        +`<div class="qb-yield-row"><span>% of a ${sheetDims} sheet</span><span class="qb-val">${(pctSheet*100).toFixed(2)}%</span></div>`
-        +`<div class="qb-yield-row"><span>Sheet cost · ${sheetLabel}</span><span class="qb-val">$${shPrice.toFixed(2)} / sheet</span></div>`
+         `<div class="qb-yield-row"><span>Interior surface area / box</span><span class="qb-val">${intSurfSqIn.toFixed(1)} sq in</span></div>`
+        +`<div class="qb-yield-row"><span>% of a ${sheetDims} sheet (4608 sq in)</span><span class="qb-val">${(pctSheet*100).toFixed(2)}%</span></div>`
+        +`<div class="qb-yield-row"><span>Sheet cost · ${sheetLabel}</span><span class="qb-val">$${officialSheetPrice.toFixed(2)} / sheet</span></div>`
         +`<div class="qb-yield-row"><span>Base wood cost / box</span><span class="qb-val">$${wcPerBoxBase.toFixed(2)}</span></div>`
         +wasteRow
         +`<div class="qb-yield-row" style="border-top:1px solid var(--bo);margin-top:6px;padding-top:6px"><span><strong>Total wood cost · ${qty}</strong></span><span class="qb-val"><strong>$${wcTotal.toFixed(2)}</strong></span></div>`
