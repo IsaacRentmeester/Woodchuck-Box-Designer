@@ -670,16 +670,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qt-conf-green{background:rgba(76,175,80,.14);color:#2e7d32;border:1px solid rgba(76,175,80,.3)}
 .qt-conf-yellow{background:rgba(255,193,7,.14);color:#7a5c1e;border:1px solid rgba(255,193,7,.4)}
 .qt-conf-red{background:rgba(244,67,54,.14);color:#b71c1c;border:1px solid rgba(244,67,54,.3)}
-/* Floor / Retail reference prices */
-.qt-fp-ref{display:none;margin-top:7px;padding-top:6px;border-top:1px solid rgba(61,79,67,.13);gap:0}
+/* 6-tier price table (matches Box Calculator Tool Google Sheet) */
+.qt-fp-ref{display:none;margin-top:7px;padding-top:6px;border-top:1px solid rgba(61,79,67,.13)}
 .qt-fp-ref.vis{display:block}
+.qt-tier-hdr{font-size:.54rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);margin-bottom:5px;text-align:center}
+.qt-tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.qt-tier-cell{background:rgba(61,79,67,.06);border-radius:6px;padding:5px 6px;text-align:center;border:1.5px solid transparent;transition:.14s}
+.qt-tier-cell.active{border-color:var(--gold);background:rgba(200,160,96,.13);box-shadow:0 0 0 2px rgba(200,160,96,.18)}
+.qt-tier-cell.floor{background:rgba(61,79,67,.10)}
+.qt-tier-lbl{font-size:.50rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);display:block;margin-bottom:2px;line-height:1.2}
+.qt-tier-val{font-size:.84rem;font-weight:900;color:#1e3228;display:block;line-height:1}
+.qt-tier-cell.active .qt-tier-lbl{color:var(--gold-d)}
+.qt-tier-cell.active .qt-tier-val{color:var(--gold-d)}
+.qt-tier-cell.floor .qt-tier-val{color:#4a4038}
+.qt-pr-hint{font-size:.56rem;color:var(--mu);margin-top:5px;text-align:center;line-height:1.4}
+/* Legacy aliases kept for any residual references */
 .qt-pr-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
 .qt-pr-cell{background:rgba(61,79,67,.06);border-radius:6px;padding:4px 7px;text-align:left}
-.qt-pr-cell.retail{background:rgba(200,160,96,.10)}
 .qt-pr-clbl{font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--mu);display:block;margin-bottom:1px}
 .qt-pr-cval{font-size:.82rem;font-weight:900;color:#1e3228;display:block}
-.qt-pr-cell.retail .qt-pr-cval{color:#7a5c1e}
-.qt-pr-hint{font-size:.56rem;color:var(--mu);margin-top:4px;text-align:center;line-height:1.4}
 /* Run materials mini-summary */
 .qt-run-sec{padding:8px 11px;border-bottom:1px solid #e8e0d4;display:none}
 .qt-run-sec.vis{display:block}
