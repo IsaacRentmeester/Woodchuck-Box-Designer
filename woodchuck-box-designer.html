@@ -2859,6 +2859,7 @@ function printSpecSheet(){
     <div style="font-size:7.5pt;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:rgba(200,160,96,.8);margin-bottom:8px">Cost Breakdown</div>
     <table>
       ${rows}
+      ${defRow}
       ${marginAmt>0?`<tr><td style="color:rgba(255,255,255,.55)">Margin &amp; overhead (${margin}%)</td><td style="color:rgba(255,255,255,.55)">$${marginAmt.toFixed(2)}</td></tr>`:''}
     </table>
     <div class="price-total">
