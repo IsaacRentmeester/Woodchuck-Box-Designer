@@ -5739,7 +5739,20 @@ function qbUpdateAll(){
   const logoPer=g('qb-cc-logo');
   const pkgPer=g('qb-cc-pkg');
   const joinPer=g('qb-cc-join');
-  const configPerUnit=hwPer+intPer+finPer+engPer+logoPer+pkgPer+joinPer;
+  // Dividers — count × cost per divider
+  const divCount=parseFloat(document.getElementById('qb-div-count')?.value)||0;
+  const divCostEa=parseFloat(document.getElementById('qb-div-cost')?.value)||0;
+  const divPer=divCount*divCostEa;
+  const divTotalEl=document.getElementById('qt-div-total');
+  if(divTotalEl)divTotalEl.textContent='$'+divPer.toFixed(2);
+  // Acrylic inlay for top — lid area (W×D interior) ÷ 4608 sq in × $65/sheet
+  const acrylicChecked=document.getElementById('qt-acrylic-inlay')?.checked||false;
+  const ACRYLIC_SHEET_PRICE=65.00;
+  const lidW=g('qb-dim-w'), lidD=g('qb-dim-d');
+  const acrylicPer=acrylicChecked?((lidW*lidD)/4608*ACRYLIC_SHEET_PRICE):0;
+  const acrylicPuEl=document.getElementById('qt-acrylic-pu');
+  if(acrylicPuEl)acrylicPuEl.textContent='$'+acrylicPer.toFixed(2);
+  const configPerUnit=hwPer+intPer+finPer+engPer+logoPer+pkgPer+joinPer+divPer+acrylicPer;
   const configTotal=configPerUnit*qty;
   // Update config total display
   const ccTotalBox=document.getElementById('qb-cc-total');
