@@ -5040,6 +5040,15 @@ function qbLoadSpeciesPrice(skipGrainUpdate){
     if(elW)elW.value=bW;
     if(elP)elP.value=bP.toFixed(2);
     qbActiveCost={mode:'ocooch',sheetCost:bP,sheetSqin:bL*bW,wood:sp.name,key:null,flag:null};
+    // Auto-set material thickness for Menards dimensional lumber (3/4" vs Ocooch 1/4")
+    if(sp.defaultThick){
+      const matTEl=document.getElementById('qb-matT');
+      if(matTEl&&parseFloat(matTEl.value)!==sp.defaultThick){
+        matTEl.value=sp.defaultThick;
+        C.cmat=sp.defaultThick;
+        qbCheckThickness();qbRenderValidity();
+      }
+    }
   }
   qbRenderSourceNote(sp);
   C.species=sp.name;
