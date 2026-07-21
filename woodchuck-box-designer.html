@@ -947,6 +947,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="qt-body">
           <div class="qt-brand-row">
             <textarea class="qt-engv" id="qt-engv" rows="2" placeholder="Engraving text (optional)" oninput="qtSEng(this.value)" maxlength="80"></textarea>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
+              <span style="font-size:.72rem;color:var(--mu)">Engraving locations:</span>
+              <input type="number" id="qt-eng-count" value="1" min="1" max="20" step="1"
+                style="width:52px;border:1px solid var(--bo);border-radius:5px;padding:3px 6px;font-size:.76rem;text-align:center"
+                oninput="C.engCount=Math.max(1,parseInt(this.value)||1);qbSyncConfigCosts();qtUpdChip(4)">
+              <span style="font-size:.71rem;color:var(--mu)">(sides / positions)</span>
+            </div>
             <div class="qt-logo-area">
               <div class="qt-luzone" onclick="document.getElementById('qt-logofile').click()">
                 <input type="file" id="qt-logofile" accept="image/*" style="display:none" onchange="loadLogo(this.files[0]);qtUpdBrand()">
