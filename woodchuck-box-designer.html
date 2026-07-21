@@ -5714,13 +5714,24 @@ function qbUpdateAll(){
   const defPct=parseFloat(document.getElementById('qb-defectives')?.value)||0;
   const defAmt=costBase*(defPct/100);
   const costWithDef=costBase+defAmt;
-  // Overhead multiplier — applied AFTER defectives, BEFORE margin (Nate sheet: 1.06)
+  // ── 2026 Dual-rate overhead: materials × 1.15, labor/hardware × 1.29 ──
+  // (overheadMult field kept for display compat — not used in new calc path)
   const overheadMult=parseFloat(document.getElementById('qb-overhead-mult')?.value)||1.06;
-  const overheadAmt=(overheadMult-1)*costWithDef;
-  const costWithOverhead=costWithDef*overheadMult;
-  const grandTotal=margin<100?costWithOverhead/(1-margin/100):costWithOverhead*2;
+  const matCostBase=subMat+customTotal+machineTotal;
+  const laborCostBase=laborTotal+configTotal+feeTotal;
+  const totalForSplit=Math.max(costBase,0.01);
+  const matFraction=matCostBase/totalForSplit;
+  const laborFraction=1-matFraction;
+  // Apply defective fraction proportionally then dual overhead
+  const costWithOverhead=costWithDef*(matFraction*1.15+laborFraction*1.29);
+  const overheadAmt=costWithOverhead-costWithDef;
+  // BOPO + Packaging: $0.22 + $0.10 = $0.32 per unit
+  const bopoPerUnit=0.32;
+  const costPerUnit=costWithOverhead/qty+bopoPerUnit;
+  // ── 2026 Floor/Retail pricing structure ──
+  const perUnit=qbPriceFromCost(costPerUnit,qty);
+  const grandTotal=perUnit*qty;
   const markupAmt=grandTotal-costWithOverhead;
-  const perUnit=grandTotal/qty;
 
   // Render summary
   const sumEl=document.getElementById('qb-summary');
