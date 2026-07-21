@@ -6236,8 +6236,8 @@ function qtUpdateFooter(perUnit,grandTotal,qty){
   if(perUnit>0&&qty>0){
     const curMarginRow=qbMarginForQty(qty);
     const costBase=perUnit*(1-curMarginRow.margin/100);
-    const floorRow=QB_MARGIN_TABLE[QB_MARGIN_TABLE.length-1]; // 1000+ @ 49%
-    const retailRow=QB_MARGIN_TABLE[0];                       // 1–9 @ 66%
+    const floorRow=QB_MARGIN_TABLE[QB_MARGIN_TABLE.length-1]; // 50K+ @ 50%
+    const retailRow=QB_MARGIN_TABLE[0];                       // 1 unit @ 65.5%
     const floorPU=costBase/(1-floorRow.margin/100);
     const retailPU=costBase/(1-retailRow.margin/100);
     if(floorEl)floorEl.textContent='$'+floorPU.toFixed(2);
