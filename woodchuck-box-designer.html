@@ -6002,13 +6002,21 @@ function qtUpdateSummaryRight(calc){
   if(!calc)return;
   const costSec=document.getElementById('qt-r-cost-sec');
   if(calc.perUnit>0){
+    const qty=calc.qty||C.qty||100;
     const woodEl=document.getElementById('qt-r-wood');
     const cfgEl=document.getElementById('qt-r-config');
     const mrgEl=document.getElementById('qt-r-margin');
-    if(woodEl)woodEl.textContent='$'+(calc.woodTotal||0).toFixed(2);
-    if(cfgEl)cfgEl.textContent='$'+(calc.configTotal||0).toFixed(2);
+    const costPuEl=document.getElementById('qt-r-cost-pu');
+    const profitPuEl=document.getElementById('qt-r-profit-pu');
+    const marginRow=qbMarginForQty(qty);
+    const costPerUnit=(calc.woodTotal+calc.configTotal+(calc.matTotal||0)+(calc.customTotal||0))/qty;
+    const profitPerUnit=calc.perUnit-costPerUnit;
+    if(woodEl)woodEl.textContent='$'+(calc.woodTotal||0).toFixed(2)+' ($'+((calc.woodTotal||0)/qty).toFixed(2)+'/unit)';
+    if(cfgEl)cfgEl.textContent='$'+(calc.configTotal||0).toFixed(2)+' ($'+((calc.configTotal||0)/qty).toFixed(2)+'/unit)';
     const ovhd=(calc.overheadAmt||0)+(calc.markupAmt||0);
-    if(mrgEl)mrgEl.textContent='$'+ovhd.toFixed(2)+' ('+qbMarginForQty(calc.qty||C.qty||100).margin+'%)';
+    if(mrgEl)mrgEl.textContent='$'+ovhd.toFixed(2)+' ('+marginRow.margin+'%)';
+    if(costPuEl)costPuEl.textContent='$'+costPerUnit.toFixed(2);
+    if(profitPuEl)profitPuEl.textContent='$'+profitPerUnit.toFixed(2)+' ('+marginRow.margin+'% margin)';
     if(costSec)costSec.style.display='';
   } else {
     if(costSec)costSec.style.display='none';
