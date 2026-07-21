@@ -2745,8 +2745,9 @@ function printSpecSheet(){
   ].filter(([,k])=>(calc[k]||0)>0)
    .map(([label,k])=>`<tr><td>${label}</td><td>$${(calc[k]||0).toFixed(2)}</td></tr>`).join('');
   const defRow=calc&&calc.defAmt>0?`<tr><td>Defectives / Overage (${calc.defPct||0}%)</td><td>$${(calc.defAmt||0).toFixed(2)}</td></tr>`:'';
+  const machineRow=(calc&&calc.machineTotal>0)?`<tr><td>Machine Time (${[calc.cncMins>0?`CNC ${calc.cncMins}m`:'',calc.laserMins>0?`Laser ${calc.laserMins}m`:''].filter(Boolean).join(' + ')} @ $0.42/min)</td><td>$${(calc.machineTotal||0).toFixed(2)}</td></tr>`:'';
   const margin=parseFloat(document.getElementById('qb-margin')?.value)||50;
-  const costBeforeMargin=(calc.woodTotal||0)+(calc.configTotal||0)+(calc.matTotal||0)+(calc.customTotal||0)+(calc.defAmt||0);
+  const costBeforeMargin=(calc.woodTotal||0)+(calc.configTotal||0)+(calc.matTotal||0)+(calc.customTotal||0)+(calc.machineTotal||0)+(calc.defAmt||0);
   const marginAmt=calc?calc.grandTotal-costBeforeMargin:0;
 
   // Spec rows helper
