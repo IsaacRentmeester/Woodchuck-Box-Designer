@@ -6029,6 +6029,9 @@ function qtUpdateBoardInfo(){
   if(!_lastNestLayout){boardEl.textContent=name+' — select qty to price';return;}
   const {boardW,boardL,boardCount,wastePercent}=_lastNestLayout;
   boardEl.textContent=`${boardW}"×${boardL}" ${name} · ${boardCount} board${boardCount!==1?'s':''} · ${wastePercent}% waste`;
+  // Populate run-summary board count
+  const runBoardsEl=document.getElementById('qt-r-boards');
+  if(runBoardsEl)runBoardsEl.textContent=`${boardCount} board${boardCount!==1?'s':''} (${wastePercent}% waste)`;
 }
 // Sync tree UI from C state (called after clone/restore)
 function qtSyncFromState(){
