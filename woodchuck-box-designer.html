@@ -5517,8 +5517,13 @@ function qbUpdateAll(){
   qbUpdateMarginDisplay(qty);
   const subMat=woodTotal+matTotal;
   const costBase=subMat+customTotal+configTotal;
-  const grandTotal=margin<100?costBase/(1-margin/100):costBase*2;
-  const marginAmt=grandTotal-costBase;
+  // Defectives/Overage — applies to total pre-margin cost (sheet standard: 3–5%)
+  // Accounts for defective finished goods that must be remade at full cost
+  const defPct=parseFloat(document.getElementById('qb-defectives')?.value)||0;
+  const defAmt=costBase*(defPct/100);
+  const costWithDef=costBase+defAmt;
+  const grandTotal=margin<100?costWithDef/(1-margin/100):costWithDef*2;
+  const marginAmt=grandTotal-costWithDef;
   const perUnit=grandTotal/qty;
 
   // Keep legacy hidden inputs in sync (for save/load compat)
@@ -5535,6 +5540,7 @@ function qbUpdateAll(){
       configTotal>0?[`Config (HW · finish · pkg) · ${qty} boxes`, configTotal]:null,
       matTotal>0?['Additional Materials', matTotal]:null,
       customTotal>0?['Customizations', customTotal]:null,
+      defAmt>0?[`Defectives / Overage (${defPct}%)`, defAmt]:null,
       [`Margin & overhead (${margin}% — ${marginRow.label} units)`, marginAmt],
     ].filter(Boolean);
     sumEl.innerHTML=rows.map(([l,v])=>`<div class="qb-sum-row"><span>${l}</span><span>$${v.toFixed(2)}</span></div>`).join('')
