@@ -5928,7 +5928,7 @@ function qbCloneQuote(id){
   // Restore defectives/overage %
   const defEl=document.getElementById('qb-defectives');
   const defUI=document.getElementById('qt-defectives-inp');
-  const defVal=q.defectivesPct!=null?q.defectivesPct:3;
+  const defVal=q.defectivesPct!=null?q.defectivesPct:10;
   if(defEl)defEl.value=defVal;
   if(defUI)defUI.value=defVal;
   // Restore machine time
