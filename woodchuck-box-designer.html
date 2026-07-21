@@ -5951,6 +5951,19 @@ function qbCloneQuote(id){
   C.engCount=q.engCount||1;
   const engCountUI=document.getElementById('qt-eng-count');
   if(engCountUI)engCountUI.value=C.engCount;
+  // Restore overhead multiplier
+  const ovhMult=q.overheadMult||1.06;
+  const ovhHidEl=document.getElementById('qb-overhead-mult');
+  const ovhUIEl=document.getElementById('qt-overhead-mult');
+  if(ovhHidEl)ovhHidEl.value=ovhMult;
+  if(ovhUIEl)ovhUIEl.value=ovhMult;
+  // Restore labor minutes
+  const labLEl=document.getElementById('qb-labor-ladies');const labLUI=document.getElementById('qt-labor-ladies');
+  const labSEl=document.getElementById('qb-labor-skilled');const labSUI=document.getElementById('qt-labor-skilled');
+  const labWEl=document.getElementById('qb-labor-woodshop');const labWUI=document.getElementById('qt-labor-woodshop');
+  if(labLEl)labLEl.value=q.laborLadiesMins||0;if(labLUI)labLUI.value=q.laborLadiesMins||0;
+  if(labSEl)labSEl.value=q.laborSkilledMins||0;if(labSUI)labSUI.value=q.laborSkilledMins||0;
+  if(labWEl)labWEl.value=q.laborWoodshopMins||0;if(labWUI)labWUI.value=q.laborWoodshopMins||0;
   qbRenderMaterials();qbRenderCustoms();
   drawBox();updateLabel();updateChips();
   qbSyncFromDesign();qbUpdateAll();
