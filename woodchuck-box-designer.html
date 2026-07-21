@@ -5650,6 +5650,7 @@ function qbUpdateAll(){
       matTotal>0?['Additional Materials', matTotal]:null,
       customTotal>0?['Customizations', customTotal]:null,
       machineTotal>0?[`Machine Time (${[cncMins>0?`CNC ${cncMins}m`:'',laserMins>0?`Laser ${laserMins}m`:''].filter(Boolean).join(' + ')} @ $0.42/min)`, machineTotal]:null,
+      feeTotal>0?[`${feeName||'One-Time Fee'}${feeQty>1?' (×'+feeQty+')':''}`, feeTotal]:null,
       defAmt>0?[`Defectives / Overage (${defPct}%)`, defAmt]:null,
       [`Margin & overhead (${margin}% — ${marginRow.label} units)`, marginAmt],
     ].filter(Boolean);
