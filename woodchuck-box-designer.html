@@ -6129,7 +6129,7 @@ function qtToggleAdhesive(btn){
   }else{
     // Add adhesive
     adh.value=ADHESIVE;
-    priceInp.value=(parseFloat(priceInp.value)||0+ADHESIVE).toFixed(2);
+    priceInp.value=((parseFloat(priceInp.value)||0)+ADHESIVE).toFixed(2);
     btn.textContent='✓ $37.25 adhesive ON';
     btn.style.background='var(--green)';btn.style.color='#fff';
   }
