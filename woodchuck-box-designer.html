@@ -4386,8 +4386,13 @@ const QB_SPECIES_TONE={
 // Sheet costs are per-wood, per-thickness and were verified to the cent against
 // the sheet's own sample boxes. Edit a number here → every quote updates.
 // ════════════════════════════════════════════════════════════════════════
-const WC_SHEET_SQIN=4608;                 // 48" × 96" production sheet
+const WC_SHEET_SQIN=4608;                 // 48" × 96" production sheet (PS / MDF default)
 const WC_SHEET_DIMS={L:96,W:48};
+// Baltic Birch comes in 5×5 (60"×60" = 3600 sq.in) — different from PS/MDF sheets
+const WC_BB_SHEET_SQIN=3600;             // 60" × 60" Baltic Birch sheet
+const WC_BB_SHEET_DIMS={L:60,W:60};
+function wcSheetSqin(wood){return (wood==='Baltic Birch')?WC_BB_SHEET_SQIN:WC_SHEET_SQIN;}
+function wcSheetDims(wood){return (wood==='Baltic Birch')?WC_BB_SHEET_DIMS:WC_SHEET_DIMS;}
 // Cost per full 48×96 sheet, [wood][thicknessKey]. Thickness keys are the sheet's
 // own nominal columns: 1/8"≈0.155, 1/4"=0.24, 3/8"=0.36 (raw-MDF cols differ).
 const WC_SHEET_COST={
