@@ -1123,6 +1123,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               oninput="document.getElementById('qb-laser-mins').value=this.value;qbUpdateAll()">
             <span style="font-size:.72rem;color:var(--mu)">min → <span id="qt-laser-cost">$0.00</span></span>
           </div>
+          <div style="height:1px;background:var(--bo);margin:10px 0"></div>
+          <div style="font-size:.73rem;font-weight:700;margin-bottom:6px">💰 One-Time Fee</div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">
+            <input type="text" id="qt-fee-name" placeholder="Fee label (e.g. NRE, setup, artwork)"
+              style="flex:1;min-width:100px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.73rem;font-family:inherit"
+              oninput="document.getElementById('qb-fee-name').value=this.value;qbUpdateAll()">
+            <span style="font-size:.72rem;color:var(--mu);flex-shrink:0">$</span>
+            <input type="number" id="qt-fee-price" value="0" min="0" step="1"
+              style="width:62px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
+              oninput="document.getElementById('qb-fee-price').value=this.value;qbUpdateAll()">
+            <span style="font-size:.72rem;color:var(--mu);flex-shrink:0">×</span>
+            <input type="number" id="qt-fee-qty" value="1" min="1" step="1"
+              style="width:46px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
+              oninput="document.getElementById('qb-fee-qty').value=this.value;qbUpdateAll()">
+            <span style="font-size:.72rem;color:var(--mu);flex-shrink:0">= <span id="qt-fee-total">$0.00</span></span>
+          </div>
+          <div style="font-size:.68rem;color:var(--mu);margin-top:2px">Added once to the run total (not per-unit)</div>
         </div>
       </div>
 
