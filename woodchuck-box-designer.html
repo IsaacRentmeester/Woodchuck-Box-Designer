@@ -5679,20 +5679,18 @@ function qbUpdateAll(){
   const feeTotal=feePrice*feeQty;
   const feeTotalEl=document.getElementById('qt-fee-total');
   if(feeTotalEl)feeTotalEl.textContent='$'+feeTotal.toFixed(2);
-  const costBase=subMat+customTotal+configTotal+machineTotal+feeTotal;
-  // Defectives/Overage — applies to total pre-margin cost (sheet standard: 3–5%)
-  // Accounts for defective finished goods that must be remade at full cost
+  const costBase=subMat+customTotal+configTotal+machineTotal+laborTotal+feeTotal;
+  // Defectives/Overage — Nate standard: 10% for custom/acrylic, 3–5% for simple runs
   const defPct=parseFloat(document.getElementById('qb-defectives')?.value)||0;
   const defAmt=costBase*(defPct/100);
   const costWithDef=costBase+defAmt;
-  const grandTotal=margin<100?costWithDef/(1-margin/100):costWithDef*2;
-  const marginAmt=grandTotal-costWithDef;
+  // Overhead multiplier — applied AFTER defectives, BEFORE margin (Nate sheet: 1.06)
+  const overheadMult=parseFloat(document.getElementById('qb-overhead-mult')?.value)||1.06;
+  const overheadAmt=(overheadMult-1)*costWithDef;
+  const costWithOverhead=costWithDef*overheadMult;
+  const grandTotal=margin<100?costWithOverhead/(1-margin/100):costWithOverhead*2;
+  const markupAmt=grandTotal-costWithOverhead;
   const perUnit=grandTotal/qty;
-
-  // Keep legacy hidden inputs in sync (for save/load compat)
-  const overhead=Math.round(margin*0.3); const markup=Math.round(margin*0.7);
-  const overheadAmt=subMat*(overhead/100);
-  const markupAmt=grandTotal*(markup/100); // approx for display only
 
   // Render summary
   const sumEl=document.getElementById('qb-summary');
