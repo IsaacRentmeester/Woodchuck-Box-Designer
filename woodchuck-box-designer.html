@@ -1140,6 +1140,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <option value="9.31">Saw Cut Miter — +$9.31</option>
           </select>
         </div>
+        <!-- Dividers -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:.73rem;font-weight:700;flex-shrink:0;width:72px">🪵 Dividers</span>
+          <input type="number" id="qt-div-count" value="0" min="0" step="1"
+            style="width:42px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
+            oninput="document.getElementById('qb-div-count').value=this.value;qbUpdateAll()">
+          <span style="font-size:.72rem;color:var(--mu)">× $</span>
+          <input type="number" id="qt-div-cost" value="1.50" min="0" step="0.25"
+            style="width:52px;border:1px solid var(--bo);border-radius:5px;padding:4px 6px;font-size:.75rem;text-align:center"
+            oninput="document.getElementById('qb-div-cost').value=this.value;qbUpdateAll()">
+          <span style="font-size:.72rem;color:var(--mu)">/ea = <span id="qt-div-total">$0.00</span>/unit</span>
+        </div>
+        <!-- Acrylic Inlay for Top -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0">
+            <input type="checkbox" id="qt-acrylic-inlay" style="width:14px;height:14px;cursor:pointer" onchange="qbUpdateAll()">
+            <span style="font-size:.73rem;font-weight:700">🪟 Acrylic inlay for top</span>
+          </label>
+          <span style="font-size:.72rem;color:var(--mu)">lid area ÷ sheet = <span id="qt-acrylic-pu">$0.00</span>/unit</span>
+        </div>
         <button class="qb-labor-preset-btn" onclick="qbSyncConfigCosts()">↺ Re-sync config from design</button>
         <div style="height:1px;background:var(--bo);margin:10px 0"></div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
