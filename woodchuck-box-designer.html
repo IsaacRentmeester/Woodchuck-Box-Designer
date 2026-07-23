@@ -5058,6 +5058,32 @@ function qbRenderWoodGrid(){
   if(specRow)specRow.style.display='';
   if(woodLbl)woodLbl.style.display='';
 
+  // ── Mix mode: show only species that have a MDF equivalent ──
+  if(qbMatPath==='mix'){
+    const mixKeys=Object.keys(MIX_SPECIES_MAP);
+    const filtered=qbSpecies.filter(s=>mixKeys.includes(s.name));
+    g.innerHTML=filtered.map(s=>{
+      const mdfSpecies=MIX_SPECIES_MAP[s.name];
+      const t=QB_SPECIES_TONE[s.name]||{base:'#C8A060',grain:'#8A6038'};
+      const mdfResult=mdfSpeciesCost(mdfSpecies,T);
+      const solidPrice=WOOD_SHEET_PRICES[s.name]||s.sheet||0;
+      const priceHtml=`<span style="font-size:.58rem;color:var(--mu);display:block;line-height:1.3">`
+        +`🪵 $${solidPrice.toFixed(2)}/sht</span>`
+        +`<span style="font-size:.58rem;color:var(--mu);display:block;line-height:1.3">`
+        +`📄 $${mdfResult.cost.toFixed(2)}/sht</span>`;
+      const selId=document.getElementById('qb-species')?.value;
+      const selSp=qbSpecies.find(sp=>sp.id===selId);
+      const isSel=selSp&&selSp.name===s.name;
+      return `<div class="qb-wsw${isSel?' sel':''}" data-id="${s.id}" onclick="qbPickSpecies('${s.id}')" title="${s.name} (sides) + ${mdfSpecies} MDF (top &amp; bottom)">`
+        +`<div class="qb-wsw-chip" style="background:linear-gradient(135deg,${lightenHex(t.base,0.06)},${t.base} 45%,${t.grain})">${QB_SPECIES_IMG[s.name]?'<img src="'+QB_SPECIES_IMG[s.name]+'" style="width:100%;height:100%;object-fit:cover;display:block">':''}</div>`
+        +`<div class="qb-wsw-name">${s.name}</div>`
+        +priceHtml
+        +`</div>`;
+    }).join('');
+    qbSyncWoodGrid();
+    return;
+  }
+
   // ── WC (Excel) mode: only show species that have a production sheet price ──
   // ── Ocooch mode: show all species ──
   const filtered=qbPriceSrc==='wc'
