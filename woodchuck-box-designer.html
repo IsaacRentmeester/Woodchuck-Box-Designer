@@ -5302,7 +5302,12 @@ function qbRenderSourceNote(sp){
   const a=qbActiveCost;
   if(!a){note.style.display='none';return;}
   let html;
-  if(a.mode==='mdf'){
+  if(qbMatPath==='mix'&&qbMixMdfSpecies&&a.wood){
+    const solidPrice=WOOD_SHEET_PRICES[a.wood]||a.sheetCost||0;
+    const T_n=parseFloat(document.getElementById('qb-matT')?.value)||0.25;
+    const mdfE=mdfSpeciesCost(qbMixMdfSpecies,T_n);
+    html=`<b>🔀 Mix:</b> <b>${a.wood}</b> solid sides ($${solidPrice.toFixed(2)}/sht) + <b>${qbMixMdfSpecies}</b> MDF top &amp; bottom ($${mdfE.cost.toFixed(2)}/sht · ${mdfE.label}). Each component priced at area ÷ 4608 sq in × respective sheet cost.`;
+  }else if(a.mode==='mdf'){
     const mdfName=a.wood||'Raw MDF';
     const isRaw=mdfName==='Raw MDF';
     html=`<b>📄 ${mdfName}</b> — ${a.label||a.key} at <b>$${a.sheetCost.toFixed(2)}</b> per 48×96 (4×8) sheet. `+(isRaw?'Raw MDF is a flat engineered panel with no wood grain.':'PS (Premium Sheet) = wood veneer face over MDF core — real wood look, engineered stability.')+' Wood cost = panel area ÷ 4608 sq in × sheet cost.';
