@@ -1419,12 +1419,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <!-- Presets modal -->
 <div id="qb-preset-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:16px;max-width:440px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;box-shadow:0 12px 48px rgba(0,0,0,.3)">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <div style="font-family:Georgia,serif;font-size:1rem;color:var(--green)">Add Preset Material</div>
-      <button onclick="qbCloseModal('qb-preset-modal')" style="background:none;border:1px solid var(--bo);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.8rem;color:var(--mu)">✕</button>
+  <div style="background:#fff;border-radius:16px;max-width:440px;width:100%;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 12px 48px rgba(0,0,0,.3)">
+    <!-- Sticky header + search -->
+    <div style="padding:16px 20px 0;flex-shrink:0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-family:Georgia,serif;font-size:1rem;color:var(--green)">Add Preset Material</div>
+        <button onclick="qbCloseModal('qb-preset-modal')" style="background:none;border:1px solid var(--bo);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.8rem;color:var(--mu)">✕</button>
+      </div>
+      <!-- Search bar -->
+      <div style="position:relative;margin-bottom:10px">
+        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.85rem;pointer-events:none">🔍</span>
+        <input id="qb-preset-search" type="search" placeholder="Search hinges, flask, acrylic…"
+          oninput="qbRenderPresets(this.value)"
+          style="width:100%;box-sizing:border-box;padding:8px 10px 8px 32px;border:1.5px solid var(--bo);border-radius:8px;font-size:.8rem;font-family:inherit;outline:none;transition:border-color .14s"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--bo)'">
+      </div>
+      <div id="qb-preset-count" style="font-size:.62rem;color:var(--mu);margin-bottom:4px"></div>
     </div>
-    <div id="qb-preset-list"></div>
+    <!-- Scrollable list -->
+    <div id="qb-preset-list" style="overflow-y:auto;padding:0 20px 20px;flex:1"></div>
   </div>
 </div>
 
