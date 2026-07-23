@@ -5712,10 +5712,11 @@ function qbRenderCustoms(){
     </div>`).join('');
 }
 
-function qbOpenPresets(){
-  // Prices sourced from Woodchuck component pricing sheet + MDF Forte supplier sheet (2026).
-  // Each entry: {hdr} for section dividers, or {item,sku,qty,unitCost} for clickable presets.
-  const presets=[
+// Preset data stored module-level so qbRenderPresets() can re-filter without re-opening.
+// Prices sourced from Woodchuck component pricing sheet + MDF Forte supplier sheet (2026).
+// Each entry: {hdr} for section dividers, or {item,sku,qty,unitCost} for clickable presets.
+let _QB_PRESETS=null;
+function _qbBuildPresets(){if(_QB_PRESETS)return _QB_PRESETS;_QB_PRESETS=[
     // ── Hardware – individual components (per piece unless noted)
     {hdr:'🔩 Hardware — Individual Components'},
     {item:'Hinge – Brass/Silver (each)',         sku:'HNG001',qty:1,unitCost:0.38},
