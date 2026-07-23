@@ -5109,7 +5109,15 @@ function qbRenderWoodGrid(){
 // User tapped a swatch → point the (hidden) engine <select> at it and run the full update.
 function qbPickSpecies(id){
   const sel=document.getElementById('qb-species');
-  if(sel){sel.value=id;qbLoadSpeciesPrice();}
+  if(sel){
+    sel.value=id;
+    // In mix mode, auto-derive the companion MDF species
+    if(qbMatPath==='mix'){
+      const sp=qbSpecies.find(s=>s.id===id);
+      qbMixMdfSpecies=sp?MIX_SPECIES_MAP[sp.name]||null:null;
+    }
+    qbLoadSpeciesPrice();
+  }
 }
 // User tapped an MDF species swatch → update pricing for that PS/raw species.
 function qbPickMdfSpecies(name){
