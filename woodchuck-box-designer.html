@@ -578,18 +578,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .qt-step{border-radius:10px;overflow:hidden;background:#fff;border:1.5px solid #e2d8cc;transition:border-color .18s,box-shadow .18s}
 .qt-step.qt-active{border-color:#C8A060;box-shadow:0 2px 12px rgba(200,160,96,.2)}
 .qt-step.qt-done{border-color:#c8ddc0}
-.qt-step.qt-locked{opacity:.6}
+.qt-step.qt-locked{opacity:.55;pointer-events:none}
 .qt-step.qt-locked .qt-chip{cursor:default}
-.qt-chip{display:flex;align-items:center;gap:7px;padding:7px 12px;cursor:pointer;user-select:none;min-height:34px}
+/* Next-step subtle glow — draws eye to the next step */
+@keyframes qt-next-glow{0%,100%{box-shadow:0 0 0 0 rgba(61,79,67,.10)}60%{box-shadow:0 0 0 4px rgba(61,79,67,.08)}}
+.qt-step:not(.qt-active):not(.qt-done):not(.qt-locked){border-color:#c8ddc0;animation:qt-next-glow 2.2s ease-in-out infinite}
+.qt-chip{display:flex;align-items:center;gap:7px;padding:7px 12px;cursor:pointer;user-select:none;min-height:36px;transition:background .13s}
+.qt-step.qt-done .qt-chip{background:#fafdf8}
+.qt-step.qt-done .qt-chip:hover{background:#f0f7ed}
+.qt-step.qt-active .qt-chip{background:rgba(200,160,96,.06)}
 .qt-step.qt-done .qt-chip,.qt-step.qt-active .qt-chip{opacity:1}
 .qt-num{width:17px;height:17px;border-radius:50%;background:#e2d8cc;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:800;color:#7a7268;flex-shrink:0;transition:.18s}
 .qt-step.qt-active .qt-num{background:#C8A060;color:#fff}
 .qt-step.qt-done .qt-num{background:#3d4f43;color:#fff}
+.qt-step.qt-done .qt-num::after{content:'✓';font-size:.55rem}
+.qt-step.qt-done .qt-num-inner{display:none}
 .qt-chip-icon{font-size:.84rem;flex-shrink:0}
 .qt-chip-txt{font-size:.73rem;font-weight:600;color:#1a1a18;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qt-step.qt-done .qt-chip-txt{color:#3d4f43}
-.qt-chip-ed{font-size:.65rem;color:#7a7268;opacity:0;transition:opacity .14s;flex-shrink:0}
-.qt-step.qt-done:hover .qt-chip-ed{opacity:.7;color:#C8A060}
+/* ✎ edit label — always visible on done steps */
+.qt-chip-ed{font-size:.62rem;color:rgba(200,160,96,.7);flex-shrink:0;font-weight:700;transition:color .13s;display:none}
+.qt-step.qt-done .qt-chip-ed{display:inline}
+.qt-step.qt-done:hover .qt-chip-ed{color:#C8A060}
+/* Chevron — rotates ▼→▲ when step is open */
+.qt-chip-chev{font-size:.7rem;color:#c8b09a;flex-shrink:0;transition:transform .18s,color .14s;line-height:1}
+.qt-step.qt-done .qt-chip-chev{color:#3d4f43;opacity:.55}
+.qt-step.qt-active .qt-chip-chev{transform:rotate(180deg);color:var(--gold)}
+.qt-step:not(.qt-done):not(.qt-active) .qt-chip-chev{color:#c8ddc0}
 .qt-body{display:none;padding:4px 11px 10px;border-top:1px solid #e2d8cc}
 .qt-step.qt-active .qt-body{display:block}
 .qt-sz-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
