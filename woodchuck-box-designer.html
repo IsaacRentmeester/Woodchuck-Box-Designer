@@ -1097,33 +1097,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
       </div>
 
-      <div class="qt-drawer-sec">
-        <div class="qt-drawer-hdr" onclick="qtTogMats(this)" style="cursor:pointer">
-          🔧 Additional materials
-          <span style="font-weight:400;font-size:.8rem;opacity:.5">▼</span>
-        </div>
-        <div id="qt-mats-body" style="display:none">
-          <div id="qb-mat-hdr" style="display:none" class="qb-mat-hdr"><span>Item</span><span>Qty</span><span>$ / Unit</span><span>Total</span><span></span></div>
-          <div id="qb-mat-list"><span style="font-size:.75rem;color:var(--mu)">No materials added.</span></div>
-          <div style="display:flex;gap:6px;margin-top:6px">
-            <button class="qb-add-btn" onclick="qbAddMaterial()">+ Add item</button>
-            <button class="qb-add-btn" onclick="qbOpenPresets()">+ From presets</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="qt-drawer-sec">
-        <div class="qt-drawer-hdr" onclick="qtTogCust(this)" style="cursor:pointer">
-          ✦ Extras / customizations
-          <span style="font-weight:400;font-size:.8rem;opacity:.5">▼</span>
-        </div>
-        <div id="qt-cust-body" style="display:none">
-          <div class="qb-custom-hdr" id="qb-custom-hdr" style="display:none"><span>Description</span><span>Qty</span><span>Unit Price</span><span></span></div>
-          <div id="qb-custom-list"><span style="font-size:.75rem;color:var(--mu)">No extras added.</span></div>
-          <button class="qb-add-btn" onclick="qbAddCustom()" style="margin-top:6px">+ Add extra</button>
-        </div>
-      </div>
-
       <div class="qt-drawer-sec" id="qb-breaks-sec" style="display:none">
         <div class="qt-drawer-hdr">📊 Quantity price breaks</div>
         <div id="qb-breaks-content"></div>
