@@ -5481,8 +5481,26 @@ function qbCalcYield(){
   const wcSpeciesName=qbActiveCost?qbActiveCost.wood:null;
   const officialSheetPrice=(wcSpeciesName&&WOOD_SHEET_PRICES[wcSpeciesName])||shPrice;
   const wcSheetArea=WC_SHEET_SQIN; // always 4608 sq in for official pricing
+  const T_calc=parseFloat(document.getElementById('qb-matT')?.value)||0.25;
+
+  // ── Mix mode: split pricing — solid sides, MDF top & bottom ──
+  const isMixMode=qbMatPath==='mix'&&qbMixMdfSpecies&&wcSpeciesName;
+  let sidesArea=0,topBottomArea=0,sidesCostPerBox=0,mdfCostPerBox=0;
+  let mixMdfSheetPrice=0;
+  if(isMixMode){
+    // Sides: Front/Back (W×H ×2) + Left/Right (D×H ×2)
+    sidesArea=2*(intW*intH)+2*(intD*intH);
+    // Top + Bottom: lid + base (W×D ×2)
+    topBottomArea=2*(intW*intD);
+    const solidSheetPrice=(WOOD_SHEET_PRICES[wcSpeciesName])||shPrice;
+    const mdfEntry=mdfSpeciesCost(qbMixMdfSpecies,T_calc);
+    mixMdfSheetPrice=mdfEntry.cost;
+    sidesCostPerBox=(sidesArea/WC_SHEET_SQIN)*solidSheetPrice;
+    mdfCostPerBox=(topBottomArea/WC_SHEET_SQIN)*mixMdfSheetPrice;
+  }
+
   const pctSheet=intSurfSqIn/wcSheetArea;
-  const wcPerBoxBase=pctSheet*officialSheetPrice;
+  const wcPerBoxBase=isMixMode?(sidesCostPerBox+mdfCostPerBox):(pctSheet*officialSheetPrice);
   // 2026 official: NO waste factor on wood cost — waste/defects come from qb-defectives on total cost
   const wcPerBox=wcPerBoxBase;
   const wcTotal=wcPerBox*qty;
@@ -5495,7 +5513,20 @@ function qbCalcYield(){
 
   const el=document.getElementById('qb-yield-content');
   if(el){
-    if(wcMode){
+    if(isMixMode){
+      // Mix mode: show split breakdown
+      const solidSp=wcSpeciesName||'—';
+      const mdfSp=qbMixMdfSpecies||'—';
+      const mdfEntry=mdfSpeciesCost(mdfSp,T_calc);
+      const solidPrice=WOOD_SHEET_PRICES[solidSp]||shPrice;
+      el.innerHTML=
+         `<div class="qb-yield-row"><span>🔀 <strong>Mix pricing: solid sides + MDF top &amp; bottom</strong></span></div>`
+        +`<div class="qb-yield-row"><span>🪵 Sides area (F/B + L/R)</span><span class="qb-val">${sidesArea.toFixed(1)} sq in</span></div>`
+        +`<div class="qb-yield-row"><span>🪵 ${solidSp} sheet · $${solidPrice.toFixed(2)}/sht</span><span class="qb-val">$${sidesCostPerBox.toFixed(2)} / box</span></div>`
+        +`<div class="qb-yield-row"><span>📄 Top &amp; bottom area</span><span class="qb-val">${topBottomArea.toFixed(1)} sq in</span></div>`
+        +`<div class="qb-yield-row"><span>📄 ${mdfSp} · ${mdfEntry.label} · $${mixMdfSheetPrice.toFixed(2)}/sht</span><span class="qb-val">$${mdfCostPerBox.toFixed(2)} / box</span></div>`
+        +`<div class="qb-yield-row" style="border-top:1px solid var(--bo);margin-top:6px;padding-top:6px"><span><strong>Total wood cost · ${qty}</strong></span><span class="qb-val"><strong>$${wcTotal.toFixed(2)}</strong></span></div>`;
+    }else if(wcMode){
       const isMdf=qbActiveCost.mode==='mdf';
       const sheetLabel=isMdf?qbActiveCost.label:`${qbActiveCost.wood} ${wcThickLabel(qbActiveCost.key)}`;
       const isBB=qbActiveCost.wood==='Baltic Birch';
