@@ -4678,6 +4678,18 @@ const WC_MDF_TONES={
   'Red Oak (Rift)':{base:'#CCA06C',grain:'#946838'},
 };
 let qbMdfSpecies=QBdb.get('mdfSpecies')||'Raw MDF';
+// Mix mode: solid wood sides + MDF top & bottom.
+// Maps each eligible solid-wood species → its companion PS-MDF species.
+// Only species listed here appear in the wood grid when matPath==='mix'.
+const MIX_SPECIES_MAP={
+  'Walnut':              'PS Walnut',
+  'Hard Maple':          'PS White Maple',
+  'Mahogany':            'PS Mahogany',
+  'Red Cedar (Aromatic)':'PS Cedar',
+  'Spanish Cedar':       'PS Cedar',
+  'Red Oak':             'Red Oak (Rift)',
+};
+let qbMixMdfSpecies=null; // companion PS-MDF species when matPath==='mix'
 function mdfThickKey(t){const ks=Object.keys(WC_MDF_COST).map(Number);return String(ks.reduce((b,k)=>Math.abs(k-t)<Math.abs(b-t)?k:b));}
 function mdfSheetCost(t){const key=mdfThickKey(t);return{key,label:WC_MDF_LABELS[key]||key+'"',cost:WC_MDF_COST[key]};}
 function mdfSpeciesCost(species,t){
