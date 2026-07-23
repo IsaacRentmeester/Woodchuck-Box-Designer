@@ -1618,7 +1618,21 @@ function qbSetMatPath(path){
   }
   // Sync price source for legacy pricing engine
   if(path==='solid')qbSetPriceSrc('ocooch');
-  else if(path==='mix')qbSetPriceSrc('ocooch');
+  else if(path==='mix'){
+    // Clear any selected species that have no MDF equivalent
+    const specSel=document.getElementById('qb-species');
+    if(specSel&&specSel.value){
+      const sp=qbSpecies.find(s=>s.id===specSel.value);
+      if(sp&&!MIX_SPECIES_MAP[sp.name]){
+        specSel.value='';
+        qbActiveCost=null;
+        qbMixMdfSpecies=null;
+      } else if(sp){
+        qbMixMdfSpecies=MIX_SPECIES_MAP[sp.name]||null;
+      }
+    }
+    qbSetPriceSrc('ocooch');
+  }
   else qbSetPriceSrc('mdf');
   qbSyncNesting(); // Req 2: refresh nesting on path change
   qbUpdateAll();
