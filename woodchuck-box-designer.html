@@ -5810,20 +5810,69 @@ function _qbBuildPresets(){if(_QB_PRESETS)return _QB_PRESETS;_QB_PRESETS=[
     {item:'Reclosable Bag (small)',               sku:'',       qty:1,unitCost:0.40},
     {item:'Shrink Wrap 5" roll',                 sku:'',       qty:1,unitCost:9.65},
     {item:'Gold Bubble Mailer (bulk lot)',        sku:'',       qty:1,unitCost:23.00},
-  ];
-  const el=document.getElementById('qb-preset-list');
-  if(el)el.innerHTML=presets.map(p=>{
-    if(p.hdr)return`<div style="width:100%;font-size:.59rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--green);margin:10px 0 3px;padding-top:8px;border-top:1px solid var(--bo)">${p.hdr}</div>`;
-    const total=(p.qty*p.unitCost).toFixed(2);
-    const skuStr=p.sku?`<span style="font-size:.62rem;color:var(--mu);margin-left:5px">${p.sku}</span>`:'';
-    return`<div onclick="qbAddMaterial('${p.item.replace(/'/g,"\\'")}',${p.qty},${p.unitCost});qbCloseModal('qb-preset-modal')"
-      style="padding:7px 10px;border-radius:7px;margin-bottom:4px;background:#f8f4ee;border:1px solid var(--bo);font-size:.8rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:.12s"
-      onmouseover="this.style.background='#f0e8d8'" onmouseout="this.style.background='#f8f4ee'">
-      <span>${p.item}${skuStr}</span>
-      <span style="font-weight:700;color:var(--green);white-space:nowrap;margin-left:8px">$${total}</span>
-    </div>`;
-  }).join('');
+  ];return _QB_PRESETS;}
+
+function qbOpenPresets(){
+  _qbBuildPresets();
+  // Reset search and render all items
+  const inp=document.getElementById('qb-preset-search');
+  if(inp){inp.value='';}
+  qbRenderPresets('');
   document.getElementById('qb-preset-modal').style.display='flex';
+  // Auto-focus search after a tick so the modal is visible first
+  setTimeout(()=>{const inp=document.getElementById('qb-preset-search');if(inp)inp.focus();},80);
+}
+
+// Render preset list filtered by query. Section headers only appear if they have ≥1 match.
+function qbRenderPresets(query){
+  const presets=_qbBuildPresets();
+  const q=(query||'').trim().toLowerCase();
+  const el=document.getElementById('qb-preset-list');
+  const countEl=document.getElementById('qb-preset-count');
+  if(!el)return;
+
+  // Group items by section so we can suppress empty sections
+  let sections=[];
+  let cur=null;
+  presets.forEach(p=>{
+    if(p.hdr){cur={hdr:p.hdr,items:[]};sections.push(cur);}
+    else if(cur){cur.items.push(p);}
+  });
+
+  // Filter each section
+  let totalMatches=0;
+  const html=sections.map(sec=>{
+    const matched=q?sec.items.filter(p=>
+      p.item.toLowerCase().includes(q)||(p.sku&&p.sku.toLowerCase().includes(q))
+    ):sec.items;
+    if(!matched.length)return'';
+    totalMatches+=matched.length;
+
+    // Highlight query in item name
+    function hl(str){
+      if(!q)return str;
+      const idx=str.toLowerCase().indexOf(q);
+      if(idx<0)return str;
+      return str.slice(0,idx)+'<mark style="background:rgba(200,160,96,.35);border-radius:2px;padding:0 1px">'+str.slice(idx,idx+q.length)+'</mark>'+str.slice(idx+q.length);
+    }
+
+    const rows=matched.map(p=>{
+      const total=(p.qty*p.unitCost).toFixed(2);
+      const skuStr=p.sku?`<span style="font-size:.6rem;color:var(--mu);margin-left:5px">${p.sku}</span>`:'';
+      const safeItem=p.item.replace(/'/g,"\\'");
+      return`<div onclick="qbAddMaterial('${safeItem}',${p.qty},${p.unitCost});qbCloseModal('qb-preset-modal')"
+        style="padding:7px 10px;border-radius:7px;margin-bottom:3px;background:#f8f4ee;border:1px solid var(--bo);font-size:.79rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:.12s"
+        onmouseover="this.style.background='#f0e8d8';this.style.borderColor='var(--gold)'" onmouseout="this.style.background='#f8f4ee';this.style.borderColor='var(--bo)'">
+        <span>${hl(p.item)}${skuStr}</span>
+        <span style="font-weight:700;color:var(--green);white-space:nowrap;margin-left:8px">$${total}</span>
+      </div>`;
+    }).join('');
+
+    return`<div style="font-size:.59rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--green);margin:10px 0 4px;padding-top:8px;border-top:1px solid var(--bo)">${sec.hdr}</div>${rows}`;
+  }).join('');
+
+  el.innerHTML=html||`<div style="text-align:center;padding:24px 0;color:var(--mu);font-size:.82rem">No results for "<strong>${query}</strong>"</div>`;
+  if(countEl)countEl.textContent=q?(totalMatches===0?'':''+totalMatches+' match'+(totalMatches!==1?'es':'')):'';
 }
 function qbCloseModal(id){document.getElementById(id).style.display='none';}
 
