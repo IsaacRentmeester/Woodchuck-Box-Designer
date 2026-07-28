@@ -6092,12 +6092,21 @@ function qbCalcYield(){
     // MDF top/bottom: Forte sheet price ONLY.
     const mdfEntry=mdfSpeciesCost(qbMixMdfSpecies,T_calc);
     mixMdfSheetPrice=mdfEntry.cost;
-    sidesCostPerBox=(sidesArea/mixSolidBoardSqin)*mixSolidBoardPrice;
+    // Multi-board optimization: when the active Ocooch species has a blended rate (computed at
+    // species-select time from per-panel best-fitting boards — see qbLoadSpeciesPrice), use that
+    // area-weighted $/sq-in rate instead of a single uniform board's price/area ratio. This is what
+    // actually lets small panels draw pricing from a cheap narrow board while only the panels that
+    // need the width draw from a pricier wide board, on the SAME order.
+    sidesCostPerBox=(isOcoochSolid&&qbActiveCost.blendedRate!=null)?sidesArea*qbActiveCost.blendedRate:(sidesArea/mixSolidBoardSqin)*mixSolidBoardPrice;
     mdfCostPerBox=(topBottomArea/WC_SHEET_SQIN)*mixMdfSheetPrice;
   }
 
   const pctSheet=intSurfSqIn/wcSheetArea;
-  const wcPerBoxBase=isMixMode?(sidesCostPerBox+mdfCostPerBox):(pctSheet*officialSheetPrice);
+  // Same multi-board blended-rate substitution for pure-Solid (non-Mix) mode: intSurfSqIn stays the
+  // area basis (unchanged "official model" proxy), only the $/sq-in rate improves from a single-board
+  // ratio to the per-panel-optimized blended rate.
+  const useBlendedRate=isOcoochSolid&&!isMixMode&&qbActiveCost.blendedRate!=null;
+  const wcPerBoxBase=isMixMode?(sidesCostPerBox+mdfCostPerBox):(useBlendedRate?intSurfSqIn*qbActiveCost.blendedRate:pctSheet*officialSheetPrice);
   // 2026 official: NO waste factor on wood cost — waste/defects come from qb-defectives on total cost
   const wcPerBox=wcPerBoxBase;
   const wcTotal=wcPerBox*qty;
