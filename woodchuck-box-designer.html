@@ -6080,7 +6080,7 @@ function qbUpdateAll(){
   const matFraction=matCostBase/totalForSplit;
   const laborFraction=1-matFraction;
   // Apply defective fraction proportionally then dual overhead
-  const costWithOverhead=costWithDef*(matFraction*1.15+laborFraction*1.29);
+  const costWithOverhead=costWithDef*(matFraction*QB_MAT_OVERHEAD+laborFraction*QB_LABOR_OVERHEAD);
   const overheadAmt=costWithOverhead-costWithDef;
   // BOPO + Packaging: $0.22 + $0.10 = $0.32 per unit
   const bopoPerUnit=0.32;
