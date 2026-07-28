@@ -6565,10 +6565,13 @@ function qbCalcYield(){
       // (Ocooch) panels need to fit/purchase from Ocooch boards; the MDF top/bottom are Forte's.
       const fitPanels=qbMatPath==='mix'?qbBoxPanels.filter(p=>p.mat==='solid'):qbBoxPanels;
       const panels=fitPanels.map(p=>({w:p.pL,h:p.pW,count:p.count,label:p.name}));
-      // Multi-board purchase optimization: different panel types can be bought from DIFFERENT
-      // Ocooch board widths on the same order (e.g. bottom/lid from a cheap narrow board, sides
-      // from a wider board only if they actually need it) instead of forcing one uniform board.
-      const sel=ocoochOptimizeBoards(sp.name,panels,t,kerf);
+      // Multi-board purchase optimization across the WHOLE ORDER: different panel types can be cut
+      // from DIFFERENT Ocooch board widths (bottom/lid from a cheap narrow board, sides from a wider
+      // board only if they actually need it), AND panels from different boxes share the same board
+      // so a partially-used board is never thrown away at the end of a box. Reuse the plan already
+      // computed above for pricing (identical species/thickness/kerf/qty inputs) so the cut plan
+      // shown here is literally the one the quote was priced from — never a second opinion.
+      const sel=(orderPlan&&sp.name===wcSpeciesName)?orderPlan:qbPackOrder(sp.name,panels,t,kerf,qty);
       _qtOversizeFlag=!sel||(sel.oversizePanels&&sel.oversizePanels.length>0);
       const yldEl=document.getElementById('qb-yield-content');
       if(sel&&yldEl){
