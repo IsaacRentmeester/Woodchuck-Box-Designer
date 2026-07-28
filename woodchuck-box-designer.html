@@ -5542,7 +5542,8 @@ function qbCalcPanels(){
   const limTitle=`Exceeds the ${(wcMode?limW:OCOOCH.maxBoardW)}&quot;×${(wcMode?limL:OCOOCH.maxBoardL)}&quot; ${wcMode?'production sheet':'Ocooch board'}`;
   if(rowsEl){
     let totalPcs=0;
-    rowsEl.innerHTML=panels.map(p=>{const tot=p.count*qty;totalPcs+=tot;const fit=fitFn(p.pL,p.pW);const flag=fit?'':` <span title="${limTitle}" style="color:#c2453a;font-weight:800">⛔</span>`;return`<div class="qb-panel-row"><span>${p.name}${flag}</span><span class="qb-val"${fit?'':' style="color:#c2453a"'}>${p.pL.toFixed(2)}"×${p.pW.toFixed(2)}" ×${p.count} = ${tot} pcs</span></div>`;}).join('')
+    const showMatBadge=qbMatPath==='mix';
+    rowsEl.innerHTML=panels.map(p=>{const tot=p.count*qty;totalPcs+=tot;const fit=fitFn(p.pL,p.pW);const flag=fit?'':` <span title="${limTitle}" style="color:#c2453a;font-weight:800">⛔</span>`;const matBadge=showMatBadge?` <span style="font-size:.57rem;font-weight:700;padding:1px 5px;border-radius:3px;vertical-align:middle;background:${p.mat==='mdf'?'#dbeeff':'#f0ede8'};color:${p.mat==='mdf'?'#1a5fa0':'#6b4c1e'}">${p.mat==='mdf'?'MDF':'SOLID'}</span>`:'';return`<div class="qb-panel-row"><span>${p.name}${flag}${matBadge}</span><span class="qb-val"${fit?'':' style="color:#c2453a"'}>${p.pL.toFixed(2)}"×${p.pW.toFixed(2)}" ×${p.count} = ${tot} pcs</span></div>`;}).join('')
       +`<div class="qb-panel-row"><span><strong>Total panels</strong></span><span class="qb-val"><strong>${totalPcs} pcs</strong></span></div>`
       +`<div class="qb-joinery-note">🧩 <strong>Puzzle-fit joinery:</strong> Front &amp; Back panels span the full ${extL.toFixed(2)}" width; the Left &amp; Right sides are cut ${(2*T).toFixed(3)}" shorter (2× the ${T.toFixed(3)}" wall thickness) so they butt flush <em>between</em> them. Bottom matches the interior footprint ${W.toFixed(2)}"×${D.toFixed(2)}" — every panel locks together with no gaps.</div>`;
   }
