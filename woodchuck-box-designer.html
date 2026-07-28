@@ -6142,10 +6142,12 @@ function qbCalcYield(){
       const isBB=!isOcoochSolid&&qbActiveCost.wood==='Baltic Birch';
       const sheetDims=isOcoochSolid?`${sL}"×${sW}"`:(isMdf?'48×96 (4×8)':isBB?'60×60 (5×5)':'48×96 (4×8)');
       const wasteRow=wastePct>0?`<div class="qb-yield-row"><span>Overage / defects (${wastePct}%)</span><span class="qb-val">+$${(wcPerBox-wcPerBoxBase).toFixed(2)} / box</span></div>`:'';
+      const blendRow=useBlendedRate?`<div class="qb-yield-row"><span>🔀 Multi-board optimized rate</span><span class="qb-val">$${qbActiveCost.blendedRate.toFixed(4)}/sq in <span style="color:var(--mu);font-weight:400">(vs $${(officialSheetPrice/wcSheetArea).toFixed(4)} single-board)</span></span></div>`:'';
       el.innerHTML=
          `<div class="qb-yield-row"><span>Interior surface area / box</span><span class="qb-val">${intSurfSqIn.toFixed(1)} sq in</span></div>`
         +`<div class="qb-yield-row"><span>% of a ${sheetDims} ${unitWord} (${wcSheetArea.toFixed(0)} sq in)</span><span class="qb-val">${(pctSheet*100).toFixed(2)}%</span></div>`
-        +`<div class="qb-yield-row"><span>${isOcoochSolid?'Board':'Sheet'} cost · ${sheetLabel}</span><span class="qb-val">$${officialSheetPrice.toFixed(2)} / ${unitWord}</span></div>`
+        +`<div class="qb-yield-row"><span>${isOcoochSolid?'Board':'Sheet'} cost · ${sheetLabel} <span style="color:var(--mu)">${useBlendedRate?'(reference)':''}</span></span><span class="qb-val">$${officialSheetPrice.toFixed(2)} / ${unitWord}</span></div>`
+        +blendRow
         +`<div class="qb-yield-row"><span>Base wood cost / box</span><span class="qb-val">$${wcPerBoxBase.toFixed(2)}</span></div>`
         +wasteRow
         +`<div class="qb-yield-row" style="border-top:1px solid var(--bo);margin-top:6px;padding-top:6px"><span><strong>Total wood cost · ${qty}</strong></span><span class="qb-val"><strong>$${wcTotal.toFixed(2)}</strong></span></div>`
