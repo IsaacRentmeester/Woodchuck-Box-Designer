@@ -4677,34 +4677,39 @@ const WOOD_SHEET_PRICES={
 // own nominal columns: 1/8"≈0.155, 1/4"=0.24, 3/8"=0.36 (raw-MDF cols differ).
 const WC_SHEET_COST={
   'Baltic Birch':{'0.155':15.40,'0.24':25.80,'0.36':30.80},
-  // PS (Premium Sheet) — wood veneer over MDF core. Prices from 2026 Woodchuck pricing sheet.
-  'Cedar':{'0.155':104.25,'0.24':107.32,'0.36':120.19,veneer:50.00,dsVeneer:94.72},
-  'Mahogany':{'0.155':86.06,'0.24':90.77,'0.36':103.64,veneer:36.60,dsVeneer:55.00},
-  'Maple':{'0.155':103.04,'0.24':107.00,'0.36':120.83,veneer:31.40,dsVeneer:38.12},
-  'Walnut':{'0.155':124.74,'0.24':129.44,'0.36':142.32,veneer:51.20,dsVeneer:56.00},
-  'Cherry':{'0.24':89.16,veneer:132.80},
-  // Double-sided (both-face) materials — MENARDS .20" standard pricing
-  'Walnut / Maple':{'0.24':70.00},
+  // PS (Premium Sheet) — wood veneer over MDF core. Prices verified from WoodPrices tab (Jul 2026).
+  'Cedar':{'0.155':106.89,'0.24':109.96,'0.36':122.83,veneer:62.40,dsVeneer:116.00},
+  'Mahogany':{'0.155':81.40,'0.24':86.10,'0.36':98.98,veneer:33.60,dsVeneer:67.20},
+  'Maple':{'0.155':103.04,'0.24':107.00,'0.36':120.83,veneer:31.50,dsVeneer:63.00},
+  'Walnut':{'0.155':118.35,'0.24':123.06,'0.36':135.93,veneer:48.00,dsVeneer:96.00},
+  'Cherry':{'0.24':89.16,veneer:57.89},
+  // Double-sided (both-face) materials — prices from WoodPrices tab (Jul 2026).
+  'Walnut / Maple':{'0.24':67.79},
   'Walnut / Walnut':{'0.24':70.00},
   'Walnut / Birch':{'0.24':65.15},
-  'Maple / Maple':{'0.24':60.00},
-  'Mahogany / Maple':{'0.24':63.96},
+  'Maple / Maple':{'0.24':51.73},
+  'Mahogany / Maple':{'0.24':48.74},
   'Cherry / Maple':{'0.24':69.58},
-  'Maple / Birch Veneer':{'0.24':62.00},
+  'Maple / Birch Veneer':{'0.24':63.84},
   // PS species (WC production only — veneer over MDF core)
-  'PS Walnut':{'0.155':124.74,'0.24':129.44,'0.36':142.32},
+  'PS Walnut':{'0.155':118.35,'0.24':123.06,'0.36':135.93},
   'PS White Maple':{'0.155':103.04,'0.24':107.00,'0.36':120.83},
-  'PS Mahogany':{'0.155':86.06,'0.24':90.77,'0.36':103.64},
-  'PS Cedar':{'0.155':104.25,'0.24':107.32,'0.36':120.19},
+  'PS Mahogany':{'0.155':81.40,'0.24':86.10,'0.36':98.98},
+  'PS Cedar':{'0.155':106.89,'0.24':109.96,'0.36':122.83},
   'Red Oak (Rift)':{'0.155':103.12,'0.36':111.04},
-  'Clear Acrylic':{'0.155':65.00,'0.24':120.00,'0.36':190.28},
+  'Clear Acrylic':{'0.155':66.28,'0.24':130.28,'0.36':190.28},
   'Black Acrylic':{'0.155':105.03},
   'White Acrylic':{'0.155':103.05},
-  'Colored Acrylic':{'0.155':105.03,'0.24':157.85,'0.36':255.03},
-  'Raw MDF':{'0.125':12.00,'0.25':18.41,'0.375':33.10},
+  'Colored Acrylic':{'0.155':67.28,'0.24':157.85,'0.36':255.03},
+  'Raw MDF':{'0.125':11.13,'0.25':18.41,'0.375':22.17},
   'Pine Fir Spruce':{'0.24':33.98},
 };
-// Prices updated from 2026 Woodchuck pricing sheet — all PS species verified.
+// Prices synced to WoodPrices tab of 2026 Woodchuck pricing sheet — Jul 2026.
+// NOTE: Maple (Hard Maple / PS White Maple) 1/4" and 3/8" kept at prior values;
+//   WoodPrices sheet data for Maple has inconsistent column ordering — verify with Nate.
+// NOTE: Hardware color premiums in QB_HW_BOM are tool-level additions not in the sheet;
+//   sheet uses flat per-top-style cost (Hinge=$2.25, Clamshell-no-latch=$4.50, etc).
+//   Current QB_HW_BOM values differ — discuss with Nate before updating.
 const WC_PRICE_FLAGS={}; // no current anomalies
 // Qty-break multipliers off RETAIL — verified against 3 sample boxes on the sheet.
 // Map a catalog species → the Woodchuck production wood whose sheet cost applies.
