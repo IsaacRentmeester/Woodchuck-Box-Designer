@@ -6506,8 +6506,10 @@ function qbCalcYield(){
       const solidSp=wcSpeciesName||'—';
       const mdfSp=qbMixMdfSpecies||'—';
       const mdfEntry=mdfSpeciesCost(mdfSp,T_calc);
-      const mixUseBlended=isOcoochSolid&&qbActiveCost.blendedRate!=null;
-      const solidRateLabel=mixUseBlended
+      const mixUseBlended=isOcoochSolid&&qbActiveCost.blendedRate!=null&&!useOrderPlan;
+      const solidRateLabel=useOrderPlan
+        ?`🧩 ${solidSp} · ${orderPlan.totalBoards} boards nested across the order (${orderPlan.boardsPerBox.toFixed(2)}/box)`
+        :mixUseBlended
         ?`🔀 ${solidSp} · $${qbActiveCost.blendedRate.toFixed(4)}/sq in (multi-board optimized)`
         :`🪵 ${solidSp} · $${mixSolidBoardPrice.toFixed(2)}/board ÷ ${mixSolidBoardSqin.toFixed(0)} sq in`;
       el.innerHTML=
