@@ -2104,6 +2104,56 @@ function ocoochCheapestBoardPrice(speciesName,t){
   if(!boards||!boards.length)return null;
   return boards.reduce((best,b)=>(b.price/b.sqin)<(best.price/best.sqin)?b:best);
 }
+// Shared 2D "shelf" bin-packing helper — packs oriented pieces into boards of fixed
+// board.width x board.length. Pieces MUST already be sorted by their `l` (length) descending.
+// Real cutting practice: crosscut a board into length-segments ("shelves"), then rip each
+// segment into as many pieces as its width allows — so a narrow panel on a wide board should
+// leave room for ANOTHER panel (same type or a different one) beside it, not waste the rest of
+// the board's width. The previous packer only tracked remaining LENGTH per board and treated
+// every piece as consuming the FULL board width — on stock that runs 3"–12" wide, a 4"-tall
+// panel on a 10"-wide board wasted the other 6" for nothing. This is the actual biggest lever
+// for cutting waste, since most box panels (sides, lid rims, etc.) are much narrower than the
+// board they're cut from.
+// A shelf's length is fixed by the first (tallest, since sorted descending) piece placed in it —
+// every later piece is guaranteed <= that length by the sort, so only remaining WIDTH needs to be
+// tracked per shelf. New pieces try, in order: (1) any existing shelf on any already-open board,
+// (2) a new shelf on any already-open board that still has length room, (3) a brand-new board —
+// mirroring the "check every open bin before opening a new one" FFD approach used elsewhere in
+// this file. Shared by ocoochSelectBoard (uniform single-board-size baseline) and
+// ocoochOptimizeBoards (mixed board-size search) so both stay on equal footing.
+// pieces: [{w,l}] with w<=board.width already guaranteed by the caller (oriented short-side-to-width).
+function ocoochShelfPack(board,pieces,kerf){
+  const k=kerf||0.125;
+  const boards=[]; // {lengthLeft, shelves:number[] (remaining width per shelf)}
+  for(let p=0;p<pieces.length;p++){
+    const pw=Math.min(pieces[p].w,board.width); // defensive clamp for oversize-fallback pieces
+    const needW=pw+k, needL=pieces[p].l+k;
+    let placed=false;
+    // 1) fit into an existing shelf on any already-open board
+    for(let bi=0;bi<boards.length&&!placed;bi++){
+      const shelves=boards[bi].shelves;
+      for(let si=0;si<shelves.length;si++){
+        if(shelves[si]>=needW-1e-9){shelves[si]-=needW;placed=true;break;}
+      }
+    }
+    // 2) open a new shelf on any already-open board with length room
+    if(!placed){
+      for(let bi=0;bi<boards.length&&!placed;bi++){
+        const b=boards[bi];
+        if(b.lengthLeft>=needL-1e-9){
+          b.shelves.push(board.width-needW);
+          b.lengthLeft-=needL;
+          placed=true;
+        }
+      }
+    }
+    // 3) open a brand-new board
+    if(!placed){
+      boards.push({lengthLeft:board.length-needL,shelves:[board.width-needW]});
+    }
+  }
+  return boards.length||1;
+}
 // Auto-select the lowest-cost board combination for a set of panels
 // panels: [{w, h}] — each panel's required dimensions (after joinery calc)
 // Returns {boardSize, boardsNeeded, totalCost, wastePercent, boards}
