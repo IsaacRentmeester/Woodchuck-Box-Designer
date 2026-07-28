@@ -7444,12 +7444,20 @@ function _admApplySheets(){
 }
 function _admApplyOcooch(){
   const tbody=document.getElementById('adm-o-body');if(!tbody)return;
-  Object.keys(QB_OCOOCH_BOARDS).forEach(k=>delete QB_OCOOCH_BOARDS[k]);
+  const thick=_admOcoochThick;
+  // Only clear the currently-viewed thickness bucket for each species — other thicknesses
+  // (not shown in this slice) must survive an Apply on a different thickness tab.
+  Object.keys(QB_OCOOCH_BOARDS).forEach(sp=>{
+    if(QB_OCOOCH_BOARDS[sp]&&QB_OCOOCH_BOARDS[sp][thick]!=null)delete QB_OCOOCH_BOARDS[sp][thick];
+  });
   tbody.querySelectorAll('tr').forEach(tr=>{
     const sp=tr.querySelector('.adm-sp-n')?.value.trim();if(!sp)return;
     const obj={};
     tr.querySelectorAll('.adm-price').forEach(inp=>{const k=inp.dataset.board,v=parseFloat(inp.value);if(k&&!isNaN(v)&&v>0)obj[k]=v;});
-    if(Object.keys(obj).length)QB_OCOOCH_BOARDS[sp]=obj;
+    if(Object.keys(obj).length){
+      if(!QB_OCOOCH_BOARDS[sp])QB_OCOOCH_BOARDS[sp]={};
+      QB_OCOOCH_BOARDS[sp][thick]=obj;
+    }
   });
 }
 function _admApplyHW(){
