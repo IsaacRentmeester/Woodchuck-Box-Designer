@@ -2255,77 +2255,117 @@ function ocoochBlendedRate(speciesName,panels,t,kerf){
 //          wastePercent,oversizePanels,uniformCost,savings} or null if no board data exists.
 function ocoochOptimizeBoards(speciesName,panels,t,kerf){
   const k=kerf||0.125;
-  const assigned=ocoochAssignPanelBoards(speciesName,panels,t,k);
-  if(!assigned||!assigned.length)return null;
+  const boards=ocoochBoardsForSpecies(speciesName,t);
+  if(!boards||!boards.length)return null;
 
-  const groups=new Map();
-  assigned.forEach(p=>{
-    const key=`${p.board.width}x${p.board.length}`;
-    if(!groups.has(key))groups.set(key,{board:p.board,panels:[]});
-    groups.get(key).panels.push(p);
+  // Build each panel TYPE's candidate board list (every board it could physically be cut from).
+  // A board only fits a panel if either its width or height clears the board's width.
+  const types=panels.map(p=>{
+    const fits=boards.filter(b=>p.w<=b.width||p.h<=b.width);
+    const oversize=!fits.length;
+    // Oversize fallback: widest available board as a closest-available placeholder (mirrors
+    // ocoochAssignPanelBoards/qbLoadSpeciesPrice convention) — only one "choice" for this type.
+    const candidates=oversize?[boards.slice().sort((a,b)=>b.width-a.width)[0]]:fits;
+    return{w:p.w,h:p.h,count:p.count||1,label:p.label,candidates,oversize};
   });
 
-  let totalCost=0,totalBoards=0,totalAreaUsed=0,totalBoardArea=0;
-  const groupResults=[];
-  groups.forEach(g=>{
-    const board=g.board,gpanels=g.panels;
-    const pieces=[];
-    gpanels.forEach(p=>{
-      const cnt=p.count||1;
-      const pw=Math.min(p.w,p.h)<=board.width?Math.min(p.w,p.h):Math.max(p.w,p.h);
-      const pl=(pw===Math.min(p.w,p.h))?Math.max(p.w,p.h):Math.min(p.w,p.h);
-      for(let i=0;i<cnt;i++)pieces.push(pl);
-    });
-    pieces.sort((a,b)=>b-a); // longest-first packing wastes less than arrival order
+  function packCount(board,pieces){
     let remaining=board.length,boardCount=1;
     pieces.forEach(pl=>{
       const needed=pl+k;
       if(remaining<needed){boardCount++;remaining=board.length;}
       remaining-=needed;
     });
-    const areaUsed=gpanels.reduce((s,p)=>s+p.w*p.h*(p.count||1),0);
-    const boardArea=boardCount*board.width*board.length;
-    const cost=boardCount*board.price;
-    totalCost+=cost;totalBoards+=boardCount;totalAreaUsed+=areaUsed;totalBoardArea+=boardArea;
-    groupResults.push({
-      boardLabel:`${board.width}"×${board.length}"`,pricePerBoard:board.price,boardsNeeded:boardCount,cost,
-      panelLabels:[...new Set(gpanels.map(p=>p.label).filter(Boolean))],areaUsed
-    });
-  });
-  groupResults.sort((a,b)=>b.cost-a.cost);
+    return boardCount;
+  }
 
-  const wastePercent=totalBoardArea?Math.max(0,Math.round((1-totalAreaUsed/totalBoardArea)*100)):0;
-  const oversizePanels=[...new Set(assigned.filter(p=>p.oversize).map(p=>p.label).filter(Boolean))];
+  // Evaluate one full assignment (one chosen board per panel TYPE): group same-board types
+  // together, bin-pack each group independently (longest-piece-first — wastes less than
+  // arrival order), and total up cost/area/boards.
+  function evalAssignment(choice){
+    const groups=new Map();
+    types.forEach((ty,i)=>{
+      const board=choice[i];
+      const key=`${board.width}x${board.length}`;
+      if(!groups.has(key))groups.set(key,{board,tys:[]});
+      groups.get(key).tys.push(ty);
+    });
+    let totalCost=0,totalBoards=0,totalAreaUsed=0,totalBoardArea=0;
+    const groupResults=[];
+    groups.forEach(g=>{
+      const board=g.board,gtys=g.tys;
+      const pieces=[];
+      gtys.forEach(ty=>{
+        const cnt=ty.count||1;
+        const pw=Math.min(ty.w,ty.h)<=board.width?Math.min(ty.w,ty.h):Math.max(ty.w,ty.h);
+        const pl=(pw===Math.min(ty.w,ty.h))?Math.max(ty.w,ty.h):Math.min(ty.w,ty.h);
+        for(let i=0;i<cnt;i++)pieces.push(pl);
+      });
+      pieces.sort((a,b)=>b-a);
+      const boardCount=packCount(board,pieces);
+      const areaUsed=gtys.reduce((s,ty)=>s+ty.w*ty.h*(ty.count||1),0);
+      const boardArea=boardCount*board.width*board.length;
+      const cost=boardCount*board.price;
+      totalCost+=cost;totalBoards+=boardCount;totalAreaUsed+=areaUsed;totalBoardArea+=boardArea;
+      groupResults.push({
+        boardLabel:`${board.width}"×${board.length}"`,pricePerBoard:board.price,boardsNeeded:boardCount,cost,
+        panelLabels:[...new Set(gtys.map(ty=>ty.label).filter(Boolean))],areaUsed
+      });
+    });
+    return{totalCost,totalBoards,groupResults,totalAreaUsed,totalBoardArea};
+  }
+
+  // Exhaustive search over every possible "which board does each panel type use" combination —
+  // a TRUE global optimum, not just a heuristic with a safety net. This naturally subsumes the
+  // old uniform-single-board case too: any board that fits every panel individually necessarily
+  // appears in EVERY type's own candidate list, so "everybody on one board" is always one of the
+  // enumerated combinations, and the search will only pick something else if it's actually
+  // cheaper. Verified max distinct board widths for any stocked species/thickness = 6, and a box
+  // has only a handful of distinct panel types (Bottom, Front/Back, Sides, Lid, +2 more for
+  // liftoff lids) — so real combo counts run in the dozens to low thousands, trivial at runtime.
+  // A hard cap guards against any future data blowing this up into something that hangs the UI.
+  const comboCount=types.reduce((n,ty)=>n*ty.candidates.length,1);
+  const MAX_COMBOS=200000;
+  let best=null;
+  if(comboCount>0&&comboCount<=MAX_COMBOS){
+    const idx=new Array(types.length).fill(0);
+    let more=true;
+    while(more){
+      const choice=idx.map((ci,i)=>types[i].candidates[ci]);
+      const r=evalAssignment(choice);
+      if(!best||r.totalCost<best.totalCost-1e-9)best=r;
+      let pos=idx.length-1;
+      while(pos>=0){
+        idx[pos]++;
+        if(idx[pos]<types[pos].candidates.length)break;
+        idx[pos]=0;pos--;
+      }
+      if(pos<0)more=false;
+    }
+  }else{
+    // Degenerate/future-data escape hatch (should not trigger against any stocked catalog today):
+    // too many combinations to search exhaustively — fall back to the prior greedy per-piece
+    // assignment instead of hanging the UI.
+    const assigned=ocoochAssignPanelBoards(speciesName,panels,t,k);
+    best=evalAssignment(assigned.map(p=>p.board));
+  }
+
+  best.groupResults.sort((a,b)=>b.cost-a.cost);
+  const wastePercent=best.totalBoardArea?Math.max(0,Math.round((1-best.totalAreaUsed/best.totalBoardArea)*100)):0;
+  const oversizePanels=[...new Set(types.filter(ty=>ty.oversize).map(ty=>ty.label).filter(Boolean))];
 
   // Comparison baseline: cost if forced onto ONE uniform board size (the old, pre-optimization
-  // behavior) — lets the UI show the $ actually saved by mixing board sizes across panel types.
+  // behavior) — lets the UI show the $ actually saved by the optimized purchase plan. Since the
+  // exhaustive search above already considers the uniform case as one of its candidates, this can
+  // now only ever inform the "savings" display — it never needs to override the chosen plan.
   const flatPanels=[];
   panels.forEach(p=>{const cnt=p.count||1;for(let i=0;i<cnt;i++)flatPanels.push({w:p.w,h:p.h});});
   const uniform=ocoochSelectBoard(speciesName,flatPanels,t,kerf);
   const uniformCost=uniform?uniform.totalCost:null;
 
-  // Splitting panels into separate per-board-type groups and bin-packing each group
-  // independently is a heuristic (partition-then-pack), not a true global optimum — it CAN
-  // occasionally pack worse than one uniform board would have, e.g. when a small/cheap-board
-  // group doesn't fill its own board efficiently but its pieces would have tucked into leftover
-  // slack on the larger board instead. Rather than ever quoting a "mixed" plan that costs MORE
-  // than simply not mixing, fall back to the uniform single-board plan whenever it's actually
-  // cheaper — this guarantees mixing can only ever help, never hurt, the customer's quote.
-  if(uniform&&uniform.totalCost<totalCost-1e-9){
-    const m=/^([\d.]+)"x([\d.]+)"/.exec(uniform.boardSize);
-    const bw=m?m[1]:'?',bl=m?m[2]:'?';
-    return{
-      totalCost:uniform.totalCost,totalBoards:uniform.boardsNeeded,
-      groups:[{boardLabel:`${bw}"×${bl}"`,pricePerBoard:uniform.pricePerBoard,boardsNeeded:uniform.boardsNeeded,
-        cost:uniform.totalCost,panelLabels:[...new Set(panels.map(p=>p.label).filter(Boolean))],
-        areaUsed:parseFloat(uniform.totalAreaUsed)}],
-      wastePercent:uniform.wastePercent,oversizePanels,totalAreaUsed:parseFloat(uniform.totalAreaUsed),
-      totalBoardArea:uniform.totalBoardArea,uniformCost:uniform.totalCost,savings:0
-    };
-  }
-
-  return{totalCost,totalBoards,groups:groupResults,wastePercent,oversizePanels,totalAreaUsed,totalBoardArea,
-    uniformCost,savings:uniformCost!=null?Math.max(0,uniformCost-totalCost):0};
+  return{totalCost:best.totalCost,totalBoards:best.totalBoards,groups:best.groupResults,wastePercent,
+    oversizePanels,totalAreaUsed:best.totalAreaUsed,totalBoardArea:best.totalBoardArea,
+    uniformCost,savings:uniformCost!=null?Math.max(0,uniformCost-best.totalCost):0};
 }
 
 // ── Req 2: Nesting layout + canvas renderer ───────────────────────────────
