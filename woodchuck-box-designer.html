@@ -5799,6 +5799,7 @@ function qbLoadSpeciesPrice(skipGrainUpdate){
     // quote can never come from a board too narrow for the parts.
     const oThickKey=ocoochThickKey(sp.name,T);
     const oBds=oThickKey!=null?QB_OCOOCH_BOARDS[sp.name][oThickKey]:null;
+    const kerfForBlend=parseFloat(document.getElementById('qb-kerf')?.value)||0.125;
     let bL=24,bW=6,bP=sp.sheet||0,bThick=T,fitFlag=null,blended=null;
     if(oBds){
       const all=Object.entries(oBds)
