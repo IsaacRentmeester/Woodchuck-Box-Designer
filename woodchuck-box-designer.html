@@ -2232,7 +2232,7 @@ function ocoochBlendedRate(speciesName,panels,t,kerf){
 //          wastePercent,oversizePanels,uniformCost,savings} or null if no board data exists.
 function ocoochOptimizeBoards(speciesName,panels,t,kerf){
   const k=kerf||0.125;
-  const assigned=ocoochAssignPanelBoards(speciesName,panels,t);
+  const assigned=ocoochAssignPanelBoards(speciesName,panels,t,k);
   if(!assigned||!assigned.length)return null;
 
   const groups=new Map();
