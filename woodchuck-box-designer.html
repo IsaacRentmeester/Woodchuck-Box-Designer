@@ -6401,6 +6401,13 @@ function qbCalcYield(){
         const oversizeRow=(sel.oversizePanels&&sel.oversizePanels.length)
           ?`<div style="margin-top:6px;padding:6px 9px;background:#fdecea;border:1.5px solid #c2453a;border-radius:7px;font-size:.67rem;color:#7e1d15;font-weight:600">⚠️ ${sel.oversizePanels.join(', ')} exceed${sel.oversizePanels.length===1?'s':''} every available Ocooch board width at this thickness — priced off the widest board as a placeholder; treat as a manual quote.</div>`
           :'';
+        // highWaste: the optimizer already checked every board-size combination this species stocks
+        // and this IS the cheapest one — waste this high means the order is just small/narrow
+        // relative to the coarsest stocked board sizes (or the species only stocks one board size at
+        // all), not a missed cheaper option. Surface it plainly instead of a red bar with no context.
+        const highWasteRow=(sel.highWaste&&!(sel.oversizePanels&&sel.oversizePanels.length))
+          ?`<div style="margin-top:6px;padding:6px 9px;background:#fdf3e0;border:1.5px solid #c8a060;border-radius:7px;font-size:.67rem;color:#6b4e16;font-weight:600">ℹ️ This is the lowest-cost board plan available — waste is high because this order is small relative to the board sizes this species stocks. Every combination was checked; none does better without adding cost.</div>`
+          :'';
         yldEl.innerHTML+=`<div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--bo)">
           <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:4px">🪵 Ocooch board selection${sel.groups.length>1?' — mixed sizes':''}</div>
           ${groupRows}
@@ -6409,6 +6416,7 @@ function qbCalcYield(){
           ${savingsRow}
           <div class="qb-yield-row"><span>Board usage</span><span class="qb-val" style="flex:1">${wasteBar}</span></div>
           ${oversizeRow}
+          ${highWasteRow}
         </div>`;
       } else if(!sel&&yldEl&&sp.name){
         yldEl.innerHTML+=`<div style="margin-top:6px;padding:6px 9px;background:#fdecea;border:1.5px solid #c2453a;border-radius:7px;font-size:.67rem;color:#7e1d15;font-weight:600">⚠️ No Ocooch board data available for this species/thickness — manual quote required.</div>`;
