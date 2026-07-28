@@ -2162,6 +2162,110 @@ function ocoochSelectBoard(speciesName,panels,t,kerf){
   return best;
 }
 
+// ── Multi-board-size purchase optimization ────────────────────────────────
+// Different panels on the SAME box can be assigned to DIFFERENT Ocooch board widths —
+// e.g. small panels cut from a cheap narrow board, and only the panels that actually
+// need the extra width pulled from a wider (pricier) board — instead of forcing the
+// whole order onto one uniform board size (which is what ocoochSelectBoard above does).
+// This is the shared "which board is cheapest for THIS specific panel" assignment step,
+// used both for the smooth per-unit price (ocoochBlendedRate) and the discrete board
+// purchase list (ocoochOptimizeBoards).
+// panels: [{w,h,count,label}] — count/label optional, count defaults to 1.
+// Returns [{w,h,count,label,board,oversize}] or null if no board data exists at all.
+function ocoochAssignPanelBoards(speciesName,panels,t){
+  const boards=ocoochBoardsForSpecies(speciesName,t);
+  if(!boards||!boards.length)return null;
+  return panels.map(p=>{
+    const fits=boards.filter(b=>p.w<=b.width||p.h<=b.width);
+    const oversize=!fits.length;
+    const pool=fits.length?fits:boards; // nothing fits — fall back to widest as a placeholder
+    const best=pool.reduce((a,b)=>(b.price/b.sqin)<(a.price/a.sqin)?b:a);
+    return{...p,count:p.count||1,board:best,oversize};
+  });
+}
+// Area-weighted blended $/sq-in rate for the SMOOTH per-unit quoted price: each panel type
+// draws from its own cheapest-fitting board, then the rates are averaged by area. This lets
+// the quote reflect the savings of mixing board sizes without injecting discrete per-board
+// packing noise into a price that has to scale cleanly across any order quantity. The
+// blended rate can only be ≤ the single-uniform-board rate, since "one board for everything"
+// is just one possible (usually suboptimal) case of this.
+// Returns {rate,totalArea,totalCost,anyOversize,perPanel:[{label,area,rate,board,oversize}]}
+function ocoochBlendedRate(speciesName,panels,t){
+  const assigned=ocoochAssignPanelBoards(speciesName,panels,t);
+  if(!assigned||!assigned.length)return null;
+  let totalArea=0,totalCost=0,anyOversize=false;
+  const perPanel=assigned.map(p=>{
+    const area=p.w*p.h*(p.count||1);
+    const rate=p.board.price/p.board.sqin;
+    totalArea+=area;totalCost+=area*rate;
+    if(p.oversize)anyOversize=true;
+    return{label:p.label,area,rate,board:p.board,oversize:p.oversize};
+  });
+  return{rate:totalArea?totalCost/totalArea:0,totalArea,totalCost,anyOversize,perPanel};
+}
+// Discrete "boards to buy" purchase plan: groups panels by whichever board size
+// ocoochAssignPanelBoards gave them, then bin-packs each size-group separately along the
+// board's length. This is what actually lets a single order MIX board sizes for real
+// procurement — e.g. "2× 4"x24" boards for the bottom/lid + 1× 8"x24" board for the sides"
+// — rather than one uniform board size for the whole run.
+// panels: [{w,h,count,label}] — one box's worth.
+// Returns {totalCost,totalBoards,groups:[{boardLabel,pricePerBoard,boardsNeeded,cost,panelLabels,areaUsed}],
+//          wastePercent,oversizePanels,uniformCost,savings} or null if no board data exists.
+function ocoochOptimizeBoards(speciesName,panels,t,kerf){
+  const k=kerf||0.125;
+  const assigned=ocoochAssignPanelBoards(speciesName,panels,t);
+  if(!assigned||!assigned.length)return null;
+
+  const groups=new Map();
+  assigned.forEach(p=>{
+    const key=`${p.board.width}x${p.board.length}`;
+    if(!groups.has(key))groups.set(key,{board:p.board,panels:[]});
+    groups.get(key).panels.push(p);
+  });
+
+  let totalCost=0,totalBoards=0,totalAreaUsed=0,totalBoardArea=0;
+  const groupResults=[];
+  groups.forEach(g=>{
+    const board=g.board,gpanels=g.panels;
+    const pieces=[];
+    gpanels.forEach(p=>{
+      const cnt=p.count||1;
+      const pw=Math.min(p.w,p.h)<=board.width?Math.min(p.w,p.h):Math.max(p.w,p.h);
+      const pl=(pw===Math.min(p.w,p.h))?Math.max(p.w,p.h):Math.min(p.w,p.h);
+      for(let i=0;i<cnt;i++)pieces.push(pl);
+    });
+    pieces.sort((a,b)=>b-a); // longest-first packing wastes less than arrival order
+    let remaining=board.length,boardCount=1;
+    pieces.forEach(pl=>{
+      const needed=pl+k;
+      if(remaining<needed){boardCount++;remaining=board.length;}
+      remaining-=needed;
+    });
+    const areaUsed=gpanels.reduce((s,p)=>s+p.w*p.h*(p.count||1),0);
+    const boardArea=boardCount*board.width*board.length;
+    const cost=boardCount*board.price;
+    totalCost+=cost;totalBoards+=boardCount;totalAreaUsed+=areaUsed;totalBoardArea+=boardArea;
+    groupResults.push({
+      boardLabel:`${board.width}"×${board.length}"`,pricePerBoard:board.price,boardsNeeded:boardCount,cost,
+      panelLabels:[...new Set(gpanels.map(p=>p.label).filter(Boolean))],areaUsed
+    });
+  });
+  groupResults.sort((a,b)=>b.cost-a.cost);
+
+  const wastePercent=totalBoardArea?Math.max(0,Math.round((1-totalAreaUsed/totalBoardArea)*100)):0;
+  const oversizePanels=[...new Set(assigned.filter(p=>p.oversize).map(p=>p.label).filter(Boolean))];
+
+  // Comparison baseline: cost if forced onto ONE uniform board size (the old, pre-optimization
+  // behavior) — lets the UI show the $ actually saved by mixing board sizes across panel types.
+  const flatPanels=[];
+  panels.forEach(p=>{const cnt=p.count||1;for(let i=0;i<cnt;i++)flatPanels.push({w:p.w,h:p.h});});
+  const uniform=ocoochSelectBoard(speciesName,flatPanels,t,kerf);
+  const uniformCost=uniform?uniform.totalCost:null;
+
+  return{totalCost,totalBoards,groups:groupResults,wastePercent,oversizePanels,totalAreaUsed,totalBoardArea,
+    uniformCost,savings:uniformCost!=null?Math.max(0,uniformCost-totalCost):0};
+}
+
 // ── Req 2: Nesting layout + canvas renderer ───────────────────────────────
 // Computes panel placement coordinates for the selected board.
 // Returns {boardW, boardL, boardCount, boards:[{panels:[{x,y,w,h,label}]}], wastePercent}
