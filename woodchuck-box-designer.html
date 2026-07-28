@@ -1653,7 +1653,7 @@ const QB_PRICING_TIERS=[
 const QB_MARGIN_TABLE=QB_PRICING_TIERS.map(t=>({lo:t.lo,hi:t.hi,label:t.label,margin:+(100-100/(QB_FLOOR_MULT+t.factor*(QB_FLOOR_MULT*QB_RETAIL_MULT-QB_FLOOR_MULT))).toFixed(1),factor:t.factor}));
 function qbMarginForQty(qty){
   const row=QB_PRICING_TIERS.find(r=>qty>=r.lo&&qty<=r.hi)||QB_PRICING_TIERS[0];
-  return{lo:row.lo,hi:row.hi,factor:row.factor,label:row.label,margin:+(100-100/(2.28+row.factor*(2.28*1.9-2.28))).toFixed(1)};
+  return{lo:row.lo,hi:row.hi,factor:row.factor,label:row.label,margin:+(100-100/(QB_FLOOR_MULT+row.factor*(QB_FLOOR_MULT*QB_RETAIL_MULT-QB_FLOOR_MULT))).toFixed(1)};
 }
 // Compute per-unit price from cost-per-unit using the 2026 floor/retail structure
 function qbPriceFromCost(costPerUnit,qty){
