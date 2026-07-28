@@ -2178,8 +2178,16 @@ function ocoochAssignPanelBoards(speciesName,panels,t){
   return panels.map(p=>{
     const fits=boards.filter(b=>p.w<=b.width||p.h<=b.width);
     const oversize=!fits.length;
-    const pool=fits.length?fits:boards; // nothing fits — fall back to widest as a placeholder
-    const best=pool.reduce((a,b)=>(b.price/b.sqin)<(a.price/a.sqin)?b:a);
+    let best;
+    if(fits.length){
+      best=fits.reduce((a,b)=>(b.price/b.sqin)<(a.price/a.sqin)?b:a);
+    }else{
+      // Nothing fits — fall back to the WIDEST available board as the closest-available
+      // placeholder (mirrors qbLoadSpeciesPrice's oversize fallback below). NOT the cheapest:
+      // a narrow cheap board is even further from actually being able to yield this panel, so
+      // quoting off it would understate cost for a cut that isn't really possible off that stock.
+      best=boards.slice().sort((a,b)=>b.width-a.width)[0];
+    }
     return{...p,count:p.count||1,board:best,oversize};
   });
 }
