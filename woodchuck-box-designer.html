@@ -2304,6 +2304,26 @@ function ocoochOptimizeBoards(speciesName,panels,t,kerf){
   const uniform=ocoochSelectBoard(speciesName,flatPanels,t,kerf);
   const uniformCost=uniform?uniform.totalCost:null;
 
+  // Splitting panels into separate per-board-type groups and bin-packing each group
+  // independently is a heuristic (partition-then-pack), not a true global optimum — it CAN
+  // occasionally pack worse than one uniform board would have, e.g. when a small/cheap-board
+  // group doesn't fill its own board efficiently but its pieces would have tucked into leftover
+  // slack on the larger board instead. Rather than ever quoting a "mixed" plan that costs MORE
+  // than simply not mixing, fall back to the uniform single-board plan whenever it's actually
+  // cheaper — this guarantees mixing can only ever help, never hurt, the customer's quote.
+  if(uniform&&uniform.totalCost<totalCost-1e-9){
+    const m=/^([\d.]+)"x([\d.]+)"/.exec(uniform.boardSize);
+    const bw=m?m[1]:'?',bl=m?m[2]:'?';
+    return{
+      totalCost:uniform.totalCost,totalBoards:uniform.boardsNeeded,
+      groups:[{boardLabel:`${bw}"×${bl}"`,pricePerBoard:uniform.pricePerBoard,boardsNeeded:uniform.boardsNeeded,
+        cost:uniform.totalCost,panelLabels:[...new Set(panels.map(p=>p.label).filter(Boolean))],
+        areaUsed:parseFloat(uniform.totalAreaUsed)}],
+      wastePercent:uniform.wastePercent,oversizePanels,totalAreaUsed:parseFloat(uniform.totalAreaUsed),
+      totalBoardArea:uniform.totalBoardArea,uniformCost:uniform.totalCost,savings:0
+    };
+  }
+
   return{totalCost,totalBoards,groups:groupResults,wastePercent,oversizePanels,totalAreaUsed,totalBoardArea,
     uniformCost,savings:uniformCost!=null?Math.max(0,uniformCost-totalCost):0};
 }
