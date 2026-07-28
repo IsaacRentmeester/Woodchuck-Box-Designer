@@ -5757,7 +5757,9 @@ function qbRenderSourceNote(sp){
     html=`<b>🏪 Menards board</b> — ${sp.name} at <b>$${(a.sheetCost||0).toFixed(2)}</b> per 1×12×8' board (11.25"×96" actual, 3/4" thick). Source: Menards — not an Ocooch thin-wood product. Verify current price before quoting.`;
   }else{
     const wcAvail=wcSheetCost(sp?sp.name:'',parseFloat(document.getElementById('qb-matT')?.value)||0.25);
-    html=`<b>🪵 Ocooch board</b> — ${sp?sp.name:''} priced at <b>$${(a.sheetCost||0).toFixed(2)}</b> per 6×24 board (thin solid wood, good for prototypes / short runs).`
+    const bW=a.boardW||6,bL=a.boardL||24;
+    const thickLbl=a.key!=null?ocoochThickLabel(a.key):'1/4"';
+    html=`<b>🪵 Ocooch board</b> — ${sp?sp.name:''} ${thickLbl} priced at <b>$${(a.sheetCost||0).toFixed(2)}</b> per ${bW}×${bL} board (thin solid wood, good for prototypes / short runs). Cheapest-per-sq-in size at this thickness — auto-updates when you change material thickness.`
       +(wcAvail?` This wood is also a Woodchuck production wood — switch to <b>Woodchuck sheets</b> for the 48×96 Excel cost.`:` Specialty Ocooch wood; the production Excel doesn't sheet-price it.`);
   }
   note.innerHTML=html+(a.flag?`<div class="qb-src-flag">⚠ ${a.flag}</div>`:'');
