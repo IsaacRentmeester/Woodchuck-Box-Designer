@@ -1650,7 +1650,7 @@ const QB_PRICING_TIERS=[
   {lo:1,     hi:24,     factor:1.0,   label:'1–24'},
 ];
 // Legacy QB_MARGIN_TABLE kept for any display references that enumerate tiers
-const QB_MARGIN_TABLE=QB_PRICING_TIERS.map(t=>({lo:t.lo,hi:t.hi,label:t.label,margin:+(100-100/(2.28+t.factor*(2.28*1.9-2.28))).toFixed(1),factor:t.factor}));
+const QB_MARGIN_TABLE=QB_PRICING_TIERS.map(t=>({lo:t.lo,hi:t.hi,label:t.label,margin:+(100-100/(QB_FLOOR_MULT+t.factor*(QB_FLOOR_MULT*QB_RETAIL_MULT-QB_FLOOR_MULT))).toFixed(1),factor:t.factor}));
 function qbMarginForQty(qty){
   const row=QB_PRICING_TIERS.find(r=>qty>=r.lo&&qty<=r.hi)||QB_PRICING_TIERS[0];
   return{lo:row.lo,hi:row.hi,factor:row.factor,label:row.label,margin:+(100-100/(2.28+row.factor*(2.28*1.9-2.28))).toFixed(1)};
