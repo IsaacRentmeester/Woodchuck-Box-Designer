@@ -6419,6 +6419,19 @@ function qtSetPath(path,el){
   document.querySelectorAll('.qt-path').forEach(b=>b.classList.toggle('sel',b.dataset.mp===path));
   qbSetMatPath(path);
 }
+function qtSetThick(val,el){
+  // Update the hidden engine thickness input and re-price
+  const mt=document.getElementById('qb-matT');
+  if(mt){mt.value=val;mt.dispatchEvent(new Event('input'));}
+  C.cmat=val;
+  // Update button highlight
+  document.querySelectorAll('#qt-thk-btn-8,#qt-thk-btn-4,#qt-thk-btn-38').forEach(b=>{
+    b.classList.remove('sel');
+    b.textContent=b.textContent.replace(' ✓','');
+  });
+  if(el){el.classList.add('sel');el.textContent=el.textContent.replace(' ✓','')+' ✓';}
+  qbUpdateAll();
+}
 function qtPFin(fin,el){
   document.querySelectorAll('.qt-fo').forEach(b=>b.classList.remove('sel'));
   if(el)el.classList.add('sel');
