@@ -2047,23 +2047,42 @@ const QB_OCOOCH_BOARDS={
   'Pine':{0.75:{'10x96':12.00}},                 // Menards 1×10×8' — actual 9.25"×96", 3/4" thick
   'Select Pine':{0.75:{'11x96':35.59}},          // Menards 1×12×8' — actual 11.25"×96", 3/4" thick
 };
-// Build ordered list of available board sizes for a species at thickness t
-// Uses real per-size pricing from QB_OCOOCH_BOARDS; falls back to proportional
-// derivation from 6x24 for species not in the table (PS/specialty woods).
+// Snap an arbitrary thickness (in) to the nearest thickness Ocooch actually stocks for this
+// species (mirrors wcThickKey's snap-to-nearest-stocked-column pattern for MDF/Forte sheets).
+function ocoochThickKey(speciesName,t){
+  const data=QB_OCOOCH_BOARDS[speciesName]; if(!data)return null;
+  const keys=Object.keys(data).filter(k=>!isNaN(parseFloat(k)));
+  if(!keys.length)return null;
+  return keys.reduce((b,k)=>Math.abs(parseFloat(k)-t)<Math.abs(parseFloat(b)-t)?k:b);
+}
+// Pretty fraction label for a thickness (in), e.g. 0.1875 → '3/16"'.
+function ocoochThickLabel(t){
+  const m={0.0625:'1/16"',0.125:'1/8"',0.1875:'3/16"',0.25:'1/4"',0.375:'3/8"',0.5:'1/2"',0.75:'3/4"'};
+  return m[t]||(t+'"');
+}
+// Build ordered list of available board sizes for a species at thickness t.
+// Uses real per-size, per-thickness pricing from QB_OCOOCH_BOARDS (snapping to the nearest
+// thickness Ocooch actually stocks — e.g. picking 0.25 if the user dials in 0.22); falls back
+// to proportional derivation from the 6x24 reference price for species not in the table.
 function ocoochBoardsForSpecies(speciesName,t){
-  const thick=t||0.25;
+  const reqThick=t||0.25;
   const length=24;
-  const sizes=QB_OCOOCH_BOARDS[speciesName];
-  if(sizes){
-    const boards=Object.entries(sizes)
-      .filter(([k,p])=>p!=null)
-      .map(([k,p])=>{
-        const[wStr,lStr]=k.split('x');
-        const w=parseInt(wStr),l=parseInt(lStr);
-        return{width:w,length:l,thick,price:p,sqin:w*l,label:`${w}"x${l}" (${thick}")`};
-      })
-      .sort((a,b)=>a.width-b.width);
-    if(boards.length)return boards;
+  const data=QB_OCOOCH_BOARDS[speciesName];
+  if(data){
+    const key=ocoochThickKey(speciesName,reqThick);
+    const sizes=key!=null?data[key]:null;
+    if(sizes){
+      const actualThick=parseFloat(key);
+      const boards=Object.entries(sizes)
+        .filter(([k,p])=>p!=null)
+        .map(([k,p])=>{
+          const[wStr,lStr]=k.split('x');
+          const w=parseFloat(wStr),l=parseFloat(lStr);
+          return{width:w,length:l,thick:actualThick,price:p,sqin:w*l,label:`${w}"x${l}" (${ocoochThickLabel(actualThick)})`};
+        })
+        .sort((a,b)=>a.width-b.width);
+      if(boards.length)return boards;
+    }
   }
   // Fallback: derive proportionally from the 6x24 reference price in QB_OCOOCH
   const sp=QB_OCOOCH.find(s=>s.name===speciesName);
@@ -2071,10 +2090,10 @@ function ocoochBoardsForSpecies(speciesName,t){
   const price6x24=sp.sheet;
   const pricePerSqIn=price6x24/(6*24);
   return[3,4,6].map(w=>({
-    width:w,length,thick,
+    width:w,length,thick:reqThick,
     price:parseFloat((pricePerSqIn*w*length).toFixed(2)),
     sqin:w*length,
-    label:`${w}"x${length}" (${thick||0.25}")`
+    label:`${w}"x${length}" (${reqThick||0.25}")`
   }));
 }
 // Auto-select the lowest-cost board combination for a set of panels
