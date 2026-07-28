@@ -7176,6 +7176,29 @@ function _admApplyAlias(){
   });
 }
 
+function _admApplyMdf(){
+  // WC_MDF_SPECIES
+  const tbody=document.getElementById('adm-mdf-body');
+  if(tbody){
+    Object.keys(WC_MDF_SPECIES).forEach(k=>delete WC_MDF_SPECIES[k]);
+    tbody.querySelectorAll('tr').forEach(tr=>{
+      const sp=tr.querySelector('.adm-sp-n')?.value.trim();if(!sp)return;
+      const obj={};
+      tr.querySelectorAll('.adm-price').forEach(inp=>{const k=inp.dataset.mdfk,v=parseFloat(inp.value);if(k&&!isNaN(v)&&v>0)obj[k]=v;});
+      if(Object.keys(obj).length)WC_MDF_SPECIES[sp]=obj;
+    });
+  }
+  // MIX_SPECIES_MAP
+  const mixBody=document.getElementById('adm-mix-body');
+  if(mixBody){
+    Object.keys(MIX_SPECIES_MAP).forEach(k=>delete MIX_SPECIES_MAP[k]);
+    mixBody.querySelectorAll('tr').forEach(tr=>{
+      const from=tr.querySelector('.adm-mix-f')?.value.trim(),to=tr.querySelector('.adm-mix-t')?.value.trim();
+      if(from&&to)MIX_SPECIES_MAP[from]=to;
+    });
+  }
+}
+
 // ── Export JS to clipboard ────────────────────────────────────────────────
 function adminExportJS(){
   const fmt=obj=>JSON.stringify(obj,null,2);
