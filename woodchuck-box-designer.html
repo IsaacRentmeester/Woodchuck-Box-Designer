@@ -2360,18 +2360,37 @@ function ocoochOptimizeBoards(speciesName,panels,t,kerf){
     best=evalAssignment(assigned.map(p=>p.board));
   }
 
-  best.groupResults.sort((a,b)=>b.cost-a.cost);
-  const wastePercent=best.totalBoardArea?Math.max(0,Math.round((1-best.totalAreaUsed/best.totalBoardArea)*100)):0;
   const oversizePanels=[...new Set(types.filter(ty=>ty.oversize).map(ty=>ty.label).filter(Boolean))];
 
-  // Comparison baseline: cost if forced onto ONE uniform board size (the old, pre-optimization
-  // behavior) — lets the UI show the $ actually saved by the optimized purchase plan. Since the
-  // exhaustive search above already considers the uniform case as one of its candidates, this can
-  // now only ever inform the "savings" display — it never needs to override the chosen plan.
+  // Comparison baseline: cost if forced onto ONE uniform board size, computed by
+  // ocoochSelectBoard's OWN packing walk (arrival-order next-fit) — kept as a fully independent
+  // reference implementation rather than re-derived from the search above. Two different bin-
+  // packing heuristics can each win on different specific panel layouts (packing quality is
+  // order/heuristic-sensitive, not just a function of "did we search enough options"), so even
+  // though the uniform board is always one of the exhaustive search's enumerated CHOICES, this
+  // function's own FFD packer and ocoochSelectBoard's next-fit packer can score that same choice
+  // differently. Comparing the two actual outputs (not assuming the search subsumes uniform) is
+  // what makes the "never worse than buying one uniform board" guarantee airtight.
   const flatPanels=[];
   panels.forEach(p=>{const cnt=p.count||1;for(let i=0;i<cnt;i++)flatPanels.push({w:p.w,h:p.h});});
   const uniform=ocoochSelectBoard(speciesName,flatPanels,t,kerf);
   const uniformCost=uniform?uniform.totalCost:null;
+
+  if(uniform&&uniform.totalCost<best.totalCost-1e-9){
+    const m=/^([\d.]+)"x([\d.]+)"/.exec(uniform.boardSize);
+    const bw=m?m[1]:'?',bl=m?m[2]:'?';
+    return{
+      totalCost:uniform.totalCost,totalBoards:uniform.boardsNeeded,
+      groups:[{boardLabel:`${bw}"×${bl}"`,pricePerBoard:uniform.pricePerBoard,boardsNeeded:uniform.boardsNeeded,
+        cost:uniform.totalCost,panelLabels:[...new Set(panels.map(p=>p.label).filter(Boolean))],
+        areaUsed:parseFloat(uniform.totalAreaUsed)}],
+      wastePercent:uniform.wastePercent,oversizePanels,totalAreaUsed:parseFloat(uniform.totalAreaUsed),
+      totalBoardArea:uniform.totalBoardArea,uniformCost:uniform.totalCost,savings:0
+    };
+  }
+
+  best.groupResults.sort((a,b)=>b.cost-a.cost);
+  const wastePercent=best.totalBoardArea?Math.max(0,Math.round((1-best.totalAreaUsed/best.totalBoardArea)*100)):0;
 
   return{totalCost:best.totalCost,totalBoards:best.totalBoards,groups:best.groupResults,wastePercent,
     oversizePanels,totalAreaUsed:best.totalAreaUsed,totalBoardArea:best.totalBoardArea,
