@@ -6020,7 +6020,11 @@ function qbBuildPanels(W,D,H,T,lidType){
   panels.push({name:'Front / Back',pL:extL,pW:sideH,count:2,mat:'solid'});
   panels.push({name:'Left / Right Sides',pL:D,pW:sideH,count:2,mat:'solid'});
   if(lidType==='fixed'||lidType==='hinged'){
-    panels.push({name:'Lid (top panel)',pL:W,pW:D,count:1,mat:'mdf'});
+    // Exterior footprint (base dims + thickness on all sides), not interior — a hinged/droptop
+    // lid rests ON TOP of the box's walls (QB_LID_MAP: droptop→'fixed', clamshell→'hinged'), so
+    // it needs to span the full outside of the box to fit perfectly on top, matching the
+    // liftoff lid's already-exterior-based sizing below.
+    panels.push({name:'Lid (top panel)',pL:extL,pW:extW,count:1,mat:'mdf'});
   }else if(lidType==='sliding'){
     panels.push({name:'Sliding Lid',pL:W-T*2,pW:D,count:1,mat:'mdf'});
   }else if(lidType==='liftoff'){
