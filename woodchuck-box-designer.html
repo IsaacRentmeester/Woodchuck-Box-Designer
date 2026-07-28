@@ -1625,6 +1625,14 @@ const QB_ENG_RATES=[{min:1,max:1,rate:8.00},{min:2,max:2,rate:6.50},{min:3,max:9
 const QB_LOGO_RATES=[{min:1,max:1,rate:5.00},{min:2,max:2,rate:4.00},{min:3,max:99,rate:3.50}];
 const QB_ENG_COST=8.00;   // kept for legacy compat
 const QB_LOGO_COST=5.00;  // kept for legacy compat
+// ── Editable config — all exposed in ⚙️ Pricing Admin → Pricing & Margins tab ──
+let QB_FLOOR_MULT=2.28;       // cost/unit → floor price multiplier
+let QB_RETAIL_MULT=1.90;      // floor → retail price multiplier
+let QB_MAT_OVERHEAD=1.15;     // overhead applied to material costs
+let QB_LABOR_OVERHEAD=1.29;   // overhead applied to labor/hardware costs
+let QB_BOPO=0.32;             // BOPO + packaging cost per unit ($/unit)
+let QB_ADHESIVE_COST=37.25;   // adhesive add-on per sheet
+const QB_RUSH_THRESHOLDS={overdue:0,hotRush:14,rush:28,caution:56};
 
 // Quantity-driven margin table — calibrated to Nate's actual Google Sheet pricing
 // Margins derived empirically from moss lid & MASTER tab price/cost ratios
