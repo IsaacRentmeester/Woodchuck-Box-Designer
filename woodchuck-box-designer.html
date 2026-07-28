@@ -5450,18 +5450,20 @@ function qbRenderSourceNote(sp){
 function qbBuildPanels(W,D,H,T,lidType){
   const extL=W+2*T, extW=D+2*T, sideH=H+2*T;
   const panels=[];
-  panels.push({name:'Bottom',pL:W,pW:D,count:1});
-  panels.push({name:'Front / Back',pL:extL,pW:sideH,count:2});
-  panels.push({name:'Left / Right Sides',pL:D,pW:sideH,count:2});
+  // mat:'mdf'  → flat top/bottom panels (MDF in mix mode)
+  // mat:'solid' → wall/side panels (solid wood in mix mode)
+  panels.push({name:'Bottom',pL:W,pW:D,count:1,mat:'mdf'});
+  panels.push({name:'Front / Back',pL:extL,pW:sideH,count:2,mat:'solid'});
+  panels.push({name:'Left / Right Sides',pL:D,pW:sideH,count:2,mat:'solid'});
   if(lidType==='fixed'||lidType==='hinged'){
-    panels.push({name:'Lid (top panel)',pL:W,pW:D,count:1});
+    panels.push({name:'Lid (top panel)',pL:W,pW:D,count:1,mat:'mdf'});
   }else if(lidType==='sliding'){
-    panels.push({name:'Sliding Lid',pL:W-T*2,pW:D,count:1});
+    panels.push({name:'Sliding Lid',pL:W-T*2,pW:D,count:1,mat:'mdf'});
   }else if(lidType==='liftoff'){
     const lidWallH=T*1.5;
-    panels.push({name:'Lid Top Panel',pL:extL+T*2,pW:extW+T*2,count:1});
-    panels.push({name:'Lid Front/Back Walls',pL:extL,pW:lidWallH,count:2});
-    panels.push({name:'Lid Side Walls',pL:extW,pW:lidWallH,count:2});
+    panels.push({name:'Lid Top Panel',pL:extL+T*2,pW:extW+T*2,count:1,mat:'mdf'});
+    panels.push({name:'Lid Front/Back Walls',pL:extL,pW:lidWallH,count:2,mat:'solid'});
+    panels.push({name:'Lid Side Walls',pL:extW,pW:lidWallH,count:2,mat:'solid'});
   }
   return panels;
 }
