@@ -1543,15 +1543,23 @@ const INT_COST={none:0,velvet:13.00,wood:9.00,custom:0};
 // Hinged: 2 hinges + clasp. Clamshell: 2 center hinges. Droptop: piano hinge strip.
 // Settop: optional clasp. Slide/Crate: no mechanical hardware.
 const QB_HW_BOM={
-  hinged:   {gold:4.50,silver:3.50,black:3.50,brass:6.00,none:0},
-  clamshell:{gold:3.00,silver:2.25,black:2.25,brass:4.25,none:0},
-  slide:    {gold:0,   silver:0,   black:0,   brass:0,   none:0},
-  settop:   {gold:1.25,silver:0.90,black:0.90,brass:1.75,none:0},
-  droptop:  {gold:2.00,silver:1.50,black:1.50,brass:3.00,none:0},
-  crate:    {gold:0,   silver:0,   black:0,   brass:0,   none:0},
+  hinged:      {gold:4.50,silver:3.50,black:3.50,brass:6.00,none:0},
+  hingedlatch: {gold:5.50,silver:4.25,black:4.25,brass:7.25,none:0},
+  clamnolatch: {gold:2.25,silver:1.75,black:1.75,brass:3.25,none:0},
+  clamlatch:   {gold:3.75,silver:2.75,black:2.75,brass:5.00,none:0},
+  slide:       {gold:0,   silver:0,   black:0,   brass:0,   none:0},
+  settop:      {gold:1.25,silver:0.90,black:0.90,brass:1.75,none:0},
+  droptop:     {gold:2.00,silver:1.50,black:1.50,brass:3.00,none:0},
+  acrylicset:  {gold:1.25,silver:0.90,black:0.90,brass:1.75,none:0},
+  acrylicslide:{gold:0,   silver:0,   black:0,   brass:0,   none:0},
+  crate:       {gold:0,   silver:0,   black:0,   brass:0,   none:0},
+  // legacy alias
+  clamshell:   {gold:3.00,silver:2.25,black:2.25,brass:4.25,none:0},
 };
 const QB_HW_DESC={
-  hinged:'2 hinges + clasp',clamshell:'2 center hinges',
+  hinged:'2 hinges + clasp',hingedlatch:'2 hinges + latch closure',
+  clamnolatch:'2 center hinges',clamlatch:'2 center hinges + latch',
+  clamshell:'2 center hinges',
   slide:'no hardware',settop:'optional clasp',
   droptop:'piano hinge strip',crate:'no hardware',
 };
