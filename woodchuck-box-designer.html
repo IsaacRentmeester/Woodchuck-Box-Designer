@@ -6586,8 +6586,14 @@ function qbCalcYield(){
         const groupRows=sel.groups.map(g=>
           `<div class="qb-yield-row"><span>${g.boardLabel}${g.panelLabels.length?` <span style="color:var(--mu);font-weight:400">— ${g.panelLabels.join(', ')}</span>`:''}</span><span class="qb-val">${g.boardsNeeded} × $${g.pricePerBoard.toFixed(2)} = $${g.cost.toFixed(2)}</span></div>`
         ).join('');
-        const savingsRow=(sel.uniformCost!=null&&sel.savings>0.005)
-          ?`<div class="qb-yield-row" style="color:var(--green)"><span>💰 Saved by mixing board sizes</span><span class="qb-val"><strong>$${sel.savings.toFixed(2)}</strong> vs one uniform board</span></div>`
+        // savings here = what nesting the whole order across shared boards saved vs. buying each
+        // box's boards separately. Suppressed when the yield panel above already showed it, so the
+        // same dollar figure never appears twice in one readout.
+        const savingsRow=(sel.savings>0.005&&!useOrderPlan)
+          ?`<div class="qb-yield-row" style="color:var(--green)"><span>♻️ Saved by nesting the order</span><span class="qb-val"><strong>$${sel.savings.toFixed(2)}</strong> vs box-at-a-time</span></div>`
+          :'';
+        const batchRow=(sel.nested&&sel.batch>1)
+          ?`<div class="qb-yield-row"><span style="font-size:.7rem;color:var(--mu)">Cut plan repeats every</span><span style="font-size:.7rem;color:var(--mu)">${sel.batch} boxes</span></div>`
           :'';
         const oversizeRow=(sel.oversizePanels&&sel.oversizePanels.length)
           ?`<div style="margin-top:6px;padding:6px 9px;background:#fdecea;border:1.5px solid #c2453a;border-radius:7px;font-size:.67rem;color:#7e1d15;font-weight:600">⚠️ ${sel.oversizePanels.join(', ')} exceed${sel.oversizePanels.length===1?'s':''} every available Ocooch board width at this thickness — priced off the widest board as a placeholder; treat as a manual quote.</div>`
