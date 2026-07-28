@@ -2214,14 +2214,16 @@ function ocoochAssignPanelBoards(speciesName,panels,t,kerf,mode){
   });
 }
 // Area-weighted blended $/sq-in rate for the SMOOTH per-unit quoted price: each panel type
-// draws from its own cheapest-fitting board, then the rates are averaged by area. This lets
-// the quote reflect the savings of mixing board sizes without injecting discrete per-board
-// packing noise into a price that has to scale cleanly across any order quantity. The
-// blended rate can only be ≤ the single-uniform-board rate, since "one board for everything"
-// is just one possible (usually suboptimal) case of this.
+// draws from its own cheapest-fitting board (by plain $/sq-in — mode:'psi' — matching the
+// pre-existing single-board "official model" simplification), then the rates are averaged by
+// area. This lets the quote reflect the savings of mixing board sizes without injecting
+// discrete per-board packing noise into a price that has to scale cleanly across any order
+// quantity. The blended rate can only be ≤ the single-uniform-board $/sq-in rate, since "one
+// board for everything" is just one possible (usually suboptimal) case of this — verified by
+// simulation across every stocked species/thickness combo.
 // Returns {rate,totalArea,totalCost,anyOversize,perPanel:[{label,area,rate,board,oversize}]}
 function ocoochBlendedRate(speciesName,panels,t,kerf){
-  const assigned=ocoochAssignPanelBoards(speciesName,panels,t,kerf);
+  const assigned=ocoochAssignPanelBoards(speciesName,panels,t,kerf,'psi');
   if(!assigned||!assigned.length)return null;
   let totalArea=0,totalCost=0,anyOversize=false;
   const perPanel=assigned.map(p=>{
