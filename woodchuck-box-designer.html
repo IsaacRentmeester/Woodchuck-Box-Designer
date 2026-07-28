@@ -5965,6 +5965,11 @@ function qbUpdateAll(){
   const acrylicPer=acrylicChecked?((lidW*lidD)/4608*ACRYLIC_SHEET_PRICE):0;
   const acrylicPuEl=document.getElementById('qt-acrylic-pu');
   if(acrylicPuEl)acrylicPuEl.textContent='$'+acrylicPer.toFixed(2);
+  const acrylicPuEl2=document.getElementById('qt-s2-acrylic-pu');
+  if(acrylicPuEl2)acrylicPuEl2.textContent='$'+acrylicPer.toFixed(2);
+  // Keep Step 2 checkbox in sync with Add Extras checkbox
+  const s2AcrylicCb=document.getElementById('qt-s2-acrylic');
+  if(s2AcrylicCb)s2AcrylicCb.checked=acrylicChecked;
   const configPerUnit=hwPer+intPer+finPer+engPer+logoPer+pkgPer+joinPer+divPer+acrylicPer;
   const configTotal=configPerUnit*qty;
   // Update config total display
