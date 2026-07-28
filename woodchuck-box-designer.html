@@ -2209,8 +2209,8 @@ function ocoochAssignPanelBoards(speciesName,panels,t,kerf){
 // blended rate can only be ≤ the single-uniform-board rate, since "one board for everything"
 // is just one possible (usually suboptimal) case of this.
 // Returns {rate,totalArea,totalCost,anyOversize,perPanel:[{label,area,rate,board,oversize}]}
-function ocoochBlendedRate(speciesName,panels,t){
-  const assigned=ocoochAssignPanelBoards(speciesName,panels,t);
+function ocoochBlendedRate(speciesName,panels,t,kerf){
+  const assigned=ocoochAssignPanelBoards(speciesName,panels,t,kerf);
   if(!assigned||!assigned.length)return null;
   let totalArea=0,totalCost=0,anyOversize=false;
   const perPanel=assigned.map(p=>{
