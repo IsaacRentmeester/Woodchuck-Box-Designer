@@ -5835,7 +5835,7 @@ function qbLoadSpeciesPrice(skipGrainUpdate){
       // area-weighted $/sq-in used for the actual quoted price (see qbCalcYield); it can only
       // be ≤ the single-board rate above, since a uniform board is just one possible case of it.
       if(fitPanels.length){
-        blended=ocoochBlendedRate(sp.name,fitPanels.map(p=>({w:p.pL,h:p.pW,count:p.count,label:p.name})),T);
+        blended=ocoochBlendedRate(sp.name,fitPanels.map(p=>({w:p.pL,h:p.pW,count:p.count,label:p.name})),T,kerfForBlend);
       }
     }
     if(elL)elL.value=bL;
