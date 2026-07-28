@@ -5676,7 +5676,7 @@ function qbLoadSpeciesPrice(skipGrainUpdate){
     // quote can never come from a board too narrow for the parts.
     const oThickKey=ocoochThickKey(sp.name,T);
     const oBds=oThickKey!=null?QB_OCOOCH_BOARDS[sp.name][oThickKey]:null;
-    let bL=24,bW=6,bP=sp.sheet||0,bThick=T,fitFlag=null;
+    let bL=24,bW=6,bP=sp.sheet||0,bThick=T,fitFlag=null,blended=null;
     if(oBds){
       const all=Object.entries(oBds)
         .filter(([k,p])=>p!=null)
@@ -5704,11 +5704,20 @@ function qbLoadSpeciesPrice(skipGrainUpdate){
         best=all.slice().sort((a,b)=>b.w-a.w)[0];
       }
       if(best){bW=best.w;bL=best.l;bP=best.p;bThick=parseFloat(oThickKey);}
+      // Multi-board optimization: different panels on THIS box can draw from different
+      // Ocooch board widths — e.g. small panels from a cheap narrow board, only the panels
+      // that truly need the width from a wider (pricier) board — instead of forcing every
+      // panel onto whichever single board the code above picked. blendedRate is the resulting
+      // area-weighted $/sq-in used for the actual quoted price (see qbCalcYield); it can only
+      // be ≤ the single-board rate above, since a uniform board is just one possible case of it.
+      if(fitPanels.length){
+        blended=ocoochBlendedRate(sp.name,fitPanels.map(p=>({w:p.pL,h:p.pW,count:p.count,label:p.name})),T);
+      }
     }
     if(elL)elL.value=bL;
     if(elW)elW.value=bW;
     if(elP)elP.value=bP.toFixed(2);
-    qbActiveCost={mode:'ocooch',sheetCost:bP,sheetSqin:bL*bW,wood:sp.name,key:bThick,boardW:bW,boardL:bL,flag:fitFlag};
+    qbActiveCost={mode:'ocooch',sheetCost:bP,sheetSqin:bL*bW,wood:sp.name,key:bThick,boardW:bW,boardL:bL,flag:fitFlag,blendedRate:blended?blended.rate:null,blendedInfo:blended};
     // Auto-set material thickness for Menards dimensional lumber (3/4" vs Ocooch 1/4")
     if(sp.defaultThick){
       const matTEl=document.getElementById('qb-matT');
