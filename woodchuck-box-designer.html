@@ -6749,6 +6749,334 @@ function qtSyncFromState(){
     document.querySelectorAll('.qt-qp').forEach(b=>b.classList.toggle('sel',parseInt((b.textContent||'').replace(/,/g,''))===qty));
   }catch(_){}
 }
+
+// ══════════════════════════════════════════════════════════════════════════
+// PRICING ADMIN PANEL
+// Live-edit WC sheet costs, Ocooch boards, hardware, margins + aliases.
+// Changes apply instantly to the running tool.
+// Persisted to localStorage — use "Export JS" to save back to this file.
+// ══════════════════════════════════════════════════════════════════════════
+
+// Load any localStorage overrides at startup (called immediately below)
+function adminLoadOverrides(){
+  const saved=QBdb.get('adminPricing');
+  if(!saved)return;
+  if(saved.wcSheetCost){Object.keys(WC_SHEET_COST).forEach(k=>delete WC_SHEET_COST[k]);Object.assign(WC_SHEET_COST,saved.wcSheetCost);}
+  if(saved.qbOcoochBoards){Object.keys(QB_OCOOCH_BOARDS).forEach(k=>delete QB_OCOOCH_BOARDS[k]);Object.assign(QB_OCOOCH_BOARDS,saved.qbOcoochBoards);}
+  if(saved.qbHwBom){Object.keys(QB_HW_BOM).forEach(k=>delete QB_HW_BOM[k]);Object.assign(QB_HW_BOM,saved.qbHwBom);}
+  if(saved.qbPricingTiers&&saved.qbPricingTiers.length){QB_PRICING_TIERS.length=0;saved.qbPricingTiers.forEach(t=>QB_PRICING_TIERS.push(t));}
+  if(saved.qbIntSqin)Object.assign(QB_INT_SQIN,saved.qbIntSqin);
+  if(saved.qbFinSqin)Object.assign(QB_FIN_SQIN,saved.qbFinSqin);
+  if(saved.wcWoodAlias){Object.keys(WC_WOOD_ALIAS).forEach(k=>delete WC_WOOD_ALIAS[k]);Object.assign(WC_WOOD_ALIAS,saved.wcWoodAlias);}
+}
+adminLoadOverrides();
+
+let _admTab='sheets',_admDirty=false;
+
+function adminOpen(){
+  document.getElementById('adm-overlay').style.display='flex';
+  adminSwitchTab(_admTab);
+}
+function adminClose(){
+  if(_admDirty&&!confirm('You have unapplied changes. Close anyway?'))return;
+  document.getElementById('adm-overlay').style.display='none';
+  _admDirty=false;
+}
+function adminSwitchTab(tab){
+  _admTab=tab;
+  document.querySelectorAll('.adm-tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  const el=document.getElementById('adm-content');
+  if(!el)return;
+  if(tab==='sheets')_admRenderSheets(el);
+  else if(tab==='ocooch')_admRenderOcooch(el);
+  else if(tab==='hw')_admRenderHW(el);
+  else if(tab==='tiers')_admRenderTiers(el);
+  else if(tab==='alias')_admRenderAlias(el);
+}
+function _admMarkDirty(){
+  _admDirty=true;
+  const btn=document.getElementById('adm-apply-btn');
+  if(btn){btn.textContent='Apply Changes';btn.style.background='#c2453a';btn.style.color='#fff';}
+}
+
+// ── Thickness column helpers ──────────────────────────────────────────────
+const _THICK_ORDER=['0.155','0.24','0.36','0.125','0.25','0.375'];
+const _THICK_LBL={'0.125':'1/8" MDF','0.155':'1/8"','0.21875':'7/32"','0.24':'1/4"','0.25':'1/4" MDF','0.36':'3/8"','0.375':'3/8" MDF','0.5':'1/2"','1':'1"'};
+function _admSheetCols(){
+  const used=new Set();
+  Object.values(WC_SHEET_COST).forEach(d=>Object.keys(d).filter(k=>!isNaN(+k)).forEach(k=>used.add(k)));
+  return[..._THICK_ORDER,...[...used].filter(k=>!_THICK_ORDER.includes(k))].filter(k=>used.has(k));
+}
+
+// ── WC Sheet Cost tab ─────────────────────────────────────────────────────
+function _admRenderSheets(el){
+  const cols=_admSheetCols();
+  let h=`<table class="adm-tbl"><thead><tr><th style="text-align:left;min-width:175px">Species</th>`;
+  cols.forEach(k=>h+=`<th title="thickness key ${k}">${_THICK_LBL[k]||k}</th>`);
+  h+=`<th style="width:26px"></th></tr></thead><tbody id="adm-s-body">`;
+  Object.keys(WC_SHEET_COST).sort().forEach(sp=>h+=_admSheetRow(sp,WC_SHEET_COST[sp],cols));
+  h+=`</tbody></table><button class="adm-add-btn" onclick="_admAddSheetRow()">+ Add Species</button>
+  <div class="adm-hint">Cost per 4'×8' sheet (before yield/nesting waste). Leave blank if not stocked at that thickness.</div>`;
+  el.innerHTML=h;
+}
+function _admSheetRow(sp,data,cols){
+  if(!cols)cols=_admSheetCols();
+  const esc=(sp||'').replace(/"/g,'&quot;');
+  let r=`<tr><td><input class="adm-inp adm-sp-n" value="${esc}" placeholder="Species name" style="width:170px;font-weight:600" oninput="_admMarkDirty()"></td>`;
+  cols.forEach(k=>{const v=(data&&data[k]!=null)?data[k]:'';r+=`<td style="min-width:66px"><input class="adm-inp adm-price" type="number" step="0.01" min="0" value="${v}" placeholder="—" data-thick="${k}" oninput="_admMarkDirty()"></td>`;});
+  r+=`<td><button class="adm-del-btn" onclick="this.closest('tr').remove();_admMarkDirty()" title="Remove">✕</button></td></tr>`;
+  return r;
+}
+function _admAddSheetRow(){
+  const tbody=document.getElementById('adm-s-body'),cols=_admSheetCols();
+  const tmp=document.createElement('tbody');tmp.innerHTML=_admSheetRow('',{},cols);
+  tbody.appendChild(tmp.firstChild);tbody.lastChild.querySelector('.adm-sp-n')?.focus();_admMarkDirty();
+}
+
+// ── Ocooch Boards tab ─────────────────────────────────────────────────────
+const _BOARD_ORDER=['3x24','4x24','6x24','8x24','10x96','11x96'];
+function _admBoardCols(){
+  const used=new Set();
+  Object.values(QB_OCOOCH_BOARDS).forEach(d=>Object.keys(d).forEach(k=>used.add(k)));
+  return[..._BOARD_ORDER,...[...used].filter(k=>!_BOARD_ORDER.includes(k))].filter(k=>used.has(k));
+}
+function _admRenderOcooch(el){
+  const cols=_admBoardCols();
+  let h=`<table class="adm-tbl"><thead><tr><th style="text-align:left;min-width:175px">Species</th>`;
+  cols.forEach(k=>h+=`<th>${k}</th>`);
+  h+=`<th style="width:26px"></th></tr></thead><tbody id="adm-o-body">`;
+  Object.keys(QB_OCOOCH_BOARDS).sort().forEach(sp=>h+=_admOcoochRow(sp,QB_OCOOCH_BOARDS[sp],cols));
+  h+=`</tbody></table><button class="adm-add-btn" onclick="_admAddOcoochRow()">+ Add Species</button>
+  <div class="adm-hint">Price per board (1/4" thick × stated width × length, in inches). Source: ocoochhardwoods.com/thin-wood/</div>`;
+  el.innerHTML=h;
+}
+function _admOcoochRow(sp,data,cols){
+  if(!cols)cols=_admBoardCols();
+  const esc=(sp||'').replace(/"/g,'&quot;');
+  let r=`<tr><td><input class="adm-inp adm-sp-n" value="${esc}" placeholder="Species name" style="width:170px;font-weight:600" oninput="_admMarkDirty()"></td>`;
+  cols.forEach(k=>{const v=(data&&data[k]!=null)?data[k]:'';r+=`<td style="min-width:60px"><input class="adm-inp adm-price" type="number" step="0.01" min="0" value="${v}" placeholder="—" data-board="${k}" oninput="_admMarkDirty()"></td>`;});
+  r+=`<td><button class="adm-del-btn" onclick="this.closest('tr').remove();_admMarkDirty()" title="Remove">✕</button></td></tr>`;
+  return r;
+}
+function _admAddOcoochRow(){
+  const tbody=document.getElementById('adm-o-body'),cols=_admBoardCols();
+  const tmp=document.createElement('tbody');tmp.innerHTML=_admOcoochRow('',{},cols);
+  tbody.appendChild(tmp.firstChild);tbody.lastChild.querySelector('.adm-sp-n')?.focus();_admMarkDirty();
+}
+
+// ── Hardware BOM tab ──────────────────────────────────────────────────────
+const _HW_TYPES=['hinged','hingedlatch','clamnolatch','clamlatch','slide','settop','droptop','acrylicset','acrylicslide','crate'];
+const _HW_LBL={hinged:'Hinged',hingedlatch:'Hinged + Latch',clamnolatch:'Clamshell (no latch)',clamlatch:'Clamshell + Latch',slide:'Slide Top',settop:'Set Top',droptop:'Drop Top',acrylicset:'Acrylic Set Top',acrylicslide:'Acrylic Slide',crate:'Crate'};
+const _HW_COLORS=['gold','silver','black','brass','none'];
+function _admRenderHW(el){
+  let h=`<table class="adm-tbl"><thead><tr><th style="text-align:left;min-width:175px">Box Type</th>`;
+  _HW_COLORS.forEach(c=>h+=`<th style="text-transform:capitalize;min-width:66px">${c}</th>`);
+  h+=`</tr></thead><tbody>`;
+  _HW_TYPES.forEach(bt=>{
+    const d=QB_HW_BOM[bt]||{};
+    h+=`<tr data-bt="${bt}"><td style="font-weight:600;padding:4px 7px">${_HW_LBL[bt]||bt}</td>`;
+    _HW_COLORS.forEach(col=>{const v=d[col]!=null?d[col]:'';h+=`<td><input class="adm-inp adm-price" type="number" step="0.01" min="0" value="${v}" placeholder="0" data-col="${col}" oninput="_admMarkDirty()"></td>`;});
+    h+=`</tr>`;
+  });
+  h+=`</tbody></table><div class="adm-hint">Hardware cost per unit ($/unit, added to material+labor). Color columns = hardware finish. "none" = bare wood, typically $0.</div>`;
+  el.innerHTML=h;
+}
+
+// ── Pricing & Margins tab ─────────────────────────────────────────────────
+function _admRenderTiers(el){
+  let h=`<div class="adm-section-hdr">Quantity Price Tiers</div>
+  <div class="adm-hint" style="margin-bottom:10px">FLOOR = cost × 2.28 · RETAIL = FLOOR × 1.9 · Factor: 0 = floor (best margin for Woodchuck), 1 = retail (lowest margin)</div>
+  <table class="adm-tbl" style="margin-bottom:4px"><thead><tr>
+    <th>Label</th><th>Min Qty</th><th>Max Qty</th><th>Factor (0–1)</th><th>Effective Mult</th><th>Margin %</th>
+  </tr></thead><tbody id="adm-t-body">`;
+  QB_PRICING_TIERS.forEach((t,i)=>{
+    const eff=2.28+t.factor*(2.28*1.9-2.28),mg=(100-100/eff).toFixed(1);
+    h+=`<tr data-idx="${i}">
+      <td><input class="adm-inp" value="${t.label}" style="width:80px;text-align:center" oninput="_admMarkDirty()"></td>
+      <td><input class="adm-inp adm-price" type="number" min="1" value="${t.lo}" style="width:72px" oninput="_admMarkDirty()"></td>
+      <td><input class="adm-inp" value="${t.hi>=9999999?'∞':t.hi}" style="width:72px;text-align:right" oninput="_admMarkDirty()"></td>
+      <td><input class="adm-inp adm-price" type="number" step="0.01" min="0" max="1" value="${t.factor}" style="width:72px" oninput="_admTierLive(this,${i})"></td>
+      <td style="font-size:.74rem;padding:4px 8px;text-align:center" id="adm-teff-${i}">${eff.toFixed(3)}×</td>
+      <td style="font-size:.74rem;padding:4px 8px;text-align:center;font-weight:700;color:var(--green)" id="adm-tmg-${i}">${mg}%</td>
+    </tr>`;
+  });
+  h+=`</tbody></table>
+  <div class="adm-section-hdr">Interior Insert ($/sq.in of interior floor area)</div>
+  <table class="adm-tbl" style="width:auto;margin-bottom:4px"><thead><tr><th>Type</th><th>$/sq.in</th></tr></thead><tbody>`;
+  Object.entries(QB_INT_SQIN).forEach(([k,v])=>h+=`<tr><td style="padding:4px 9px;font-weight:600;min-width:90px">${k}</td><td><input class="adm-inp adm-price" type="number" step="0.0001" min="0" value="${v}" data-int="${k}" style="width:90px" oninput="_admMarkDirty()"></td></tr>`);
+  h+=`</tbody></table>
+  <div class="adm-section-hdr">Finish Material ($/sq.in of exterior surface)</div>
+  <table class="adm-tbl" style="width:auto"><thead><tr><th>Finish</th><th>$/sq.in</th></tr></thead><tbody>`;
+  Object.entries(QB_FIN_SQIN).forEach(([k,v])=>h+=`<tr><td style="padding:4px 9px;font-weight:600;min-width:130px">${k}</td><td><input class="adm-inp adm-price" type="number" step="0.0001" min="0" value="${v}" data-fin="${k}" style="width:90px" oninput="_admMarkDirty()"></td></tr>`);
+  h+=`</tbody></table>`;
+  el.innerHTML=h;
+}
+function _admTierLive(inp,i){
+  const f=Math.max(0,Math.min(1,parseFloat(inp.value)||0));
+  const eff=2.28+f*(2.28*1.9-2.28),mg=(100-100/eff).toFixed(1);
+  const eEl=document.getElementById('adm-teff-'+i),mEl=document.getElementById('adm-tmg-'+i);
+  if(eEl)eEl.textContent=eff.toFixed(3)+'×';if(mEl)mEl.textContent=mg+'%';
+  _admMarkDirty();
+}
+
+// ── Species Aliases tab ───────────────────────────────────────────────────
+function _admRenderAlias(el){
+  let h=`<div class="adm-hint" style="margin-bottom:10px">Maps an Ocooch/catalog species name → the Woodchuck production wood name, so the correct WC sheet cost is used when quoting.</div>
+  <table class="adm-tbl"><thead><tr>
+    <th style="text-align:left">Catalog / Ocooch Name</th>
+    <th style="text-align:left">WC Production Wood</th>
+    <th style="width:26px"></th>
+  </tr></thead><tbody id="adm-a-body">`;
+  Object.keys(WC_WOOD_ALIAS).sort().forEach(f=>h+=_admAliasRow(f,WC_WOOD_ALIAS[f]));
+  h+=`</tbody></table><button class="adm-add-btn" onclick="_admAddAliasRow()">+ Add Alias</button>`;
+  el.innerHTML=h;
+}
+function _admAliasRow(from,to){
+  const ef=(from||'').replace(/"/g,'&quot;'),et=(to||'').replace(/"/g,'&quot;');
+  return `<tr>
+    <td><input class="adm-inp adm-alias-f" value="${ef}" placeholder="e.g. Hard Maple" style="width:215px" oninput="_admMarkDirty()"></td>
+    <td><input class="adm-inp adm-alias-t" value="${et}" placeholder="e.g. Maple" style="width:215px" oninput="_admMarkDirty()"></td>
+    <td><button class="adm-del-btn" onclick="this.closest('tr').remove();_admMarkDirty()" title="Remove">✕</button></td>
+  </tr>`;
+}
+function _admAddAliasRow(){
+  const tbody=document.getElementById('adm-a-body');
+  const tmp=document.createElement('tbody');tmp.innerHTML=_admAliasRow('','');
+  tbody.appendChild(tmp.firstChild);tbody.lastChild.querySelector('.adm-alias-f')?.focus();_admMarkDirty();
+}
+
+// ── Apply & Save ──────────────────────────────────────────────────────────
+function adminApply(){
+  const tab=_admTab;
+  if(tab==='sheets')_admApplySheets();
+  else if(tab==='ocooch')_admApplyOcooch();
+  else if(tab==='hw')_admApplyHW();
+  else if(tab==='tiers')_admApplyTiers();
+  else if(tab==='alias')_admApplyAlias();
+  // Persist entire current state (all tables, not just current tab)
+  QBdb.set('adminPricing',{
+    wcSheetCost:JSON.parse(JSON.stringify(WC_SHEET_COST)),
+    qbOcoochBoards:JSON.parse(JSON.stringify(QB_OCOOCH_BOARDS)),
+    qbHwBom:JSON.parse(JSON.stringify(QB_HW_BOM)),
+    qbPricingTiers:QB_PRICING_TIERS.map(t=>({...t})),
+    qbIntSqin:{...QB_INT_SQIN},
+    qbFinSqin:{...QB_FIN_SQIN},
+    wcWoodAlias:{...WC_WOOD_ALIAS},
+  });
+  qbUpdateAll&&qbUpdateAll();
+  _admDirty=false;
+  const btn=document.getElementById('adm-apply-btn');
+  if(btn){btn.textContent='✓ Applied!';btn.style.background='var(--green)';btn.style.color='#fff';setTimeout(()=>{btn.textContent='Apply Changes';btn.style.background='';btn.style.color='';},2200);}
+}
+function _admApplySheets(){
+  const tbody=document.getElementById('adm-s-body');if(!tbody)return;
+  Object.keys(WC_SHEET_COST).forEach(k=>delete WC_SHEET_COST[k]);
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    const sp=tr.querySelector('.adm-sp-n')?.value.trim();if(!sp)return;
+    const obj={};
+    tr.querySelectorAll('.adm-price').forEach(inp=>{const k=inp.dataset.thick,v=parseFloat(inp.value);if(k&&!isNaN(v)&&v>0)obj[k]=v;});
+    if(Object.keys(obj).length)WC_SHEET_COST[sp]=obj;
+  });
+}
+function _admApplyOcooch(){
+  const tbody=document.getElementById('adm-o-body');if(!tbody)return;
+  Object.keys(QB_OCOOCH_BOARDS).forEach(k=>delete QB_OCOOCH_BOARDS[k]);
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    const sp=tr.querySelector('.adm-sp-n')?.value.trim();if(!sp)return;
+    const obj={};
+    tr.querySelectorAll('.adm-price').forEach(inp=>{const k=inp.dataset.board,v=parseFloat(inp.value);if(k&&!isNaN(v)&&v>0)obj[k]=v;});
+    if(Object.keys(obj).length)QB_OCOOCH_BOARDS[sp]=obj;
+  });
+}
+function _admApplyHW(){
+  _HW_TYPES.forEach(bt=>{
+    const tr=document.querySelector(`#adm-content tr[data-bt="${bt}"]`);if(!tr)return;
+    if(!QB_HW_BOM[bt])QB_HW_BOM[bt]={};
+    tr.querySelectorAll('.adm-price').forEach(inp=>{const col=inp.dataset.col,v=parseFloat(inp.value);QB_HW_BOM[bt][col]=isNaN(v)?0:v;});
+  });
+}
+function _admApplyTiers(){
+  const tbody=document.getElementById('adm-t-body');if(!tbody)return;
+  tbody.querySelectorAll('tr[data-idx]').forEach((tr,i)=>{
+    const inps=tr.querySelectorAll('input');
+    const label=inps[0]?.value||'';
+    const lo=parseInt(inps[1]?.value)||1;
+    const hiStr=inps[2]?.value||'';
+    const hi=(hiStr==='∞'||parseInt(hiStr)>=9999999)?9999999:(parseInt(hiStr)||9999);
+    const factor=Math.max(0,Math.min(1,parseFloat(inps[3]?.value)||0));
+    if(QB_PRICING_TIERS[i])QB_PRICING_TIERS[i]={lo,hi,factor,label};
+  });
+  document.querySelectorAll('[data-int]').forEach(inp=>{const k=inp.dataset.int,v=parseFloat(inp.value);if(k&&!isNaN(v))QB_INT_SQIN[k]=v;});
+  document.querySelectorAll('[data-fin]').forEach(inp=>{const k=inp.dataset.fin,v=parseFloat(inp.value);if(k&&!isNaN(v))QB_FIN_SQIN[k]=v;});
+}
+function _admApplyAlias(){
+  const tbody=document.getElementById('adm-a-body');if(!tbody)return;
+  Object.keys(WC_WOOD_ALIAS).forEach(k=>delete WC_WOOD_ALIAS[k]);
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    const from=tr.querySelector('.adm-alias-f')?.value.trim(),to=tr.querySelector('.adm-alias-t')?.value.trim();
+    if(from&&to)WC_WOOD_ALIAS[from]=to;
+  });
+}
+
+// ── Export JS to clipboard ────────────────────────────────────────────────
+function adminExportJS(){
+  const fmt=obj=>JSON.stringify(obj,null,2);
+  const out=[
+    '// ── WC_SHEET_COST (cost per 4×8 sheet by species + thickness) ──────────',
+    'const WC_SHEET_COST='+fmt(WC_SHEET_COST)+';','',
+    '// ── QB_OCOOCH_BOARDS (board price by species + board size) ─────────────',
+    'const QB_OCOOCH_BOARDS='+fmt(QB_OCOOCH_BOARDS)+';','',
+    '// ── QB_HW_BOM (hardware cost by box type + color) ───────────────────────',
+    'const QB_HW_BOM='+fmt(QB_HW_BOM)+';','',
+    '// ── QB_PRICING_TIERS (quantity markup tier table) ────────────────────────',
+    'const QB_PRICING_TIERS='+fmt(QB_PRICING_TIERS)+';','',
+    '// ── WC_WOOD_ALIAS (catalog species → production wood mapping) ────────────',
+    'const WC_WOOD_ALIAS='+fmt(WC_WOOD_ALIAS)+';',
+  ].join('\n');
+  navigator.clipboard.writeText(out).then(()=>{
+    const btn=document.getElementById('adm-export-btn');
+    if(btn){const o=btn.textContent;btn.textContent='✓ Copied to clipboard!';setTimeout(()=>btn.textContent=o,2500);}
+  }).catch(()=>{
+    const w=window.open('','_blank');
+    if(w){w.document.write('<pre style="font:13px monospace;padding:20px">'+out.replace(/</g,'&lt;')+'</pre>');w.document.close();}
+  });
+}
+
+// ── Reset to HTML defaults ────────────────────────────────────────────────
+function adminReset(){
+  if(!confirm('Reset ALL pricing to the HTML file defaults?\n\nThis clears any edits saved in browser storage and reloads the page. Your changes will be lost unless you used Export JS.'))return;
+  QBdb.set('adminPricing',null);
+  location.reload();
+}
 </script>
+
+<!-- ── Pricing Admin Modal ── -->
+<div id="adm-overlay" onclick="if(event.target===this)adminClose()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:9999;align-items:flex-start;justify-content:center;padding:36px 16px;overflow-y:auto">
+  <div style="background:#fff;border-radius:14px;width:min(960px,96vw);display:flex;flex-direction:column;box-shadow:0 28px 80px rgba(0,0,0,.38);max-height:calc(100vh - 72px)">
+    <!-- Header bar -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:16px 22px 14px;border-bottom:1px solid #e0d8cc;flex-shrink:0;background:#f9f5ef;border-radius:14px 14px 0 0;gap:14px">
+      <div>
+        <div style="font-size:.98rem;font-weight:700;color:#2c3e2d;margin-bottom:2px">⚙️ Pricing Admin</div>
+        <div style="font-size:.67rem;color:#999;line-height:1.4">Changes apply live to the tool and are saved in browser storage. Use <strong>Export JS</strong> to update the HTML source file permanently.</div>
+      </div>
+      <div style="display:flex;gap:7px;align-items:center;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
+        <button id="adm-export-btn" onclick="adminExportJS()" class="adm-action-btn" style="background:#f0ece3">📋 Export JS</button>
+        <button onclick="adminReset()" class="adm-action-btn" style="background:#f0ece3">↺ Reset to Defaults</button>
+        <button id="adm-apply-btn" onclick="adminApply()" class="adm-action-btn" style="background:#3d4f43;color:#fff;border-color:#3d4f43">Apply Changes</button>
+        <button onclick="adminClose()" class="adm-action-btn" style="background:#f0ece3;padding:6px 11px;font-size:.95rem">✕</button>
+      </div>
+    </div>
+    <!-- Tab bar -->
+    <div style="display:flex;gap:2px;padding:10px 22px 0;border-bottom:1px solid #e0d8cc;flex-shrink:0;background:#f9f5ef;overflow-x:auto">
+      <button class="adm-tab on" data-tab="sheets" onclick="adminSwitchTab('sheets')">📄 WC Sheet Costs</button>
+      <button class="adm-tab" data-tab="ocooch" onclick="adminSwitchTab('ocooch')">🪵 Ocooch Boards</button>
+      <button class="adm-tab" data-tab="hw" onclick="adminSwitchTab('hw')">🔩 Hardware</button>
+      <button class="adm-tab" data-tab="tiers" onclick="adminSwitchTab('tiers')">📊 Pricing & Margins</button>
+      <button class="adm-tab" data-tab="alias" onclick="adminSwitchTab('alias')">🔀 Species Aliases</button>
+    </div>
+    <!-- Content area -->
+    <div id="adm-content" style="overflow-y:auto;padding:18px 22px 22px;flex:1;min-height:280px"></div>
+  </div>
+</div>
 </body>
 </html>
