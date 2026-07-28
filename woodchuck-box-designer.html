@@ -2418,22 +2418,54 @@ function ocoochOptimizeBoards(speciesName,panels,t,kerf){
 }
 
 // ── Req 2: Nesting layout + canvas renderer ───────────────────────────────
-// Computes panel placement coordinates for the selected board.
-// Returns {boardW, boardL, boardCount, boards:[{panels:[{x,y,w,h,label}]}], wastePercent}
+// Computes panel placement coordinates for the selected board using the same 2D shelf-packing
+// model as ocoochShelfPack (crosscut into length-segments, then nest multiple panels side-by-side
+// across each segment's width) — so the waste % shown here matches what's actually priced, and
+// narrow panels visibly share a board instead of each claiming its full width.
+// Returns {boardW, boardL, boardCount, boards:[{panels:[{x,y,w,h,label}],usedL}], wastePercent}
 function qbNestLayout(board,panels,kerf){
   const k=kerf||0.125;
   const bW=board.width, bL=board.length;
-  const allBoards=[{panels:[],usedL:0}];
-  panels.forEach((p,i)=>{
-    // Orient so narrower dim is cross-board (fits within bW)
-    const pw=Math.min(p.w,p.h)<=bW?Math.min(p.w,p.h):Math.max(p.w,p.h);
-    const pl=(pw===Math.min(p.w,p.h))?Math.max(p.w,p.h):Math.min(p.w,p.h);
-    const needed=pl+k;
-    let cur=allBoards[allBoards.length-1];
-    if(cur.usedL+needed>bL){cur={panels:[],usedL:0};allBoards.push(cur);}
-    cur.panels.push({x:cur.usedL,y:0,w:pl,h:pw,label:p.label||`P${i+1}`});
-    cur.usedL+=needed;
+  // Orient (short side = width, long side = length) and sort longest-first, matching the pricing
+  // packer, so the board count/layout shown here agrees with the board count actually quoted.
+  const items=panels.map((p,i)=>({w:Math.min(p.w,p.h),l:Math.max(p.w,p.h),label:p.label||`P${i+1}`}))
+    .sort((a,b)=>b.l-a.l);
+  const allBoards=[]; // {panels:[{x,y,w,h,label}], usedL, shelves:[{x,yUsed,widthLeft}]}
+  items.forEach(it=>{
+    const pw=Math.min(it.w,bW); // defensive clamp (oversize-fallback pieces)
+    const needW=pw+k, needL=it.l+k;
+    let placed=false;
+    // 1) fit into an existing shelf (side-by-side across the width) on any already-open board
+    for(let bi=0;bi<allBoards.length&&!placed;bi++){
+      const b=allBoards[bi];
+      for(let si=0;si<b.shelves.length;si++){
+        const sh=b.shelves[si];
+        if(sh.widthLeft>=needW-1e-9){
+          b.panels.push({x:sh.x,y:sh.yUsed,w:it.l,h:pw,label:it.label});
+          sh.yUsed+=needW;sh.widthLeft-=needW;
+          placed=true;break;
+        }
+      }
+    }
+    // 2) open a new shelf (new length-segment) on any already-open board with length room
+    if(!placed){
+      for(let bi=0;bi<allBoards.length&&!placed;bi++){
+        const b=allBoards[bi];
+        if(b.usedL+needL<=bL+1e-9){
+          b.shelves.push({x:b.usedL,yUsed:needW,widthLeft:bW-needW});
+          b.panels.push({x:b.usedL,y:0,w:it.l,h:pw,label:it.label});
+          b.usedL+=needL;
+          placed=true;
+        }
+      }
+    }
+    // 3) open a brand-new board
+    if(!placed){
+      allBoards.push({panels:[{x:0,y:0,w:it.l,h:pw,label:it.label}],usedL:needL,
+        shelves:[{x:0,yUsed:needW,widthLeft:bW-needW}]});
+    }
   });
+  if(!allBoards.length)allBoards.push({panels:[],usedL:0,shelves:[]});
   const totalArea=panels.reduce((s,p)=>s+p.w*p.h,0);
   const boardArea=allBoards.length*bW*bL;
   const wastePercent=Math.max(0,Math.round((1-totalArea/boardArea)*100));
