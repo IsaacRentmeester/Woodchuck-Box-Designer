@@ -1658,8 +1658,8 @@ function qbMarginForQty(qty){
 // Compute per-unit price from cost-per-unit using the 2026 floor/retail structure
 function qbPriceFromCost(costPerUnit,qty){
   const tier=QB_PRICING_TIERS.find(r=>qty>=r.lo&&qty<=r.hi)||QB_PRICING_TIERS[0];
-  const floorPrice=costPerUnit*2.28;
-  const retailPrice=floorPrice*1.9;
+  const floorPrice=costPerUnit*QB_FLOOR_MULT;
+  const retailPrice=floorPrice*QB_RETAIL_MULT;
   return floorPrice+(retailPrice-floorPrice)*tier.factor;
 }
 
