@@ -5646,11 +5646,11 @@ function qbCalcYield(){
       const mdfEntry=mdfSpeciesCost(mdfSp,T_calc);
       const solidPrice=WOOD_SHEET_PRICES[solidSp]||shPrice;
       el.innerHTML=
-         `<div class="qb-yield-row"><span>🔀 <strong>Mix pricing: solid sides + MDF top &amp; bottom</strong></span></div>`
-        +`<div class="qb-yield-row"><span>🪵 Sides area (F/B + L/R)</span><span class="qb-val">${sidesArea.toFixed(1)} sq in</span></div>`
-        +`<div class="qb-yield-row"><span>🪵 ${solidSp} sheet · $${solidPrice.toFixed(2)}/sht</span><span class="qb-val">$${sidesCostPerBox.toFixed(2)} / box</span></div>`
-        +`<div class="qb-yield-row"><span>📄 Top &amp; bottom area</span><span class="qb-val">${topBottomArea.toFixed(1)} sq in</span></div>`
-        +`<div class="qb-yield-row"><span>📄 ${mdfSp} · ${mdfEntry.label} · $${mixMdfSheetPrice.toFixed(2)}/sht</span><span class="qb-val">$${mdfCostPerBox.toFixed(2)} / box</span></div>`
+         `<div class="qb-yield-row"><span>🔀 <strong>Mix: solid sides + MDF top &amp; bottom</strong></span></div>`
+        +`<div class="qb-yield-row"><span>🪵 Solid sides — actual cut panels (F/B + L/R)</span><span class="qb-val">${sidesArea.toFixed(1)} sq in</span></div>`
+        +`<div class="qb-yield-row"><span>🪵 ${solidSp} · $${solidPrice.toFixed(2)}/sht ÷ 4608</span><span class="qb-val">$${sidesCostPerBox.toFixed(2)} / box</span></div>`
+        +`<div class="qb-yield-row"><span>📄 MDF top &amp; bottom — actual cut panels</span><span class="qb-val">${topBottomArea.toFixed(1)} sq in</span></div>`
+        +`<div class="qb-yield-row"><span>📄 ${mdfSp} · ${mdfEntry.label} · $${mixMdfSheetPrice.toFixed(2)}/sht ÷ 4608</span><span class="qb-val">$${mdfCostPerBox.toFixed(2)} / box</span></div>`
         +`<div class="qb-yield-row" style="border-top:1px solid var(--bo);margin-top:6px;padding-top:6px"><span><strong>Total wood cost · ${qty}</strong></span><span class="qb-val"><strong>$${wcTotal.toFixed(2)}</strong></span></div>`;
     }else if(wcMode){
       const isMdf=qbActiveCost.mode==='mdf';
