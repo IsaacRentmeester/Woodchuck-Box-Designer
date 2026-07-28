@@ -2538,12 +2538,12 @@ function qbRenderNesting(layout,species){
       ctx.beginPath();ctx.roundRect(px+1,py+1,Math.max(0,pw-2),Math.max(0,ph-2),3);ctx.fill();
       ctx.strokeStyle='rgba(255,255,255,0.55)';ctx.lineWidth=0.8;
       ctx.beginPath();ctx.roundRect(px+1,py+1,Math.max(0,pw-2),Math.max(0,ph-2),3);ctx.stroke();
-      // Panel label if wide enough
-      if(pw>20){
+      // Panel label if there's room in both dimensions
+      if(pw>20&&ph>9){
         ctx.fillStyle='rgba(255,255,255,0.9)';
-        ctx.font=`bold ${Math.min(9,boardH_px*0.22)}px system-ui,sans-serif`;
+        ctx.font=`bold ${Math.min(9,ph*0.5)}px system-ui,sans-serif`;
         ctx.textAlign='center';ctx.textBaseline='middle';
-        ctx.fillText(p.label,px+pw/2,by+boardH_px/2);
+        ctx.fillText(p.label,px+pw/2,py+ph/2);
       }
     });
 
