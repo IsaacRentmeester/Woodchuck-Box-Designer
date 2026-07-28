@@ -904,13 +904,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </div>
           <div id="qt-clam-h-hint" style="display:none;font-size:.62rem;color:var(--gold);font-weight:600;text-align:center;margin:-4px 0 4px;padding:3px 8px;background:rgba(200,160,96,.1);border-radius:5px">🦪 Clamshell H = total closed height — each half opens to H÷2</div>
           <div class="qt-dim-summary" id="qt-dim-summary"></div>
-          <div class="qt-bts-row">
+          <div class="qt-bts-row" style="grid-template-columns:repeat(3,1fr)">
             <button class="qt-bts sel" data-bt="hinged" onclick="qtPBt('hinged',this)">📦 Hinged</button>
-            <button class="qt-bts" data-bt="clamshell" onclick="qtPBt('clamshell',this)">🦪 Clamshell</button>
+            <button class="qt-bts" data-bt="hingedlatch" onclick="qtPBt('hingedlatch',this)">📦🔒 Hinged+Latch</button>
             <button class="qt-bts" data-bt="slide" onclick="qtPBt('slide',this)">🗂 Slide</button>
+            <button class="qt-bts" data-bt="clamnolatch" onclick="qtPBt('clamnolatch',this)">🦪 Clamshell</button>
+            <button class="qt-bts" data-bt="clamlatch" onclick="qtPBt('clamlatch',this)">🦪🔒 Clam+Latch</button>
             <button class="qt-bts" data-bt="settop" onclick="qtPBt('settop',this)">🎁 Set Top</button>
             <button class="qt-bts" data-bt="droptop" onclick="qtPBt('droptop',this)">🔓 Drop Top</button>
-            <button class="qt-bts" data-bt="crate" onclick="qtPBt('crate',this)">📫 Crate</button>
+            <button class="qt-bts" data-bt="acrylicset" onclick="qtPBt('acrylicset',this)">🪟 Acrylic Set</button>
+            <button class="qt-bts" data-bt="acrylicslide" onclick="qtPBt('acrylicslide',this)">🪟🗂 Acrylic Slide</button>
+            <button class="qt-bts" data-bt="crate" onclick="qtPBt('crate',this)" style="grid-column:span 3;font-size:.58rem">📫 Crate (manual quote may be needed)</button>
           </div>
           <button class="qt-next-btn" onclick="qtNext(1)">Material &amp; Wood →</button>
         </div>
