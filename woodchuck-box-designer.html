@@ -2857,13 +2857,13 @@ tr:nth-child(even) td{background:#faf7f2}
     <div class="sr"><span class="sk">Width</span><span class="sv">${extW}"</span></div>
     <div class="sr"><span class="sk">Depth</span><span class="sv">${extD}"</span></div>
     <div class="sr"><span class="sk">Height</span><span class="sv">${extH}"</span></div>
-    <div class="sr"><span class="sk">Lid drop</span><span class="sv">${lidDrop}"</span></div>
+    ${isClamshell?`<div class="sr"><span class="sk">Lid drop</span><span class="sv">${lidDrop}"</span></div>`:''}
   </div>
   <div class="sc">
-    <div class="sh">Lid Exterior</div>
+    <div class="sh">${isClamshell?'Lid Exterior':'Lid (flat top panel)'}</div>
     <div class="sr"><span class="sk">Width</span><span class="sv">${lidW}"</span></div>
     <div class="sr"><span class="sk">Depth</span><span class="sv">${lidD}"</span></div>
-    <div class="sr"><span class="sk">Clearance</span><span class="sv">1⁄16" each side</span></div>
+    ${isClamshell?`<div class="sr"><span class="sk">Clearance</span><span class="sv">1⁄16" each side</span></div>`:''}
     <div class="sr"><span class="sk">Box style</span><span class="sv">${bt}</span></div>
   </div>
 </div>
