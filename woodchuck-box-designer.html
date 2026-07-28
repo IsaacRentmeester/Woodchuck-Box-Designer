@@ -5612,10 +5612,11 @@ function qbCalcYield(){
   let sidesArea=0,topBottomArea=0,sidesCostPerBox=0,mdfCostPerBox=0;
   let mixMdfSheetPrice=0;
   if(isMixMode){
-    // Sides: Front/Back (W×H ×2) + Left/Right (D×H ×2)
-    sidesArea=2*(intW*intH)+2*(intD*intH);
-    // Top + Bottom: lid + base (W×D ×2)
-    topBottomArea=2*(intW*intD);
+    // Use actual panel dims (mat:'solid'=exterior-sized side panels; mat:'mdf'=flat top/bottom)
+    qbBoxPanels.forEach(p=>{
+      const a=p.pL*p.pW*p.count;
+      if(p.mat==='mdf') topBottomArea+=a; else sidesArea+=a;
+    });
     const solidSheetPrice=(WOOD_SHEET_PRICES[wcSpeciesName])||shPrice;
     const mdfEntry=mdfSpeciesCost(qbMixMdfSpecies,T_calc);
     mixMdfSheetPrice=mdfEntry.cost;
