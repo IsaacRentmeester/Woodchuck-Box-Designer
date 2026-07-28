@@ -2680,7 +2680,10 @@ function printBoxTemplate(){
   const extW=parseFloat((intW+2*t).toFixed(4));
   const extD=parseFloat((intD+2*t).toFixed(4));
   const extH=parseFloat((intH+t).toFixed(4));   // base total height incl. bottom panel
-  const lidDrop=1.5;                              // how far lid drops over base
+  // Clamshell boxes have a lid that drops over the base exterior (lid front/back/sides).
+  // All other box types (hinged, slide, settop, droptop, etc.) have a flat lid panel only.
+  const isClamshell=C.bt==='clamshell'||C.bt==='clamnolatch'||C.bt==='clamlatch';
+  const lidDrop=1.5;                              // how far lid drops over base (clamshell only)
   const lidClr=0.0625;                            // 1/16" clearance each side
   const lidW=parseFloat((extW+2*lidClr+2*t).toFixed(4)); // lid exterior width
   const lidD=parseFloat((extD+2*lidClr+2*t).toFixed(4)); // lid exterior depth
@@ -2691,9 +2694,11 @@ function printBoxTemplate(){
     {id:2,name:'Base Front',    pw:extW,   ph:extH,    qty:1,grp:'base',note:'Full width · covers L/R side edges'},
     {id:3,name:'Base Back',     pw:extW,   ph:extH,    qty:1,grp:'base',note:'Full width · covers L/R side edges'},
     {id:4,name:'Base Side',     pw:intD,   ph:extH,    qty:2,grp:'base',note:'Fits between Front & Back — cut ×2'},
-    {id:5,name:'Lid Top',       pw:lidW,   ph:lidD,    qty:1,grp:'lid', note:'Drops over base exterior with 1⁄16" clearance'},
-    {id:6,name:'Lid Front/Back',pw:lidW,   ph:lidDrop, qty:2,grp:'lid', note:'Full lid width — cut ×2'},
-    {id:7,name:'Lid Side',      pw:lidSideW,ph:lidDrop,qty:2,grp:'lid', note:'Fits between Lid F/B — cut ×2'},
+    {id:5,name:'Lid Top',       pw:lidW,   ph:lidD,    qty:1,grp:'lid', note:isClamshell?'Drops over base exterior with 1⁄16" clearance':'Flat lid panel — same footprint as base top'},
+    ...(isClamshell?[
+      {id:6,name:'Lid Front/Back',pw:lidW,   ph:lidDrop,qty:2,grp:'lid',note:'Full lid width · drops over base — cut ×2'},
+      {id:7,name:'Lid Side',      pw:lidSideW,ph:lidDrop,qty:2,grp:'lid',note:'Fits between Lid F/B — cut ×2'},
+    ]:[]),
   ];
 
   const totalSqIn=panels.reduce((s,p)=>s+p.pw*p.ph*p.qty,0);
