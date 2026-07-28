@@ -7195,24 +7195,37 @@ function _admAddSheetRow(){
 }
 
 // ── Ocooch Boards tab ─────────────────────────────────────────────────────
-const _BOARD_ORDER=['3x24','4x24','6x24','8x24','10x96','11x96'];
-function _admBoardCols(){
+// QB_OCOOCH_BOARDS is now nested {species:{thickness:{'WxL':price}}} — the admin grid shows
+// ONE thickness "slice" at a time (picked via the dropdown), since a single flat species×width
+// table can no longer represent all 7 thickness rows at once. Apply/save only ever touches the
+// currently-selected thickness bucket per species, leaving the other thicknesses untouched.
+const _BOARD_ORDER=['3x24','4x24','5x24','6x24','7x24','8x24','10x24','12x24','10x96','11x96'];
+const _OCOOCH_THICKS=[0.0625,0.125,0.1875,0.25,0.375,0.5,0.75];
+let _admOcoochThick=0.25;
+function _admBoardCols(thick){
   const used=new Set();
-  Object.values(QB_OCOOCH_BOARDS).forEach(d=>Object.keys(d).forEach(k=>used.add(k)));
+  Object.values(QB_OCOOCH_BOARDS).forEach(d=>{
+    const bucket=d&&d[thick];
+    if(bucket)Object.keys(bucket).forEach(k=>used.add(k));
+  });
   return[..._BOARD_ORDER,...[...used].filter(k=>!_BOARD_ORDER.includes(k))].filter(k=>used.has(k));
 }
 function _admRenderOcooch(el){
-  const cols=_admBoardCols();
-  let h=`<table class="adm-tbl"><thead><tr><th style="text-align:left;min-width:175px">Species</th>`;
+  const thick=_admOcoochThick;
+  const cols=_admBoardCols(thick);
+  let h=`<div class="adm-hint" style="margin-bottom:8px">Thickness: <select id="adm-o-thick" onchange="_admOcoochThick=parseFloat(this.value);_admRenderOcooch(document.getElementById('adm-content'))" style="font-weight:600">`
+    +_OCOOCH_THICKS.map(t=>`<option value="${t}" ${t===thick?'selected':''}>${ocoochThickLabel(t)}</option>`).join('')
+    +`</select></div>`;
+  h+=`<table class="adm-tbl"><thead><tr><th style="text-align:left;min-width:175px">Species</th>`;
   cols.forEach(k=>h+=`<th>${k}</th>`);
   h+=`<th style="width:26px"></th></tr></thead><tbody id="adm-o-body">`;
-  Object.keys(QB_OCOOCH_BOARDS).sort().forEach(sp=>h+=_admOcoochRow(sp,QB_OCOOCH_BOARDS[sp],cols));
+  Object.keys(QB_OCOOCH_BOARDS).sort().forEach(sp=>h+=_admOcoochRow(sp,QB_OCOOCH_BOARDS[sp]&&QB_OCOOCH_BOARDS[sp][thick],cols));
   h+=`</tbody></table><button class="adm-add-btn" onclick="_admAddOcoochRow()">+ Add Species</button>
-  <div class="adm-hint">Price per board (1/4" thick × stated width × length, in inches). Source: ocoochhardwoods.com/thin-wood/</div>`;
+  <div class="adm-hint">Price per board at the selected thickness × stated width × length, in inches. Source: ocoochhardwoods.com/scroll-saw-lumber/</div>`;
   el.innerHTML=h;
 }
 function _admOcoochRow(sp,data,cols){
-  if(!cols)cols=_admBoardCols();
+  if(!cols)cols=_admBoardCols(_admOcoochThick);
   const esc=(sp||'').replace(/"/g,'&quot;');
   let r=`<tr><td><input class="adm-inp adm-sp-n" value="${esc}" placeholder="Species name" style="width:170px;font-weight:600" oninput="_admMarkDirty()"></td>`;
   cols.forEach(k=>{const v=(data&&data[k]!=null)?data[k]:'';r+=`<td style="min-width:60px"><input class="adm-inp adm-price" type="number" step="0.01" min="0" value="${v}" placeholder="—" data-board="${k}" oninput="_admMarkDirty()"></td>`;});
@@ -7220,7 +7233,7 @@ function _admOcoochRow(sp,data,cols){
   return r;
 }
 function _admAddOcoochRow(){
-  const tbody=document.getElementById('adm-o-body'),cols=_admBoardCols();
+  const tbody=document.getElementById('adm-o-body'),cols=_admBoardCols(_admOcoochThick);
   const tmp=document.createElement('tbody');tmp.innerHTML=_admOcoochRow('',{},cols);
   tbody.appendChild(tmp.firstChild);tbody.lastChild.querySelector('.adm-sp-n')?.focus();_admMarkDirty();
 }
