@@ -6462,11 +6462,33 @@ function qbCalcYield(){
   }
 
   const pctSheet=intSurfSqIn/wcSheetArea;
+
+  // ── Order-level board nesting: the actual wood cost for the solid/Ocooch path ──────────
+  // Everything above prices wood as area × $/sq-in, which quietly assumes you can buy a fraction
+  // of a board and therefore charges ZERO waste — you cannot, and real cost is boards-bought ×
+  // board-price. qbPackOrder nests the WHOLE ORDER (all `qty` boxes at once, panels from box 2
+  // filling the room box 1's panels left over), which is what makes the discrete number honest:
+  // pricing one box's boards and multiplying by qty would round up a partial board once per box.
+  // Kerf here matches the board-selection display below (||0.125) so the price and the cut plan
+  // shown to the client are computed from the identical inputs and can never disagree.
+  const okerf=parseFloat(document.getElementById('qb-kerf')?.value)||0.125;
+  const orderPanelSrc=isMixMode?qbBoxPanels.filter(p=>p.mat==='solid'):qbBoxPanels;
+  const orderPanels=orderPanelSrc.map(p=>({w:p.pL,h:p.pW,count:p.count,label:p.name}));
+  const orderPlan=(isOcoochSolid&&wcSpeciesName&&orderPanels.length)
+    ?qbPackOrder(wcSpeciesName,orderPanels,T_calc,okerf,qty):null;
+  // Only price off the nested plan when every panel actually fits a stocked board. If any panel is
+  // oversize its "cost" is a placeholder off the widest board (a cut that isn't physically possible
+  // from that stock), so fall back to the smooth area rate and let the ⚠️ manual-quote flag stand.
+  const useOrderPlan=!!(orderPlan&&!(orderPlan.oversizePanels&&orderPlan.oversizePanels.length));
+
   // Same multi-board blended-rate substitution for pure-Solid (non-Mix) mode: intSurfSqIn stays the
   // area basis (unchanged "official model" proxy), only the $/sq-in rate improves from a single-board
-  // ratio to the per-panel-optimized blended rate.
-  const useBlendedRate=isOcoochSolid&&!isMixMode&&qbActiveCost.blendedRate!=null;
-  const wcPerBoxBase=isMixMode?(sidesCostPerBox+mdfCostPerBox):(useBlendedRate?intSurfSqIn*qbActiveCost.blendedRate:pctSheet*officialSheetPrice);
+  // ratio to the per-panel-optimized blended rate. Used as the fallback when no nested plan exists.
+  const useBlendedRate=isOcoochSolid&&!isMixMode&&qbActiveCost.blendedRate!=null&&!useOrderPlan;
+  if(useOrderPlan&&isMixMode)sidesCostPerBox=orderPlan.costPerBox; // solid half now board-accurate; MDF half unchanged
+  const wcPerBoxBase=isMixMode?(sidesCostPerBox+mdfCostPerBox)
+    :(useOrderPlan?orderPlan.costPerBox
+    :(useBlendedRate?intSurfSqIn*qbActiveCost.blendedRate:pctSheet*officialSheetPrice));
   // 2026 official: NO waste factor on wood cost — waste/defects come from qb-defectives on total cost
   const wcPerBox=wcPerBoxBase;
   const wcTotal=wcPerBox*qty;
