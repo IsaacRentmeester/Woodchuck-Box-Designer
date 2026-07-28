@@ -938,6 +938,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <button class="qt-path" data-mp="mix" onclick="qtSetPath('mix',this)">🔀 Mix<span>Solid sides · MDF panels</span></button>
             <button class="qt-path" data-mp="mdf" onclick="qtSetPath('mdf',this)">📄 MDF<span>All panels</span></button>
           </div>
+          <!-- Thickness picker — matches sheet dropdown -->
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+            <span style="font-size:.64rem;font-weight:700;color:#3d4f43;flex-shrink:0">📏 Thickness:</span>
+            <button class="qt-bts" id="qt-thk-btn-8" onclick="qtSetThick(0.155,this)" style="padding:3px 8px;font-size:.62rem">1/8″</button>
+            <button class="qt-bts sel" id="qt-thk-btn-4" onclick="qtSetThick(0.24,this)" style="padding:3px 8px;font-size:.62rem">1/4″ ✓</button>
+            <button class="qt-bts" id="qt-thk-btn-38" onclick="qtSetThick(0.36,this)" style="padding:3px 8px;font-size:.62rem">3/8″</button>
+            <span style="font-size:.6rem;color:var(--mu)">(most boxes = 1/4″)</span>
+          </div>
+          <!-- Acrylic inlay for top — primary quote field per sheet -->
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;padding:5px 8px;background:#f7f2ea;border-radius:7px;border:1px solid #e2d0b0">
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer">
+              <input type="checkbox" id="qt-s2-acrylic" style="width:14px;height:14px;cursor:pointer"
+                onchange="document.getElementById('qt-acrylic-inlay').checked=this.checked;qbUpdateAll()">
+              <span style="font-size:.72rem;font-weight:700">🪟 Acrylic inlay for top?</span>
+            </label>
+            <span style="font-size:.66rem;color:var(--mu)">(lid area ÷ sheet = <span id="qt-s2-acrylic-pu">$0.00</span>/unit)</span>
+          </div>
           <div class="qb-wood-grid" id="qb-wood-grid" style="max-height:280px;overflow-y:auto;margin-bottom:7px"></div>
           <!-- Req 2: Nesting visualization -->
           <div class="qb-nest-oversize" id="qb-nest-oversize">⛔ Panel exceeds all available stock widths — manual quote required. Switch to Mix or MDF, or use Woodchuck sheet pricing.</div>
