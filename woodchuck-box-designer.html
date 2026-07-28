@@ -5086,7 +5086,7 @@ function qbCheckRush(){
 function qbIsRush(){
   const val=document.getElementById('qb-needby')?.value;
   if(!val)return false;
-  return Math.ceil((new Date(val)-new Date())/(1000*60*60*24))<=28;
+  return Math.ceil((new Date(val)-new Date())/(1000*60*60*24))<=QB_RUSH_THRESHOLDS.rush;
 }
 
 // Auto-fill project name from current design specs
