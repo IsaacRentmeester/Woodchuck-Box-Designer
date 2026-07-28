@@ -2307,29 +2307,11 @@ function ocoochOptimizeBoards(speciesName,panels,t,kerf){
     return{w:p.w,h:p.h,count:p.count||1,label:p.label,candidates,oversize};
   });
 
-  // First-fit-decreasing bin packing: pieces must already be sorted longest-first. Unlike a
-  // simple "next fit" walk (only checks the currently-open board, closes it for good once a
-  // piece doesn't fit), FFD checks EVERY already-open board for leftover room before opening a
-  // new one — this is what actually lets sorting-by-length help; next-fit's single-open-board
-  // rule means sorting can occasionally do *worse* than arrival order (the previous cut of this
-  // function used next-fit with sorted input and could, in rare panel combinations, end up
-  // needing MORE boards than simply buying one uniform size — verified via simulation).
-  function packCount(board,pieces){
-    const bins=[];
-    pieces.forEach(pl=>{
-      const needed=pl+k;
-      let placed=false;
-      for(let i=0;i<bins.length;i++){
-        if(bins[i]>=needed){bins[i]-=needed;placed=true;break;}
-      }
-      if(!placed)bins.push(board.length-needed);
-    });
-    return bins.length||1;
-  }
-
   // Evaluate one full assignment (one chosen board per panel TYPE): group same-board types
-  // together, bin-pack each group independently (first-fit-decreasing), and total up
-  // cost/area/boards.
+  // together, 2D shelf-bin-pack each group independently (see ocoochShelfPack — nests panels
+  // side-by-side across the board's width, not just end-to-end along its length, so different
+  // panel TYPES sharing the same board size genuinely share leftover room in both dimensions),
+  // and total up cost/area/boards.
   function evalAssignment(choice){
     const groups=new Map();
     types.forEach((ty,i)=>{
@@ -2345,12 +2327,12 @@ function ocoochOptimizeBoards(speciesName,panels,t,kerf){
       const pieces=[];
       gtys.forEach(ty=>{
         const cnt=ty.count||1;
-        const pw=Math.min(ty.w,ty.h)<=board.width?Math.min(ty.w,ty.h):Math.max(ty.w,ty.h);
-        const pl=(pw===Math.min(ty.w,ty.h))?Math.max(ty.w,ty.h):Math.min(ty.w,ty.h);
-        for(let i=0;i<cnt;i++)pieces.push(pl);
+        const pw=Math.min(ty.w,ty.h);
+        const pl=Math.max(ty.w,ty.h);
+        for(let i=0;i<cnt;i++)pieces.push({w:pw,l:pl});
       });
-      pieces.sort((a,b)=>b-a);
-      const boardCount=packCount(board,pieces);
+      pieces.sort((a,b)=>b.l-a.l);
+      const boardCount=ocoochShelfPack(board,pieces,k);
       const areaUsed=gtys.reduce((s,ty)=>s+ty.w*ty.h*(ty.count||1),0);
       const boardArea=boardCount*board.width*board.length;
       const cost=boardCount*board.price;
