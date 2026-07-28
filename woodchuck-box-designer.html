@@ -2199,8 +2199,18 @@ function ocoochAssignPanelBoards(speciesName,panels,t,kerf,mode){
       if(mode==='psi'){
         best=fits.reduce((a,b)=>(b.price/b.sqin)<(a.price/a.sqin)?b:a);
       }else{
-        const pieceLen=b=>(p.w<=b.width?p.h:p.w);
-        const perPiece=b=>b.price/Math.max(1,Math.floor((b.length+k)/(pieceLen(b)+k)));
+        // Orientation convention (matches ocoochSelectBoard and the packing loop in
+        // ocoochOptimizeBoards below): always place the panel with its SHORTER side against the
+        // board's width and its LONGER side running along the board's length — standard cutting
+        // practice, and the same convention used everywhere else in this file. A board only ends
+        // up in `fits` if EITHER of the panel's dimensions clears that board's width, and since
+        // min(w,h)<=whichever dimension cleared it, min(w,h)<=board.width holds for every board
+        // in `fits` — so pieceLen=max(w,h) is valid (and constant) across all of them; it must
+        // NOT be computed per-board off which literal field (w vs h) happens to be <= that
+        // board's width, or a wider board can look artificially cheaper per-piece by having the
+        // panel's SHORT side "consume" length instead of its long side.
+        const pieceLen=Math.max(p.w,p.h);
+        const perPiece=b=>b.price/Math.max(1,Math.floor((b.length+k)/(pieceLen+k)));
         best=fits.reduce((a,b)=>perPiece(b)<perPiece(a)?b:a);
       }
     }else{
