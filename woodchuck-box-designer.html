@@ -5670,21 +5670,38 @@ function qbLoadSpeciesPrice(skipGrainUpdate){
     // Ocooch: pick the cheapest-per-sqin board for this species AT THE CURRENT THICKNESS
     // (snapped to the nearest thickness Ocooch actually stocks — never mixes prices across
     // thickness rows, since a 1/16" board and a 3/4" board of the same species price very
-    // differently for the same width).
+    // differently for the same width) — but ONLY among boards actually wide enough to cut
+    // every panel the current box needs. Mirrors the fit-check already used by the "Ocooch
+    // board selection" nesting display (ocoochSelectBoard/qbSyncNesting), so the price we
+    // quote can never come from a board too narrow for the parts.
     const oThickKey=ocoochThickKey(sp.name,T);
     const oBds=oThickKey!=null?QB_OCOOCH_BOARDS[sp.name][oThickKey]:null;
-    let bL=24,bW=6,bP=sp.sheet||0,bThick=T;
+    let bL=24,bW=6,bP=sp.sheet||0,bThick=T,fitFlag=null;
     if(oBds){
-      const best=Object.entries(oBds)
+      const all=Object.entries(oBds)
         .filter(([k,p])=>p!=null)
         .map(([k,p])=>{const[ws,ls]=k.split('x');const w=parseFloat(ws),l=parseFloat(ls);return{w,l,p,psi:p/(w*l)};})
-        .sort((a,b)=>a.psi-b.psi)[0];
+        .sort((a,b)=>a.psi-b.psi);
+      // Which panels actually need to fit this board? In Mix mode only the solid-wood side
+      // panels are cut from Ocooch stock (MDF top/bottom/lid come from Forte and don't care
+      // about Ocooch board width); in pure Solid mode the whole box is priced/cut from
+      // Ocooch, so every panel counts.
+      const Wd=C.cw||0,Dd=C.cd||0,Hd=C.ch||0;
+      const lidType=QB_LID_MAP[C.bt]||'hinged';
+      const allPanels=(Wd&&Dd&&Hd)?qbBuildPanels(Wd,Dd,Hd,T,lidType):[];
+      const fitPanels=qbMatPath==='mix'?allPanels.filter(p=>p.mat==='solid'):allPanels;
+      const fitsBoard=b=>fitPanels.every(p=>p.pL<=b.w||p.pW<=b.w);
+      const fitting=fitPanels.length?all.filter(fitsBoard):all;
+      if(fitPanels.length&&!fitting.length){
+        fitFlag='One or more panels exceed every available Ocooch board width at this thickness — priced off the widest board as a placeholder; treat as a manual quote.';
+      }
+      const best=(fitting.length?fitting:all)[0];
       if(best){bW=best.w;bL=best.l;bP=best.p;bThick=parseFloat(oThickKey);}
     }
     if(elL)elL.value=bL;
     if(elW)elW.value=bW;
     if(elP)elP.value=bP.toFixed(2);
-    qbActiveCost={mode:'ocooch',sheetCost:bP,sheetSqin:bL*bW,wood:sp.name,key:bThick,boardW:bW,boardL:bL,flag:null};
+    qbActiveCost={mode:'ocooch',sheetCost:bP,sheetSqin:bL*bW,wood:sp.name,key:bThick,boardW:bW,boardL:bL,flag:fitFlag};
     // Auto-set material thickness for Menards dimensional lumber (3/4" vs Ocooch 1/4")
     if(sp.defaultThick){
       const matTEl=document.getElementById('qb-matT');
