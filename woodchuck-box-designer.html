@@ -5208,9 +5208,10 @@ function qbRenderWoodGrid(){
       const mdfSpecies=MIX_SPECIES_MAP[s.name];
       const t=QB_SPECIES_TONE[s.name]||{base:'#C8A060',grain:'#8A6038'};
       const mdfResult=mdfSpeciesCost(mdfSpecies,T);
-      const solidPrice=WOOD_SHEET_PRICES[s.name]||s.sheet||0;
+      // Solid side price is ALWAYS the Ocooch reference board price (s.sheet) — never Forte.
+      const solidPrice=s.sheet||0;
       const priceHtml=`<span style="font-size:.58rem;color:var(--mu);display:block;line-height:1.3">`
-        +`🪵 $${solidPrice.toFixed(2)}/sht</span>`
+        +`🪵 $${solidPrice.toFixed(2)}/bd</span>`
         +`<span style="font-size:.58rem;color:var(--mu);display:block;line-height:1.3">`
         +`📄 $${mdfResult.cost.toFixed(2)}/sht</span>`;
       const selId=document.getElementById('qb-species')?.value;
