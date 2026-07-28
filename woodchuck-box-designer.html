@@ -5692,10 +5692,17 @@ function qbLoadSpeciesPrice(skipGrainUpdate){
       const fitPanels=qbMatPath==='mix'?allPanels.filter(p=>p.mat==='solid'):allPanels;
       const fitsBoard=b=>fitPanels.every(p=>p.pL<=b.w||p.pW<=b.w);
       const fitting=fitPanels.length?all.filter(fitsBoard):all;
-      if(fitPanels.length&&!fitting.length){
-        fitFlag='One or more panels exceed every available Ocooch board width at this thickness — priced off the widest board as a placeholder; treat as a manual quote.';
+      let best;
+      if(fitting.length){
+        best=fitting[0];
+      }else{
+        if(fitPanels.length){
+          fitFlag='One or more panels exceed every available Ocooch board width at this thickness — priced off the widest board as a placeholder; treat as a manual quote.';
+        }
+        // Nothing fits (or we had no panel geometry yet) — fall back to the widest board,
+        // since that gives the best real-world shot at accommodating the parts.
+        best=all.slice().sort((a,b)=>b.w-a.w)[0];
       }
-      const best=(fitting.length?fitting:all)[0];
       if(best){bW=best.w;bL=best.l;bP=best.p;bThick=parseFloat(oThickKey);}
     }
     if(elL)elL.value=bL;
