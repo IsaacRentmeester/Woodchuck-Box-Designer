@@ -7113,6 +7113,47 @@ function _admApplyHW(){
   });
 }
 function _admApplyTiers(){
+  // Config values
+  const fv=v=>parseFloat(document.getElementById(v)?.value);
+  if(!isNaN(fv('adm-cfg-floor'))&&fv('adm-cfg-floor')>0)QB_FLOOR_MULT=fv('adm-cfg-floor');
+  if(!isNaN(fv('adm-cfg-retail'))&&fv('adm-cfg-retail')>0)QB_RETAIL_MULT=fv('adm-cfg-retail');
+  if(!isNaN(fv('adm-cfg-matoh'))&&fv('adm-cfg-matoh')>0)QB_MAT_OVERHEAD=fv('adm-cfg-matoh');
+  if(!isNaN(fv('adm-cfg-laboh'))&&fv('adm-cfg-laboh')>0)QB_LABOR_OVERHEAD=fv('adm-cfg-laboh');
+  if(!isNaN(fv('adm-cfg-bopo')))QB_BOPO=fv('adm-cfg-bopo');
+  if(!isNaN(fv('adm-cfg-adh'))&&fv('adm-cfg-adh')>=0)QB_ADHESIVE_COST=fv('adm-cfg-adh');
+  // Rush thresholds
+  const iv=v=>parseInt(document.getElementById(v)?.value);
+  if(!isNaN(iv('adm-rush-overdue')))QB_RUSH_THRESHOLDS.overdue=iv('adm-rush-overdue');
+  if(!isNaN(iv('adm-rush-hot')))QB_RUSH_THRESHOLDS.hotRush=iv('adm-rush-hot');
+  if(!isNaN(iv('adm-rush-rush')))QB_RUSH_THRESHOLDS.rush=iv('adm-rush-rush');
+  if(!isNaN(iv('adm-rush-caution')))QB_RUSH_THRESHOLDS.caution=iv('adm-rush-caution');
+  // Engraving rates
+  const engBody=document.getElementById('adm-eng-body');
+  if(engBody){
+    QB_ENG_RATES.length=0;
+    engBody.querySelectorAll('tr').forEach(tr=>{
+      const inps=tr.querySelectorAll('input');
+      const min=parseInt(inps[0]?.value)||1;
+      const maxStr=inps[1]?.value||'';
+      const max=(maxStr==='∞'||parseInt(maxStr)>=99)?99:(parseInt(maxStr)||99);
+      const rate=parseFloat(inps[2]?.value)||0;
+      QB_ENG_RATES.push({min,max,rate});
+    });
+  }
+  // Logo rates
+  const logoBody=document.getElementById('adm-logo-body');
+  if(logoBody){
+    QB_LOGO_RATES.length=0;
+    logoBody.querySelectorAll('tr').forEach(tr=>{
+      const inps=tr.querySelectorAll('input');
+      const min=parseInt(inps[0]?.value)||1;
+      const maxStr=inps[1]?.value||'';
+      const max=(maxStr==='∞'||parseInt(maxStr)>=99)?99:(parseInt(maxStr)||99);
+      const rate=parseFloat(inps[2]?.value)||0;
+      QB_LOGO_RATES.push({min,max,rate});
+    });
+  }
+  // Pricing tiers
   const tbody=document.getElementById('adm-t-body');if(!tbody)return;
   tbody.querySelectorAll('tr[data-idx]').forEach((tr,i)=>{
     const inps=tr.querySelectorAll('input');
