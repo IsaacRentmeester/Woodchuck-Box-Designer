@@ -2096,6 +2096,14 @@ function ocoochBoardsForSpecies(speciesName,t){
     label:`${w}"x${length}" (${reqThick||0.25}")`
   }));
 }
+// Cheapest-per-sqin board price for a species AT A GIVEN THICKNESS — used anywhere we need a
+// quick "$X/board" display figure (wood grid swatches) without doing full nesting. Thickness-aware
+// so swatch prices stay correct as the user changes qb-matT, instead of showing one flat 1/4" price.
+function ocoochCheapestBoardPrice(speciesName,t){
+  const boards=ocoochBoardsForSpecies(speciesName,t);
+  if(!boards||!boards.length)return null;
+  return boards.reduce((best,b)=>(b.price/b.sqin)<(best.price/best.sqin)?b:best);
+}
 // Auto-select the lowest-cost board combination for a set of panels
 // panels: [{w, h}] — each panel's required dimensions (after joinery calc)
 // Returns {boardSize, boardsNeeded, totalCost, wastePercent, boards}
