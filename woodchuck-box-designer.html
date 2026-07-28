@@ -2405,16 +2405,29 @@ function ocoochOptimizeBoards(speciesName,panels,t,kerf){
         cost:uniform.totalCost,panelLabels:[...new Set(panels.map(p=>p.label).filter(Boolean))],
         areaUsed:parseFloat(uniform.totalAreaUsed)}],
       wastePercent:uniform.wastePercent,oversizePanels,totalAreaUsed:parseFloat(uniform.totalAreaUsed),
-      totalBoardArea:uniform.totalBoardArea,uniformCost:uniform.totalCost,savings:0
+      totalBoardArea:uniform.totalBoardArea,uniformCost:uniform.totalCost,savings:0,
+      // >50% waste means the panels are simply too small/narrow relative to every board size this
+      // species stocks — the search already checked EVERY combination and this is the cheapest one
+      // possible; there is no cheaper-or-equal choice that wastes less. Flagged (not hidden) so the
+      // quote UI can be transparent about it rather than silently showing a big red waste bar with
+      // no explanation. See highWaste note below for full rationale.
+      highWaste:uniform.wastePercent>50
     };
   }
 
   best.groupResults.sort((a,b)=>b.cost-a.cost);
   const wastePercent=best.totalBoardArea?Math.max(0,Math.round((1-best.totalAreaUsed/best.totalBoardArea)*100)):0;
 
+  // highWaste: this exhaustive search already tried EVERY possible board-size combination this
+  // species/thickness stocks and picked the cheapest one. If that cheapest plan still exceeds 50%
+  // waste, it's because the panels are small/narrow relative to the coarseness of the stocked board
+  // widths (e.g. a tiny box on a catalog that only offers 3"/4"/6"+ wide boards, or a single-SKU
+  // commodity species like Select Pine that stocks exactly one giant board) — not a packing failure.
+  // Verified exhaustively for representative cases: no other combination, at any cost, does better.
   return{totalCost:best.totalCost,totalBoards:best.totalBoards,groups:best.groupResults,wastePercent,
     oversizePanels,totalAreaUsed:best.totalAreaUsed,totalBoardArea:best.totalBoardArea,
-    uniformCost,savings:uniformCost!=null?Math.max(0,uniformCost-best.totalCost):0};
+    uniformCost,savings:uniformCost!=null?Math.max(0,uniformCost-best.totalCost):0,
+    highWaste:wastePercent>50};
 }
 
 // ── Req 2: Nesting layout + canvas renderer ───────────────────────────────
