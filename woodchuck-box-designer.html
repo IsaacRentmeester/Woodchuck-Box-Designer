@@ -7132,7 +7132,24 @@ function adminLoadOverrides(){
   const saved=QBdb.get('adminPricing');
   if(!saved)return;
   if(saved.wcSheetCost){Object.keys(WC_SHEET_COST).forEach(k=>delete WC_SHEET_COST[k]);Object.assign(WC_SHEET_COST,saved.wcSheetCost);}
-  if(saved.qbOcoochBoards){Object.keys(QB_OCOOCH_BOARDS).forEach(k=>delete QB_OCOOCH_BOARDS[k]);Object.assign(QB_OCOOCH_BOARDS,saved.qbOcoochBoards);}
+  if(saved.qbOcoochBoards){
+    // Guard against a stale pre-thickness-nesting snapshot. Old format was
+    // {species:{'WxL':price}} — flat numbers, one price per width. Current format
+    // nests an extra thickness level: {species:{thicknessDecimal:{'WxL':price}}}.
+    // A saved snapshot from before that rewrite is structurally incompatible with
+    // today's thickness-aware pricing code (it silently zeroes out every Ocooch
+    // price instead of erroring) — so detect the old shape and skip restoring it,
+    // keeping the built-in nested defaults instead of clobbering them.
+    const firstSpVal=Object.values(saved.qbOcoochBoards).find(v=>v&&typeof v==='object');
+    const firstThickVal=firstSpVal?Object.values(firstSpVal)[0]:undefined;
+    const isNestedFormat=firstThickVal&&typeof firstThickVal==='object';
+    if(isNestedFormat){
+      Object.keys(QB_OCOOCH_BOARDS).forEach(k=>delete QB_OCOOCH_BOARDS[k]);
+      Object.assign(QB_OCOOCH_BOARDS,saved.qbOcoochBoards);
+    }else{
+      console.warn('Woodchuck Box Designer: ignored a stale (pre-thickness) Ocooch pricing snapshot in localStorage — using built-in defaults. Re-open Pricing → Ocooch Boards and click Apply Changes to save a fresh snapshot.');
+    }
+  }
   if(saved.qbHwBom){Object.keys(QB_HW_BOM).forEach(k=>delete QB_HW_BOM[k]);Object.assign(QB_HW_BOM,saved.qbHwBom);}
   if(saved.qbPricingTiers&&saved.qbPricingTiers.length){QB_PRICING_TIERS.length=0;saved.qbPricingTiers.forEach(t=>QB_PRICING_TIERS.push(t));}
   if(saved.qbIntSqin)Object.assign(QB_INT_SQIN,saved.qbIntSqin);
