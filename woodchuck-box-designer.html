@@ -2194,28 +2194,33 @@ const VOL_MULT=[
 ];
 
 function calcBoxPanelArea(W,D,H,T,bt){
-  // Returns total surface area in sq.in of all panels for a box
-  const tH = bt==='clamshell' ? H/2 :
-              bt==='droptop'  ? H   :
-              bt==='settop'   ? H*0.68 :
-              bt==='slide'    ? H   :
-              bt==='crate'    ? H   : H*0.74; // hinged default
-  const lH = bt==='crate' ? 0 :
-              bt==='clamshell' ? H/2 :
-              bt==='droptop'   ? H*0.06 :
-              bt==='slide'     ? H*0.085 :
-              bt==='settop'    ? H - tH : H - tH;
+  // Returns total surface area in sq.in of all panels for a box.
+  // Clamshell boxes (clamnolatch / clamlatch) have full lid walls that wrap over the base.
+  // All other box types (hinged, slide, settop, droptop, etc.) have a flat lid panel only —
+  // no lid drop / front / back / side walls on the lid.
+  const isClam=bt==='clamshell'||bt==='clamnolatch'||bt==='clamlatch';
+  const tH = isClam             ? H/2 :
+              bt==='droptop'    ? H   :
+              bt==='settop'     ? H*0.68 :
+              bt==='slide'      ? H   :
+              bt==='crate'      ? H   : H*0.74; // hinged default
+  const lH = bt==='crate'       ? 0 :
+              isClam            ? H/2 :
+              bt==='droptop'    ? H*0.06 :
+              bt==='slide'      ? H*0.085 :
+              bt==='settop'     ? H-tH : H-tH;
   const hasLid = lH > 0.05;
 
   // Tray panels
-  const floor  = W * D;
-  const trayFB = (W + 2*T) * (tH + T) * 2;   // front+back
-  const traySides = D * (tH + T) * 2;           // left+right
+  const floor     = W * D;
+  const trayFB    = (W + 2*T) * (tH + T) * 2;  // front+back
+  const traySides = D * (tH + T) * 2;            // left+right
 
-  // Lid panels
+  // Lid panels — clamshell has full lid walls (front/back/sides that drop over base);
+  // all other box types have a flat lid top only (no lid drop walls).
   const lidTop  = hasLid ? W * D : 0;
-  const lidFB   = hasLid ? (W + 2*T) * (lH + T) * 2 : 0;
-  const lidSides= hasLid ? D * (lH + T) * 2 : 0;
+  const lidFB   = (hasLid && isClam) ? (W + 2*T) * (lH + T) * 2 : 0;
+  const lidSides= (hasLid && isClam) ? D * (lH + T) * 2 : 0;
 
   return floor + trayFB + traySides + lidTop + lidFB + lidSides;
 }
