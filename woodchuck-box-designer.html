@@ -2269,19 +2269,29 @@ function ocoochOptimizeBoards(speciesName,panels,t,kerf){
     return{w:p.w,h:p.h,count:p.count||1,label:p.label,candidates,oversize};
   });
 
+  // First-fit-decreasing bin packing: pieces must already be sorted longest-first. Unlike a
+  // simple "next fit" walk (only checks the currently-open board, closes it for good once a
+  // piece doesn't fit), FFD checks EVERY already-open board for leftover room before opening a
+  // new one — this is what actually lets sorting-by-length help; next-fit's single-open-board
+  // rule means sorting can occasionally do *worse* than arrival order (the previous cut of this
+  // function used next-fit with sorted input and could, in rare panel combinations, end up
+  // needing MORE boards than simply buying one uniform size — verified via simulation).
   function packCount(board,pieces){
-    let remaining=board.length,boardCount=1;
+    const bins=[];
     pieces.forEach(pl=>{
       const needed=pl+k;
-      if(remaining<needed){boardCount++;remaining=board.length;}
-      remaining-=needed;
+      let placed=false;
+      for(let i=0;i<bins.length;i++){
+        if(bins[i]>=needed){bins[i]-=needed;placed=true;break;}
+      }
+      if(!placed)bins.push(board.length-needed);
     });
-    return boardCount;
+    return bins.length||1;
   }
 
   // Evaluate one full assignment (one chosen board per panel TYPE): group same-board types
-  // together, bin-pack each group independently (longest-piece-first — wastes less than
-  // arrival order), and total up cost/area/boards.
+  // together, bin-pack each group independently (first-fit-decreasing), and total up
+  // cost/area/boards.
   function evalAssignment(choice){
     const groups=new Map();
     types.forEach((ty,i)=>{
