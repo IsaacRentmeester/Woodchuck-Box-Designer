@@ -5069,13 +5069,13 @@ function qbCheckRush(){
   if(!val){badge.style.display='none';return;}
   const daysOut=Math.ceil((new Date(val)-new Date())/(1000*60*60*24));
   badge.style.display='flex';
-  if(daysOut<=0){
+  if(daysOut<=QB_RUSH_THRESHOLDS.overdue){
     badge.innerHTML=`<span style="background:#f44336;color:#fff;font-size:.7rem;font-weight:800;padding:4px 10px;border-radius:20px;letter-spacing:.04em">🔥 OVERDUE</span>`;
-  }else if(daysOut<=14){
+  }else if(daysOut<=QB_RUSH_THRESHOLDS.hotRush){
     badge.innerHTML=`<span style="background:#f44336;color:#fff;font-size:.7rem;font-weight:800;padding:4px 10px;border-radius:20px;letter-spacing:.04em">⚠ RUSH · ${daysOut}d</span>`;
-  }else if(daysOut<=28){
+  }else if(daysOut<=QB_RUSH_THRESHOLDS.rush){
     badge.innerHTML=`<span style="background:#FF9800;color:#fff;font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.04em">⚠ RUSH · ${daysOut}d</span>`;
-  }else if(daysOut<=56){
+  }else if(daysOut<=QB_RUSH_THRESHOLDS.caution){
     badge.innerHTML=`<span style="background:#FFC107;color:#333;font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.04em">⏱ ${daysOut}d out</span>`;
   }else{
     badge.innerHTML=`<span style="background:var(--gxl);color:var(--green);font-size:.7rem;font-weight:600;padding:4px 10px;border-radius:20px">✓ ${daysOut}d out</span>`;
