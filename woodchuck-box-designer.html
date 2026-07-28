@@ -6603,14 +6603,15 @@ function qbCalcYield(){
         // relative to the coarsest stocked board sizes (or the species only stocks one board size at
         // all), not a missed cheaper option. Surface it plainly instead of a red bar with no context.
         const highWasteRow=(sel.highWaste&&!(sel.oversizePanels&&sel.oversizePanels.length))
-          ?`<div style="margin-top:6px;padding:6px 9px;background:#fdf3e0;border:1.5px solid #c8a060;border-radius:7px;font-size:.67rem;color:#6b4e16;font-weight:600">ℹ️ This is the lowest-cost board plan available — waste is high because this order is small relative to the board sizes this species stocks. Every combination was checked; none does better without adding cost.</div>`
+          ?`<div style="margin-top:6px;padding:6px 9px;background:#fdf3e0;border:1.5px solid #c8a060;border-radius:7px;font-size:.67rem;color:#6b4e16;font-weight:600">ℹ️ This is the lowest-cost board plan available — waste is high because this order is small relative to the board sizes this species stocks. Every combination was checked, including nesting boxes together; none does better without adding cost.</div>`
           :'';
         yldEl.innerHTML+=`<div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--bo)">
-          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:4px">🪵 Ocooch board selection${sel.groups.length>1?' — mixed sizes':''}</div>
+          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:4px">🪵 Ocooch board purchase · order of ${qty}${sel.groups.length>1?' — mixed sizes':''}</div>
           ${groupRows}
-          <div class="qb-yield-row"><span>Total boards</span><span class="qb-val">${sel.totalBoards}</span></div>
-          <div class="qb-yield-row"><span>Material cost</span><span class="qb-val">$${sel.totalCost.toFixed(2)}</span></div>
+          <div class="qb-yield-row"><span>Total boards</span><span class="qb-val">${sel.totalBoards} <span style="color:var(--mu);font-weight:400">(${sel.boardsPerBox.toFixed(2)}/box)</span></span></div>
+          <div class="qb-yield-row"><span>Material cost</span><span class="qb-val">$${sel.totalCost.toFixed(2)} <span style="color:var(--mu);font-weight:400">($${sel.costPerBox.toFixed(2)}/box)</span></span></div>
           ${savingsRow}
+          ${batchRow}
           <div class="qb-yield-row"><span>Board usage</span><span class="qb-val" style="flex:1">${wasteBar}</span></div>
           ${oversizeRow}
           ${highWasteRow}
