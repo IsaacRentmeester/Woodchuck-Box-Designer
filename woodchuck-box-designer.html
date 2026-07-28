@@ -6083,7 +6083,7 @@ function qbUpdateAll(){
   const costWithOverhead=costWithDef*(matFraction*QB_MAT_OVERHEAD+laborFraction*QB_LABOR_OVERHEAD);
   const overheadAmt=costWithOverhead-costWithDef;
   // BOPO + Packaging: $0.22 + $0.10 = $0.32 per unit
-  const bopoPerUnit=0.32;
+  const bopoPerUnit=QB_BOPO;
   const costPerUnit=costWithOverhead/qty+bopoPerUnit;
   // ── 2026 Floor/Retail pricing structure ──
   const perUnit=qbPriceFromCost(costPerUnit,qty);
