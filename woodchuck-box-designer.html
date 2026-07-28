@@ -5661,32 +5661,32 @@ function qbCalcYield(){
   const el=document.getElementById('qb-yield-content');
   if(el){
     if(isMixMode){
-      // Mix mode: show split breakdown
+      // Mix mode: show split breakdown — solid sides priced/sized from Ocooch, MDF from Forte
       const solidSp=wcSpeciesName||'—';
       const mdfSp=qbMixMdfSpecies||'—';
       const mdfEntry=mdfSpeciesCost(mdfSp,T_calc);
-      const solidPrice=WOOD_SHEET_PRICES[solidSp]||shPrice;
       el.innerHTML=
-         `<div class="qb-yield-row"><span>🔀 <strong>Mix: solid sides + MDF top &amp; bottom</strong></span></div>`
+         `<div class="qb-yield-row"><span>🔀 <strong>Mix: solid sides (Ocooch) + MDF top &amp; bottom (Forte)</strong></span></div>`
         +`<div class="qb-yield-row"><span>🪵 Solid sides — actual cut panels (F/B + L/R)</span><span class="qb-val">${sidesArea.toFixed(1)} sq in</span></div>`
-        +`<div class="qb-yield-row"><span>🪵 ${solidSp} · $${solidPrice.toFixed(2)}/sht ÷ 4608</span><span class="qb-val">$${sidesCostPerBox.toFixed(2)} / box</span></div>`
+        +`<div class="qb-yield-row"><span>🪵 ${solidSp} · $${mixSolidBoardPrice.toFixed(2)}/board ÷ ${mixSolidBoardSqin.toFixed(0)} sq in</span><span class="qb-val">$${sidesCostPerBox.toFixed(2)} / box</span></div>`
         +`<div class="qb-yield-row"><span>📄 MDF top &amp; bottom — actual cut panels</span><span class="qb-val">${topBottomArea.toFixed(1)} sq in</span></div>`
         +`<div class="qb-yield-row"><span>📄 ${mdfSp} · ${mdfEntry.label} · $${mixMdfSheetPrice.toFixed(2)}/sht ÷ 4608</span><span class="qb-val">$${mdfCostPerBox.toFixed(2)} / box</span></div>`
         +`<div class="qb-yield-row" style="border-top:1px solid var(--bo);margin-top:6px;padding-top:6px"><span><strong>Total wood cost · ${qty}</strong></span><span class="qb-val"><strong>$${wcTotal.toFixed(2)}</strong></span></div>`;
-    }else if(wcMode){
+    }else if(wcMode||isOcoochSolid){
       const isMdf=qbActiveCost.mode==='mdf';
-      const sheetLabel=isMdf?qbActiveCost.label:`${qbActiveCost.wood} ${wcThickLabel(qbActiveCost.key)}`;
-      const isBB=qbActiveCost.wood==='Baltic Birch';
-      const sheetDims=isMdf?'48×96 (4×8)':isBB?'60×60 (5×5)':'48×96 (4×8)';
+      const unitWord=isOcoochSolid?'board':'sheet';
+      const sheetLabel=isMdf?qbActiveCost.label:(isOcoochSolid?`${qbActiveCost.wood} (Ocooch)`:`${qbActiveCost.wood} ${wcThickLabel(qbActiveCost.key)}`);
+      const isBB=!isOcoochSolid&&qbActiveCost.wood==='Baltic Birch';
+      const sheetDims=isOcoochSolid?`${sL}"×${sW}"`:(isMdf?'48×96 (4×8)':isBB?'60×60 (5×5)':'48×96 (4×8)');
       const wasteRow=wastePct>0?`<div class="qb-yield-row"><span>Overage / defects (${wastePct}%)</span><span class="qb-val">+$${(wcPerBox-wcPerBoxBase).toFixed(2)} / box</span></div>`:'';
       el.innerHTML=
          `<div class="qb-yield-row"><span>Interior surface area / box</span><span class="qb-val">${intSurfSqIn.toFixed(1)} sq in</span></div>`
-        +`<div class="qb-yield-row"><span>% of a ${sheetDims} sheet (4608 sq in)</span><span class="qb-val">${(pctSheet*100).toFixed(2)}%</span></div>`
-        +`<div class="qb-yield-row"><span>Sheet cost · ${sheetLabel}</span><span class="qb-val">$${officialSheetPrice.toFixed(2)} / sheet</span></div>`
+        +`<div class="qb-yield-row"><span>% of a ${sheetDims} ${unitWord} (${wcSheetArea.toFixed(0)} sq in)</span><span class="qb-val">${(pctSheet*100).toFixed(2)}%</span></div>`
+        +`<div class="qb-yield-row"><span>${isOcoochSolid?'Board':'Sheet'} cost · ${sheetLabel}</span><span class="qb-val">$${officialSheetPrice.toFixed(2)} / ${unitWord}</span></div>`
         +`<div class="qb-yield-row"><span>Base wood cost / box</span><span class="qb-val">$${wcPerBoxBase.toFixed(2)}</span></div>`
         +wasteRow
         +`<div class="qb-yield-row" style="border-top:1px solid var(--bo);margin-top:6px;padding-top:6px"><span><strong>Total wood cost · ${qty}</strong></span><span class="qb-val"><strong>$${wcTotal.toFixed(2)}</strong></span></div>`
-        +`<div class="qb-yield-row"><span style="font-size:.7rem;color:var(--mu)">Sheets to buy (nesting est.)</span><span style="font-size:.7rem;color:var(--mu)">${totalSheets} · ${avgYield.toFixed(0)}% yield</span></div>`;
+        +`<div class="qb-yield-row"><span style="font-size:.7rem;color:var(--mu)">${isOcoochSolid?'Boards':'Sheets'} to buy (nesting est.)</span><span style="font-size:.7rem;color:var(--mu)">${totalSheets} · ${avgYield.toFixed(0)}% yield</span></div>`;
     }else{
       el.innerHTML=panelResults.map(r=>`<div class="qb-yield-row"><span>${r.name} (${r.partsNeeded} pcs)</span><span class="qb-val">${r.sheetsOrd} sheets · ${r.yldEff.toFixed(0)}% yield · $${r.cost.toFixed(2)}</span></div>`).join('')
         +`<div class="qb-yield-row" style="border-top:1px solid var(--bo);margin-top:6px;padding-top:6px"><span><strong>Total wood cost</strong></span><span class="qb-val"><strong>${totalSheets} sheets · $${packCost.toFixed(2)}</strong></span></div>`
