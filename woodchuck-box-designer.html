@@ -6922,13 +6922,42 @@ function _admRenderHW(el){
 
 // ── Pricing & Margins tab ─────────────────────────────────────────────────
 function _admRenderTiers(el){
-  let h=`<div class="adm-section-hdr">Quantity Price Tiers</div>
-  <div class="adm-hint" style="margin-bottom:10px">FLOOR = cost × 2.28 · RETAIL = FLOOR × 1.9 · Factor: 0 = floor (best margin for Woodchuck), 1 = retail (lowest margin)</div>
+  // Config section
+  let h=`<div class="adm-section-hdr">Pricing Formula Config</div>
+  <div class="adm-hint" style="margin-bottom:10px">Core multipliers that drive every quote. Floor = what you need to make. Retail = what you can charge at low qty. Overhead split: materials vs. labor/hardware carry different OH rates.</div>
+  <table class="adm-tbl" style="width:auto;margin-bottom:12px"><thead><tr><th style="min-width:220px">Setting</th><th style="min-width:110px">Value</th><th style="min-width:200px">What it does</th></tr></thead><tbody>
+    <tr><td style="padding:4px 9px;font-weight:600">Floor Multiplier</td><td><input class="adm-inp adm-price" type="number" step="0.01" min="1" value="${QB_FLOOR_MULT}" id="adm-cfg-floor" style="width:90px" oninput="_admMarkDirty()"></td><td style="font-size:.72rem;color:#666;padding:4px 9px">cost × this = floor price (56% margin at 2.28)</td></tr>
+    <tr><td style="padding:4px 9px;font-weight:600">Retail Multiplier</td><td><input class="adm-inp adm-price" type="number" step="0.01" min="1" value="${QB_RETAIL_MULT}" id="adm-cfg-retail" style="width:90px" oninput="_admMarkDirty()"></td><td style="font-size:.72rem;color:#666;padding:4px 9px">floor × this = retail price (blended by qty factor)</td></tr>
+    <tr><td style="padding:4px 9px;font-weight:600">Materials Overhead Rate</td><td><input class="adm-inp adm-price" type="number" step="0.01" min="1" value="${QB_MAT_OVERHEAD}" id="adm-cfg-matoh" style="width:90px" oninput="_admMarkDirty()"></td><td style="font-size:.72rem;color:#666;padding:4px 9px">applied to wood + material costs (1.15 = 15% OH)</td></tr>
+    <tr><td style="padding:4px 9px;font-weight:600">Labor/Hardware Overhead Rate</td><td><input class="adm-inp adm-price" type="number" step="0.01" min="1" value="${QB_LABOR_OVERHEAD}" id="adm-cfg-laboh" style="width:90px" oninput="_admMarkDirty()"></td><td style="font-size:.72rem;color:#666;padding:4px 9px">applied to labor, hardware, finish costs (1.29 = 29% OH)</td></tr>
+    <tr><td style="padding:4px 9px;font-weight:600">BOPO + Packaging ($/unit)</td><td><input class="adm-inp adm-price" type="number" step="0.01" min="0" value="${QB_BOPO}" id="adm-cfg-bopo" style="width:90px" oninput="_admMarkDirty()"></td><td style="font-size:.72rem;color:#666;padding:4px 9px">flat per-unit cost added after overhead</td></tr>
+    <tr><td style="padding:4px 9px;font-weight:600">Adhesive Add-on ($/sheet)</td><td><input class="adm-inp adm-price" type="number" step="0.01" min="0" value="${QB_ADHESIVE_COST}" id="adm-cfg-adh" style="width:90px" oninput="_admMarkDirty()"></td><td style="font-size:.72rem;color:#666;padding:4px 9px">added to sheet price when adhesive toggle is ON</td></tr>
+  </tbody></table>
+  <div class="adm-section-hdr">Rush Day Thresholds</div>
+  <div class="adm-hint" style="margin-bottom:8px">Days-to-need-by cutoffs for the badge colors on the need-by date field.</div>
+  <table class="adm-tbl" style="width:auto;margin-bottom:12px"><thead><tr><th style="min-width:160px">Badge</th><th>≤ days out</th></tr></thead><tbody>
+    <tr><td style="padding:4px 9px;font-weight:600">🔥 OVERDUE (red)</td><td><input class="adm-inp adm-price" type="number" min="0" value="${QB_RUSH_THRESHOLDS.overdue}" id="adm-rush-overdue" style="width:72px" oninput="_admMarkDirty()"></td></tr>
+    <tr><td style="padding:4px 9px;font-weight:600">⚠ RUSH hot (red)</td><td><input class="adm-inp adm-price" type="number" min="1" value="${QB_RUSH_THRESHOLDS.hotRush}" id="adm-rush-hot" style="width:72px" oninput="_admMarkDirty()"></td></tr>
+    <tr><td style="padding:4px 9px;font-weight:600">⚠ RUSH (orange)</td><td><input class="adm-inp adm-price" type="number" min="1" value="${QB_RUSH_THRESHOLDS.rush}" id="adm-rush-rush" style="width:72px" oninput="_admMarkDirty()"></td></tr>
+    <tr><td style="padding:4px 9px;font-weight:600">⏱ Caution (yellow)</td><td><input class="adm-inp adm-price" type="number" min="1" value="${QB_RUSH_THRESHOLDS.caution}" id="adm-rush-caution" style="width:72px" oninput="_admMarkDirty()"></td></tr>
+  </tbody></table>
+  <div class="adm-section-hdr">Engraving Rates ($/placement)</div>
+  <div class="adm-hint" style="margin-bottom:8px">Tiered by number of placements on the box. Rate applies to every placement in that tier.</div>
+  <table class="adm-tbl" style="width:auto;margin-bottom:12px"><thead><tr><th>Min</th><th>Max</th><th>$/placement</th></tr></thead><tbody id="adm-eng-body">`;
+  QB_ENG_RATES.forEach((r,i)=>h+=`<tr data-ei="${i}"><td><input class="adm-inp adm-price" type="number" min="1" value="${r.min}" style="width:60px" oninput="_admMarkDirty()"></td><td><input class="adm-inp" value="${r.max>=99?'∞':r.max}" style="width:60px;text-align:right" oninput="_admMarkDirty()"></td><td><input class="adm-inp adm-price" type="number" step="0.01" min="0" value="${r.rate}" style="width:80px" oninput="_admMarkDirty()"></td></tr>`);
+  h+=`</tbody></table>
+  <div class="adm-section-hdr">Logo Rates ($/placement)</div>
+  <div class="adm-hint" style="margin-bottom:8px">Tiered by number of logo placements.</div>
+  <table class="adm-tbl" style="width:auto;margin-bottom:12px"><thead><tr><th>Min</th><th>Max</th><th>$/placement</th></tr></thead><tbody id="adm-logo-body">`;
+  QB_LOGO_RATES.forEach((r,i)=>h+=`<tr data-li="${i}"><td><input class="adm-inp adm-price" type="number" min="1" value="${r.min}" style="width:60px" oninput="_admMarkDirty()"></td><td><input class="adm-inp" value="${r.max>=99?'∞':r.max}" style="width:60px;text-align:right" oninput="_admMarkDirty()"></td><td><input class="adm-inp adm-price" type="number" step="0.01" min="0" value="${r.rate}" style="width:80px" oninput="_admMarkDirty()"></td></tr>`);
+  h+=`</tbody></table>
+  <div class="adm-section-hdr">Quantity Price Tiers</div>
+  <div class="adm-hint" style="margin-bottom:10px">Factor 0 = floor price (best margin for Woodchuck). Factor 1 = retail price (lowest margin, used for small qty). Effective multiplier and margin % update live.</div>
   <table class="adm-tbl" style="margin-bottom:4px"><thead><tr>
     <th>Label</th><th>Min Qty</th><th>Max Qty</th><th>Factor (0–1)</th><th>Effective Mult</th><th>Margin %</th>
   </tr></thead><tbody id="adm-t-body">`;
   QB_PRICING_TIERS.forEach((t,i)=>{
-    const eff=2.28+t.factor*(2.28*1.9-2.28),mg=(100-100/eff).toFixed(1);
+    const eff=QB_FLOOR_MULT+t.factor*(QB_FLOOR_MULT*QB_RETAIL_MULT-QB_FLOOR_MULT),mg=(100-100/eff).toFixed(1);
     h+=`<tr data-idx="${i}">
       <td><input class="adm-inp" value="${t.label}" style="width:80px;text-align:center" oninput="_admMarkDirty()"></td>
       <td><input class="adm-inp adm-price" type="number" min="1" value="${t.lo}" style="width:72px" oninput="_admMarkDirty()"></td>
@@ -6951,7 +6980,7 @@ function _admRenderTiers(el){
 }
 function _admTierLive(inp,i){
   const f=Math.max(0,Math.min(1,parseFloat(inp.value)||0));
-  const eff=2.28+f*(2.28*1.9-2.28),mg=(100-100/eff).toFixed(1);
+  const eff=QB_FLOOR_MULT+f*(QB_FLOOR_MULT*QB_RETAIL_MULT-QB_FLOOR_MULT),mg=(100-100/eff).toFixed(1);
   const eEl=document.getElementById('adm-teff-'+i),mEl=document.getElementById('adm-tmg-'+i);
   if(eEl)eEl.textContent=eff.toFixed(3)+'×';if(mEl)mEl.textContent=mg+'%';
   _admMarkDirty();
