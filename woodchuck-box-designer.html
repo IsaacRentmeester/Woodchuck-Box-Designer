@@ -6791,6 +6791,20 @@ function adminLoadOverrides(){
   if(saved.qbIntSqin)Object.assign(QB_INT_SQIN,saved.qbIntSqin);
   if(saved.qbFinSqin)Object.assign(QB_FIN_SQIN,saved.qbFinSqin);
   if(saved.wcWoodAlias){Object.keys(WC_WOOD_ALIAS).forEach(k=>delete WC_WOOD_ALIAS[k]);Object.assign(WC_WOOD_ALIAS,saved.wcWoodAlias);}
+  if(saved.qbEngRates&&saved.qbEngRates.length){QB_ENG_RATES.length=0;saved.qbEngRates.forEach(r=>QB_ENG_RATES.push(r));}
+  if(saved.qbLogoRates&&saved.qbLogoRates.length){QB_LOGO_RATES.length=0;saved.qbLogoRates.forEach(r=>QB_LOGO_RATES.push(r));}
+  if(saved.wcMdfSpecies){Object.keys(WC_MDF_SPECIES).forEach(k=>delete WC_MDF_SPECIES[k]);Object.assign(WC_MDF_SPECIES,saved.wcMdfSpecies);}
+  if(saved.mixSpeciesMap){Object.keys(MIX_SPECIES_MAP).forEach(k=>delete MIX_SPECIES_MAP[k]);Object.assign(MIX_SPECIES_MAP,saved.mixSpeciesMap);}
+  if(saved.qbConfig){
+    const c=saved.qbConfig;
+    if(c.floorMult!=null)QB_FLOOR_MULT=c.floorMult;
+    if(c.retailMult!=null)QB_RETAIL_MULT=c.retailMult;
+    if(c.matOverhead!=null)QB_MAT_OVERHEAD=c.matOverhead;
+    if(c.laborOverhead!=null)QB_LABOR_OVERHEAD=c.laborOverhead;
+    if(c.bopo!=null)QB_BOPO=c.bopo;
+    if(c.adhesiveCost!=null)QB_ADHESIVE_COST=c.adhesiveCost;
+    if(c.rushThresholds)Object.assign(QB_RUSH_THRESHOLDS,c.rushThresholds);
+  }
 }
 adminLoadOverrides();
 
