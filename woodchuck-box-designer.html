@@ -2165,31 +2165,19 @@ function ocoochSelectBoard(speciesName,panels,t,kerf){
   // For each available board width, compute how many boards are needed
   let best=null;
   boards.forEach(board=>{
-    // Simple 1D bin-packing: for each panel, determine if it fits within board width
-    // A panel of width w can be cut from this board if w <= board.width (with kerf)
-    // Count how many panels fit per board (panels laid end-to-end along length, side-by-side if width allows)
-    let totalBoardsNeeded=0;
+    // 2D shelf bin-packing (see ocoochShelfPack): panels narrower than the board's width nest
+    // side-by-side instead of each claiming the full board width for its length-segment.
     let totalAreaUsed=0;
 
     // Group panels by whether they fit within this board width
     const fitsAll=panels.every(p=>p.w<=board.width||p.h<=board.width);
     if(!fitsAll)return; // skip this board size — a panel is too wide
 
-    // For each panel: how many fit along the 24" length?
-    // Orient panel so the shorter dimension is the width (to use board width efficiently)
-    let remaining=board.length; // remaining length on current board
-    let boardCount=1;
-
-    panels.forEach(p=>{
-      // Orient: try to fit the panel so one dimension <= board.width
-      const pW=Math.min(p.w,p.h)<=board.width?Math.min(p.w,p.h):Math.max(p.w,p.h);
-      const pL=(pW===Math.min(p.w,p.h))?Math.max(p.w,p.h):Math.min(p.w,p.h);
-      const needed=pL+k; // panel length + one kerf
-      if(remaining<needed){boardCount++;remaining=board.length;}
-      remaining-=needed;
-      totalAreaUsed+=p.w*p.h;
-    });
-    totalBoardsNeeded=boardCount;
+    // Orient each panel so its shorter dimension is the width (fits across the board) and the
+    // longer dimension runs along the board's length, then sort longest-first for shelf packing.
+    const pieces=panels.map(p=>({w:Math.min(p.w,p.h),l:Math.max(p.w,p.h)})).sort((a,b)=>b.l-a.l);
+    const totalBoardsNeeded=ocoochShelfPack(board,pieces,k);
+    panels.forEach(p=>{totalAreaUsed+=p.w*p.h;});
 
     const totalCost=totalBoardsNeeded*board.price;
     const totalBoardArea=totalBoardsNeeded*board.sqin;
