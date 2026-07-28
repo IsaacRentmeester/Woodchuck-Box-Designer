@@ -7214,16 +7214,31 @@ function _admApplyMdf(){
 function adminExportJS(){
   const fmt=obj=>JSON.stringify(obj,null,2);
   const out=[
-    '// ── WC_SHEET_COST (cost per 4×8 sheet by species + thickness) ──────────',
+    '// ── WC_SHEET_COST (Forte PS sheet cost per 4×8 sheet, by species + thickness) ──',
     'const WC_SHEET_COST='+fmt(WC_SHEET_COST)+';','',
-    '// ── QB_OCOOCH_BOARDS (board price by species + board size) ─────────────',
+    '// ── QB_OCOOCH_BOARDS (Ocooch solid wood board price by species + size) ──────────',
     'const QB_OCOOCH_BOARDS='+fmt(QB_OCOOCH_BOARDS)+';','',
-    '// ── QB_HW_BOM (hardware cost by box type + color) ───────────────────────',
+    '// ── QB_HW_BOM (hardware cost per unit, by box type + hardware color) ────────────',
     'const QB_HW_BOM='+fmt(QB_HW_BOM)+';','',
-    '// ── QB_PRICING_TIERS (quantity markup tier table) ────────────────────────',
+    '// ── QB_PRICING_TIERS (quantity price tier table) ─────────────────────────────────',
     'const QB_PRICING_TIERS='+fmt(QB_PRICING_TIERS)+';','',
-    '// ── WC_WOOD_ALIAS (catalog species → production wood mapping) ────────────',
-    'const WC_WOOD_ALIAS='+fmt(WC_WOOD_ALIAS)+';',
+    '// ── WC_WOOD_ALIAS (catalog species → production wood mapping) ───────────────────',
+    'const WC_WOOD_ALIAS='+fmt(WC_WOOD_ALIAS)+';','',
+    '// ── WC_MDF_SPECIES (PS/MDF species pricing per 4×8 sheet, Forte quote) ──────────',
+    'const WC_MDF_SPECIES='+fmt(WC_MDF_SPECIES)+';','',
+    '// ── MIX_SPECIES_MAP (solid wood → companion PS/MDF species for mix mode) ─────────',
+    'const MIX_SPECIES_MAP='+fmt(MIX_SPECIES_MAP)+';','',
+    '// ── QB_ENG_RATES / QB_LOGO_RATES (tiered engraving/logo $/placement) ────────────',
+    'const QB_ENG_RATES='+fmt(QB_ENG_RATES)+';','',
+    'const QB_LOGO_RATES='+fmt(QB_LOGO_RATES)+';','',
+    '// ── Config scalars ────────────────────────────────────────────────────────────────',
+    `let QB_FLOOR_MULT=${QB_FLOOR_MULT};       // cost → floor price`,
+    `let QB_RETAIL_MULT=${QB_RETAIL_MULT};      // floor → retail`,
+    `let QB_MAT_OVERHEAD=${QB_MAT_OVERHEAD};    // overhead on materials`,
+    `let QB_LABOR_OVERHEAD=${QB_LABOR_OVERHEAD}; // overhead on labor/hardware`,
+    `let QB_BOPO=${QB_BOPO};             // BOPO + packaging $/unit`,
+    `let QB_ADHESIVE_COST=${QB_ADHESIVE_COST}; // adhesive add-on $/sheet`,
+    `const QB_RUSH_THRESHOLDS=${fmt(QB_RUSH_THRESHOLDS)};`,
   ].join('\n');
   navigator.clipboard.writeText(out).then(()=>{
     const btn=document.getElementById('adm-export-btn');
