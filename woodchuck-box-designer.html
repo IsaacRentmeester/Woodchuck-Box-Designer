@@ -6167,17 +6167,16 @@ function qbCalcYield(){
     if(sp&&sp.name){
       const t=parseFloat(document.getElementById('qb-matT')?.value)||0.25;
       const kerf=parseFloat(document.getElementById('qb-kerf')?.value)||0.125;
-      const W=parseFloat(document.getElementById('qb-dim-w')?.value)||C.cw||6;
-      const D=parseFloat(document.getElementById('qb-dim-d')?.value)||C.cd||9;
-      const H=parseFloat(document.getElementById('qb-dim-h')?.value)||C.ch||3;
-      const T=t;
-      const extW=W+2*T, extD=D+2*T, extH=H+T;
-      const panels=[
-        {w:W,h:D},{w:extW,h:extH},{w:extW,h:extH},
-        {w:D,h:extH},{w:D,h:extH},
-      ];
-      const sel=ocoochSelectBoard(sp.name,panels,T,kerf);
-      _qtOversizeFlag=!sel;
+      // Use the SAME lid-aware, mat-aware panel set already computed for this box (qbBoxPanels =
+      // qbBuildPanels output) rather than an ad-hoc reconstruction — in Mix mode only the solid
+      // (Ocooch) panels need to fit/purchase from Ocooch boards; the MDF top/bottom are Forte's.
+      const fitPanels=qbMatPath==='mix'?qbBoxPanels.filter(p=>p.mat==='solid'):qbBoxPanels;
+      const panels=fitPanels.map(p=>({w:p.pL,h:p.pW,count:p.count,label:p.name}));
+      // Multi-board purchase optimization: different panel types can be bought from DIFFERENT
+      // Ocooch board widths on the same order (e.g. bottom/lid from a cheap narrow board, sides
+      // from a wider board only if they actually need it) instead of forcing one uniform board.
+      const sel=ocoochOptimizeBoards(sp.name,panels,t,kerf);
+      _qtOversizeFlag=!sel||(sel.oversizePanels&&sel.oversizePanels.length>0);
       const yldEl=document.getElementById('qb-yield-content');
       if(sel&&yldEl){
         const usePct=100-sel.wastePercent;
@@ -6188,15 +6187,26 @@ function qbCalcYield(){
           </div>
           <span style="font-size:.62rem;color:${barColor};font-weight:700;white-space:nowrap">${usePct}% used</span>
         </div>`;
+        const groupRows=sel.groups.map(g=>
+          `<div class="qb-yield-row"><span>${g.boardLabel}${g.panelLabels.length?` <span style="color:var(--mu);font-weight:400">— ${g.panelLabels.join(', ')}</span>`:''}</span><span class="qb-val">${g.boardsNeeded} × $${g.pricePerBoard.toFixed(2)} = $${g.cost.toFixed(2)}</span></div>`
+        ).join('');
+        const savingsRow=(sel.uniformCost!=null&&sel.savings>0.005)
+          ?`<div class="qb-yield-row" style="color:var(--green)"><span>💰 Saved by mixing board sizes</span><span class="qb-val"><strong>$${sel.savings.toFixed(2)}</strong> vs one uniform board</span></div>`
+          :'';
+        const oversizeRow=(sel.oversizePanels&&sel.oversizePanels.length)
+          ?`<div style="margin-top:6px;padding:6px 9px;background:#fdecea;border:1.5px solid #c2453a;border-radius:7px;font-size:.67rem;color:#7e1d15;font-weight:600">⚠️ ${sel.oversizePanels.join(', ')} exceed${sel.oversizePanels.length===1?'s':''} every available Ocooch board width at this thickness — priced off the widest board as a placeholder; treat as a manual quote.</div>`
+          :'';
         yldEl.innerHTML+=`<div style="margin-top:7px;padding-top:7px;border-top:1px solid var(--bo)">
-          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:4px">🪵 Ocooch board selection</div>
-          <div class="qb-yield-row"><span>Best stock size</span><span class="qb-val">${sel.boardSize}</span></div>
-          <div class="qb-yield-row"><span>Boards needed</span><span class="qb-val">${sel.boardsNeeded} × $${sel.pricePerBoard.toFixed(2)}</span></div>
+          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:4px">🪵 Ocooch board selection${sel.groups.length>1?' — mixed sizes':''}</div>
+          ${groupRows}
+          <div class="qb-yield-row"><span>Total boards</span><span class="qb-val">${sel.totalBoards}</span></div>
           <div class="qb-yield-row"><span>Material cost</span><span class="qb-val">$${sel.totalCost.toFixed(2)}</span></div>
+          ${savingsRow}
           <div class="qb-yield-row"><span>Board usage</span><span class="qb-val" style="flex:1">${wasteBar}</span></div>
+          ${oversizeRow}
         </div>`;
       } else if(!sel&&yldEl&&sp.name){
-        yldEl.innerHTML+=`<div style="margin-top:6px;padding:6px 9px;background:#fdecea;border:1.5px solid #c2453a;border-radius:7px;font-size:.67rem;color:#7e1d15;font-weight:600">⚠️ One or more panels exceed available Ocooch stock widths — manual quote required.</div>`;
+        yldEl.innerHTML+=`<div style="margin-top:6px;padding:6px 9px;background:#fdecea;border:1.5px solid #c2453a;border-radius:7px;font-size:.67rem;color:#7e1d15;font-weight:600">⚠️ No Ocooch board data available for this species/thickness — manual quote required.</div>`;
       }
     }
   }
