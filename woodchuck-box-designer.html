@@ -7069,8 +7069,9 @@ function adminApply(){
   else if(tab==='ocooch')_admApplyOcooch();
   else if(tab==='hw')_admApplyHW();
   else if(tab==='tiers')_admApplyTiers();
+  else if(tab==='mdf')_admApplyMdf();
   else if(tab==='alias')_admApplyAlias();
-  // Persist entire current state (all tables, not just current tab)
+  // Persist entire current state (all tables)
   QBdb.set('adminPricing',{
     wcSheetCost:JSON.parse(JSON.stringify(WC_SHEET_COST)),
     qbOcoochBoards:JSON.parse(JSON.stringify(QB_OCOOCH_BOARDS)),
@@ -7079,6 +7080,16 @@ function adminApply(){
     qbIntSqin:{...QB_INT_SQIN},
     qbFinSqin:{...QB_FIN_SQIN},
     wcWoodAlias:{...WC_WOOD_ALIAS},
+    qbEngRates:QB_ENG_RATES.map(r=>({...r})),
+    qbLogoRates:QB_LOGO_RATES.map(r=>({...r})),
+    wcMdfSpecies:JSON.parse(JSON.stringify(WC_MDF_SPECIES)),
+    mixSpeciesMap:{...MIX_SPECIES_MAP},
+    qbConfig:{
+      floorMult:QB_FLOOR_MULT,retailMult:QB_RETAIL_MULT,
+      matOverhead:QB_MAT_OVERHEAD,laborOverhead:QB_LABOR_OVERHEAD,
+      bopo:QB_BOPO,adhesiveCost:QB_ADHESIVE_COST,
+      rushThresholds:{...QB_RUSH_THRESHOLDS},
+    },
   });
   qbUpdateAll&&qbUpdateAll();
   _admDirty=false;
