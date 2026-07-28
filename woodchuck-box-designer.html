@@ -6986,6 +6986,56 @@ function _admTierLive(inp,i){
   _admMarkDirty();
 }
 
+// ── MDF / PS Pricing tab ──────────────────────────────────────────────────
+function _admRenderMdf(el){
+  // WC_MDF_SPECIES table
+  const mdfCols=['0.155','0.24','0.36'];
+  const mdfLbl={'0.155':'1/8" (.155)','0.24':'1/4" (.24)','0.36':'3/8" (.36)'};
+  let h=`<div class="adm-section-hdr">PS / MDF Species Pricing (per 4×8 sheet)</div>
+  <div class="adm-hint" style="margin-bottom:10px">Prices for Premium Sheet (PS) materials: wood veneer face over MDF core. Used when material path = MDF, or for MDF top &amp; bottom panels in Mix mode. Source: Forte Quote #072826-BP.</div>
+  <table class="adm-tbl"><thead><tr><th style="text-align:left;min-width:175px">Species / Type</th>`;
+  mdfCols.forEach(k=>h+=`<th>${mdfLbl[k]||k}</th>`);
+  h+=`<th style="width:26px"></th></tr></thead><tbody id="adm-mdf-body">`;
+  Object.keys(WC_MDF_SPECIES).sort().forEach(sp=>{
+    const esc=sp.replace(/"/g,'&quot;');
+    h+=`<tr><td><input class="adm-inp adm-sp-n" value="${esc}" style="width:170px;font-weight:600" oninput="_admMarkDirty()"></td>`;
+    mdfCols.forEach(k=>{const v=(WC_MDF_SPECIES[sp]&&WC_MDF_SPECIES[sp][k]!=null)?WC_MDF_SPECIES[sp][k]:'';h+=`<td style="min-width:90px"><input class="adm-inp adm-price" type="number" step="0.01" min="0" value="${v}" placeholder="—" data-mdfk="${k}" oninput="_admMarkDirty()"></td>`;});
+    h+=`<td><button class="adm-del-btn" onclick="this.closest('tr').remove();_admMarkDirty()" title="Remove">✕</button></td></tr>`;
+  });
+  h+=`</tbody></table><button class="adm-add-btn" onclick="_admAddMdfRow()">+ Add Species</button>
+  <div class="adm-section-hdr" style="margin-top:18px">Mix Mode Species Map (Solid → PS/MDF companion)</div>
+  <div class="adm-hint" style="margin-bottom:10px">When Mix mode is selected and the customer picks a solid wood species, this table determines which PS/MDF species is used for the top &amp; bottom panels. Solid sides = Ocooch board pricing · MDF top/bottom = PS sheet pricing below.</div>
+  <table class="adm-tbl"><thead><tr>
+    <th style="text-align:left">Solid Wood Species</th>
+    <th style="text-align:left">Companion MDF/PS Species</th>
+    <th style="width:26px"></th>
+  </tr></thead><tbody id="adm-mix-body">`;
+  Object.keys(MIX_SPECIES_MAP).sort().forEach(f=>{
+    const ef=f.replace(/"/g,'&quot;'),et=(MIX_SPECIES_MAP[f]||'').replace(/"/g,'&quot;');
+    h+=`<tr>
+      <td><input class="adm-inp adm-mix-f" value="${ef}" placeholder="e.g. Walnut" style="width:200px" oninput="_admMarkDirty()"></td>
+      <td><input class="adm-inp adm-mix-t" value="${et}" placeholder="e.g. PS Walnut" style="width:200px" oninput="_admMarkDirty()"></td>
+      <td><button class="adm-del-btn" onclick="this.closest('tr').remove();_admMarkDirty()" title="Remove">✕</button></td>
+    </tr>`;
+  });
+  h+=`</tbody></table><button class="adm-add-btn" onclick="_admAddMixRow()">+ Add Mapping</button>`;
+  el.innerHTML=h;
+}
+function _admAddMdfRow(){
+  const tbody=document.getElementById('adm-mdf-body');if(!tbody)return;
+  const cols=['0.155','0.24','0.36'];
+  let r=`<tr><td><input class="adm-inp adm-sp-n" value="" placeholder="Species name" style="width:170px;font-weight:600" oninput="_admMarkDirty()"></td>`;
+  cols.forEach(k=>r+=`<td style="min-width:90px"><input class="adm-inp adm-price" type="number" step="0.01" min="0" value="" placeholder="—" data-mdfk="${k}" oninput="_admMarkDirty()"></td>`);
+  r+=`<td><button class="adm-del-btn" onclick="this.closest('tr').remove();_admMarkDirty()" title="Remove">✕</button></td></tr>`;
+  const tmp=document.createElement('tbody');tmp.innerHTML=r;tbody.appendChild(tmp.firstChild);_admMarkDirty();
+}
+function _admAddMixRow(){
+  const tbody=document.getElementById('adm-mix-body');if(!tbody)return;
+  const tmp=document.createElement('tbody');
+  tmp.innerHTML=`<tr><td><input class="adm-inp adm-mix-f" value="" placeholder="e.g. Walnut" style="width:200px" oninput="_admMarkDirty()"></td><td><input class="adm-inp adm-mix-t" value="" placeholder="e.g. PS Walnut" style="width:200px" oninput="_admMarkDirty()"></td><td><button class="adm-del-btn" onclick="this.closest('tr').remove();_admMarkDirty()" title="Remove">✕</button></td></tr>`;
+  tbody.appendChild(tmp.firstChild);_admMarkDirty();
+}
+
 // ── Species Aliases tab ───────────────────────────────────────────────────
 function _admRenderAlias(el){
   let h=`<div class="adm-hint" style="margin-bottom:10px">Maps an Ocooch/catalog species name → the Woodchuck production wood name, so the correct WC sheet cost is used when quoting.</div>
