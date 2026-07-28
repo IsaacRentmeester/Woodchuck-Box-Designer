@@ -2172,15 +2172,26 @@ function ocoochSelectBoard(speciesName,panels,t,kerf){
 // purchase list (ocoochOptimizeBoards).
 // panels: [{w,h,count,label}] — count/label optional, count defaults to 1.
 // Returns [{w,h,count,label,board,oversize}] or null if no board data exists at all.
-function ocoochAssignPanelBoards(speciesName,panels,t){
+function ocoochAssignPanelBoards(speciesName,panels,t,kerf){
   const boards=ocoochBoardsForSpecies(speciesName,t);
   if(!boards||!boards.length)return null;
+  const k=kerf||0.125;
   return panels.map(p=>{
     const fits=boards.filter(b=>p.w<=b.width||p.h<=b.width);
     const oversize=!fits.length;
     let best;
     if(fits.length){
-      best=fits.reduce((a,b)=>(b.price/b.sqin)<(a.price/a.sqin)?b:a);
+      // Rank by true cost PER PIECE, not $/sq-in. Ocooch's board length is fixed per
+      // species+thickness regardless of width (verified across the full stocked catalog — 0 of
+      // 226 species/thickness groups vary length by width), so how many of THIS panel fit per
+      // board depends only on panel length vs board length, never on board width once the
+      // panel's narrow side clears it. $/sq-in can reward whichever board happens to sit in a
+      // pricing "sweet spot" even when a narrower/cheaper board yields the identical parts-per-
+      // board count — cost-per-piece catches that, and stays correct even if a future species
+      // ever does vary board length by width.
+      const pieceLen=b=>(p.w<=b.width?p.h:p.w);
+      const perPiece=b=>b.price/Math.max(1,Math.floor((b.length+k)/(pieceLen(b)+k)));
+      best=fits.reduce((a,b)=>perPiece(b)<perPiece(a)?b:a);
     }else{
       // Nothing fits — fall back to the WIDEST available board as the closest-available
       // placeholder (mirrors qbLoadSpeciesPrice's oversize fallback below). NOT the cheapest:
