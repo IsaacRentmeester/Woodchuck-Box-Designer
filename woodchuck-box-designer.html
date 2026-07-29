@@ -6560,7 +6560,10 @@ function qbCalcYield(){
         +`<div class="qb-yield-row"><span>Base wood cost / box</span><span class="qb-val">$${wcPerBoxBase.toFixed(2)}</span></div>`
         +wasteRow
         +`<div class="qb-yield-row" style="border-top:1px solid var(--bo);margin-top:6px;padding-top:6px"><span><strong>Total wood cost · ${qty}</strong></span><span class="qb-val"><strong>$${wcTotal.toFixed(2)}</strong></span></div>`
-        +`<div class="qb-yield-row"><span style="font-size:.7rem;color:var(--mu)">${isOcoochSolid?'Boards':'Sheets'} to buy (nesting est.)</span><span style="font-size:.7rem;color:var(--mu)">${totalSheets} · ${avgYield.toFixed(0)}% yield</span></div>`;
+        // When a nested order plan exists it IS the board count — show it, not the old per-panel
+        // qbBestFit estimate, which packs each panel type onto its own sheets independently and so
+        // reported a different number (396 vs 400) two rows below the authoritative one.
+        +`<div class="qb-yield-row"><span style="font-size:.7rem;color:var(--mu)">${isOcoochSolid?'Boards':'Sheets'} to buy${useOrderPlan?'':' (nesting est.)'}</span><span style="font-size:.7rem;color:var(--mu)">${useOrderPlan?`${orderPlan.totalBoards} · ${100-orderPlan.wastePercent}% yield`:`${totalSheets} · ${avgYield.toFixed(0)}% yield`}</span></div>`;
     }else{
       el.innerHTML=panelResults.map(r=>`<div class="qb-yield-row"><span>${r.name} (${r.partsNeeded} pcs)</span><span class="qb-val">${r.sheetsOrd} sheets · ${r.yldEff.toFixed(0)}% yield · $${r.cost.toFixed(2)}</span></div>`).join('')
         +`<div class="qb-yield-row" style="border-top:1px solid var(--bo);margin-top:6px;padding-top:6px"><span><strong>Total wood cost</strong></span><span class="qb-val"><strong>${totalSheets} sheets · $${packCost.toFixed(2)}</strong></span></div>`
