@@ -6532,7 +6532,14 @@ function qbCalcYield(){
       const sheetLabel=isMdf?qbActiveCost.label:(isOcoochSolid?`${qbActiveCost.wood} (Ocooch)`:`${qbActiveCost.wood} ${wcThickLabel(qbActiveCost.key)}`);
       const isBB=!isOcoochSolid&&qbActiveCost.wood==='Baltic Birch';
       const sheetDims=isOcoochSolid?`${sL}"×${sW}"`:(isMdf?'48×96 (4×8)':isBB?'60×60 (5×5)':'48×96 (4×8)');
-      const wasteRow=wastePct>0?`<div class="qb-yield-row"><span>Overage / defects (${wastePct}%)</span><span class="qb-val">+$${(wcPerBox-wcPerBoxBase).toFixed(2)} / box</span></div>`:'';
+      // The old "Overage / defects (N%)" row here always rendered +$0.00 — wcPerBox === wcPerBoxBase
+      // since the 2026 model stopped applying a waste multiplier to wood — so it claimed an overage
+      // was priced in when none was, on the one line a client would check for exactly that. The real
+      // defectives allowance is a separate input (qb-defectives) applied to TOTAL cost downstream,
+      // and physical cutting waste is now in the board count itself. State that instead of a $0.00.
+      const wasteRow=wastePct>0
+        ?`<div class="qb-yield-row"><span style="font-size:.7rem;color:var(--mu)">Cutting waste</span><span style="font-size:.7rem;color:var(--mu)">${useOrderPlan?`in board count (${orderPlan.wastePercent}% offcut)`:'in board count'} · overage ${wastePct}% applies to total, not wood</span></div>`
+        :'';
       const blendRow=useBlendedRate?`<div class="qb-yield-row"><span>🔀 Multi-board optimized rate</span><span class="qb-val">$${qbActiveCost.blendedRate.toFixed(4)}/sq in <span style="color:var(--mu);font-weight:400">(vs $${(officialSheetPrice/wcSheetArea).toFixed(4)} single-board)</span></span></div>`:'';
       // When the price comes from the real nested cut plan, show the boards being bought and what
       // the order-level nesting saved vs. buying boards one box at a time — the two numbers a
