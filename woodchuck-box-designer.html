@@ -2544,29 +2544,21 @@ function qbPackOrder(speciesName,panels,t,kerf,qty,opts){
   // Score each candidate batch size by the TOTAL cost of the whole order it implies (repeats +
   // one remainder run) — NOT by the batch's own cost-per-box, which ignores that an awkward
   // remainder can eat the entire per-box saving and end up worse than not nesting at all.
+  // The remainder is packed as EXACTLY the leftover boxes — never rounded up to a full batch.
+  // Consequence, and it is the correct one: cost per box has a real sawtooth, because boards are
+  // bought whole. Select Pine 3/4" stocks a single 11"x96" board that yields exactly 5 of a 6x4x3
+  // box, so 5 boxes cost $7.12 each and 17 boxes cost $8.37 each (ceil(17/5) = 4 boards). That is
+  // not a packing failure to be smoothed away — 4 boards really is optimal for 17 — and hiding it
+  // behind an averaged rate is precisely the "charges zero waste" problem this replaced. Quantity
+  // breaks land on multiples of the batch size; the readout names that number so it's actionable.
   const MB=Math.max(1,Math.min(MAXB,Q));
-  const batches=[];
-  for(let B=1;B<=MB;B++){const r=packBatch(B);if(r)batches.push({B,r});}
-  if(!batches.length)return null;
-  // Cheapest single run that yields AT LEAST r boxes. The last partial batch doesn't have to be
-  // packed as exactly `r` boxes — a shop cuts the boards for a whole batch and ends up with a
-  // couple of spare boxes, which is often cheaper than a bespoke short run (that short run has to
-  // round its own partial boards up all over again). Without this, an awkward remainder makes the
-  // per-box price tick UP as quantity increases — e.g. 17 boxes pricing 17.6% higher each than 5,
-  // which reads as a broken quote even though each figure is individually defensible.
-  const atLeast=r=>{
-    if(r<=0)return null;
-    let bestR=null;
-    for(const c of batches)if(c.B>=r&&(!bestR||c.r.totalCost<bestR.r.totalCost-1e-9))bestR=c;
-    return bestR;
-  };
   let win=null;
-  for(const {B,r} of batches){
+  for(let B=1;B<=MB;B++){
+    const r=packBatch(B);if(!r)continue;
     const reps=Math.floor(Q/B),rem=Q%B;
-    const tail=rem?atLeast(rem):null;
-    const rr=tail?tail.r:null;
+    const rr=rem?packBatch(rem):null;
     const total=reps*r.totalCost+(rr?rr.totalCost:0);
-    if(!win||total<win.total-1e-9)win={B,total,reps,r,rr,tailBoxes:tail?tail.B:0};
+    if(!win||total<win.total-1e-9)win={B,total,reps,r,rr};
   }
   if(!win)return null;
 
