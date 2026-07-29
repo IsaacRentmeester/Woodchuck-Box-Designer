@@ -2545,13 +2545,28 @@ function qbPackOrder(speciesName,panels,t,kerf,qty,opts){
   // one remainder run) — NOT by the batch's own cost-per-box, which ignores that an awkward
   // remainder can eat the entire per-box saving and end up worse than not nesting at all.
   const MB=Math.max(1,Math.min(MAXB,Q));
+  const batches=[];
+  for(let B=1;B<=MB;B++){const r=packBatch(B);if(r)batches.push({B,r});}
+  if(!batches.length)return null;
+  // Cheapest single run that yields AT LEAST r boxes. The last partial batch doesn't have to be
+  // packed as exactly `r` boxes — a shop cuts the boards for a whole batch and ends up with a
+  // couple of spare boxes, which is often cheaper than a bespoke short run (that short run has to
+  // round its own partial boards up all over again). Without this, an awkward remainder makes the
+  // per-box price tick UP as quantity increases — e.g. 17 boxes pricing 17.6% higher each than 5,
+  // which reads as a broken quote even though each figure is individually defensible.
+  const atLeast=r=>{
+    if(r<=0)return null;
+    let bestR=null;
+    for(const c of batches)if(c.B>=r&&(!bestR||c.r.totalCost<bestR.r.totalCost-1e-9))bestR=c;
+    return bestR;
+  };
   let win=null;
-  for(let B=1;B<=MB;B++){
-    const r=packBatch(B);if(!r)continue;
+  for(const {B,r} of batches){
     const reps=Math.floor(Q/B),rem=Q%B;
-    const rr=rem?packBatch(rem):null;
+    const tail=rem?atLeast(rem):null;
+    const rr=tail?tail.r:null;
     const total=reps*r.totalCost+(rr?rr.totalCost:0);
-    if(!win||total<win.total-1e-9)win={B,total,reps,r,rr};
+    if(!win||total<win.total-1e-9)win={B,total,reps,r,rr,tailBoxes:tail?tail.B:0};
   }
   if(!win)return null;
 
