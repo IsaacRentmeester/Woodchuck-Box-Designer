@@ -2647,24 +2647,54 @@ function qbGenShelves(board,kinds,kerf,cap){
   return shelves;
 }
 
-// A pattern = one whole board: shelves stacked down its length. Returned as a per-panel-TYPE
-// count vector (orientations collapse away here — the DP only cares how many of each type a
-// board yields).
-function qbGenPatterns(board,shelves,nT,kindType,kerf,cap){
+// Collapse shelves to per-panel-TYPE counts (orientation stops mattering once a piece is placed)
+// and drop every shelf another shelf beats outright — same yield or better, in the same length or
+// less. This is the difference between usable and unusable: a 96" Select Pine board with small
+// crate panels enumerates 48 raw shelves, and stacking those 24 deep is a search tree with more
+// leaves than atoms. Most are redundant, because many different rips produce the identical piece
+// mix. Pruning first takes 48 shelves down to a handful and pattern generation from 2,641ms to
+// under 10 — with no loss, since a dominated shelf can never appear in an optimal board.
+function qbPruneShelves(shelves,nT,kindType){
+  const seen=new Map();
+  shelves.forEach(sh=>{
+    const tc=new Array(nT).fill(0);
+    for(let j=0;j<sh.counts.length;j++)if(sh.counts[j])tc[kindType[j]]+=sh.counts[j];
+    const key=tc.join(',');const e=seen.get(key);
+    if(!e||sh.len<e.len-1e-9)seen.set(key,{tc,len:sh.len});   // same yield: keep the shorter rip
+  });
+  const uniq=[...seen.values()].sort((a,b)=>a.len-b.len);
+  const kept=[];
+  outer:for(const s of uniq){
+    for(const q of kept){                                     // sorted, so q.len <= s.len already
+      let dom=true;
+      for(let i=0;i<nT;i++)if(q.tc[i]<s.tc[i]){dom=false;break;}
+      if(dom)continue outer;
+    }
+    kept.push(s);
+  }
+  return kept;
+}
+
+// A pattern = one whole board: shelves stacked down its length, as a per-panel-type count vector.
+// `budget` caps recursion NODES, not just output. The output cap alone is not a safety net: the
+// `seen` dedup means the tree can churn for seconds without ever emitting a new distinct vector,
+// so the thing that must be bounded is the work, not the answer.
+function qbGenPatterns(board,shelves,nT,kerf,cap,budget){
   const out=[],seen=new Set(),tc=new Array(nT).fill(0);
+  let nodes=0;
   function rec(si,lenUsed,depth){
     if(depth>0){
       const key=tc.join(',');
       if(!seen.has(key)){seen.add(key);out.push(tc.slice());}
     }
-    if(si>=shelves.length||out.length>=cap||depth>=24)return;
+    if(si>=shelves.length||out.length>=cap||depth>=24||++nodes>budget)return;
     for(let i=si;i<shelves.length;i++){
       const sh=shelves[i],add=(depth===0?0:kerf)+sh.len;
       if(lenUsed+add>board.length+1e-9)continue;
-      for(let j=0;j<sh.counts.length;j++)if(sh.counts[j])tc[kindType[j]]+=sh.counts[j];
+      for(let j=0;j<nT;j++)if(sh.tc[j])tc[j]+=sh.tc[j];
       rec(i,lenUsed+add,depth+1);
-      for(let j=0;j<sh.counts.length;j++)if(sh.counts[j])tc[kindType[j]]-=sh.counts[j];
-      if(out.length>=cap)return;
+      for(let j=0;j<nT;j++)if(sh.tc[j])tc[j]-=sh.tc[j];
+      if(out.length>=cap||nodes>budget)return;
     }
   }
   rec(0,0,0);
@@ -2746,8 +2776,9 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
         if(pw<=b.width+1e-9&&pl<=b.length+1e-9){kinds.push({pw,pl});kindType.push(i);}
       });
     });
-    const sh=kinds.length?qbGenShelves(b,kinds,k,opts.shelfCap||1500):[];
-    const pp=sh.length?qbPruneDominated(qbGenPatterns(b,sh,nT,kindType,k,opts.patCap||1500),nT):[];
+    const raw=kinds.length?qbGenShelves(b,kinds,k,opts.shelfCap||1500):[];
+    const sh=raw.length?qbPruneShelves(raw,nT,kindType):[];
+    const pp=sh.length?qbPruneDominated(qbGenPatterns(b,sh,nT,k,opts.patCap||1500,opts.nodeCap||200000),nT):[];
     pats.push(pp);
     let m=0;
     pp.forEach(p=>{for(let i=0;i<nT;i++)if(p[i]>0)m|=(1<<i);});
