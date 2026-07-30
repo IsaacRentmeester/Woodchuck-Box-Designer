@@ -5635,7 +5635,19 @@ function qbSaveQuoteStore(){QBdb.set('quotes',qbQuotes);}
 // SYNC FROM 3D DESIGN
 // ════════════════════════════════════════════════════════════════════════
 // Map box designer lid types to quote panel categories
-const QB_LID_MAP={hinged:'hinged',clamshell:'hinged',slide:'sliding',settop:'liftoff',droptop:'fixed',crate:'none'};
+// Every box type the picker offers must appear here. Anything missing fell through
+// to the 'hinged' default, which is how Clamshell boxes ended up quoted as a plain
+// flat lid with none of their four lid walls -- wood we cut but never charged for.
+// Lid families: 'hinged'/'fixed' = flat panel resting on the walls, 'sliding' = rides
+// in a groove, 'wrap' = lid with its own walls that drops over the base, 'none' = open.
+const QB_LID_MAP={
+  hinged:'hinged', hingedlatch:'hinged',
+  clamnolatch:'wrap', clamlatch:'wrap', clamshell:'wrap',
+  slide:'sliding', acrylicslide:'sliding',
+  settop:'wrap',
+  droptop:'fixed', acrylicset:'fixed',
+  crate:'none'
+};
 
 // ── Real Ocooch Hardwoods stock limits (ocoochhardwoods.com) ──────────────
 // Thin hardwood is SOLID wood, never glued, so every box panel must be cut from
