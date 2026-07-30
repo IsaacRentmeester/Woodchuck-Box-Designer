@@ -2935,7 +2935,8 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
       picks.push(pick);prev=cur;
       if(qbNow()>deadline){batchCache.set(B,null);return null;}
     }
-    if(prev[FULL]===Infinity){batchCache.set(B,null);return null;}
+    let dp=null;
+    if(prev[FULL]!==Infinity){
     let S=FULL;const gr=[];
     for(let bi=nB-1;bi>=0;bi--){
       const T=picks[bi][S];
@@ -2956,8 +2957,24 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
     }
     let totalBoards=0,areaUsed=0,boardArea=0;
     gr.forEach(g=>{totalBoards+=g.boardsNeeded;areaUsed+=g.areaUsed;boardArea+=g.boardArea;});
-    const res={totalCost:prev[FULL],totalBoards,areaUsed,boardArea,gr};
-    batchCache.set(B,res);return res;
+    dp={totalCost:prev[FULL],totalBoards,areaUsed,boardArea,gr};
+    }
+
+    // Also solve THIS batch with the free-mixing set-cover, not just the whole order. Without it the
+    // engine can only reach a mixed-size plan by mixing across the entire run, and the batch loop
+    // below can only repeat DP plans — so "cut 5 boxes the clever mixed way, then do that 20 times"
+    // was in neither search space. It is a real and reachable optimum: Bloodwood 3/4" 3.75x3.75x1.25
+    // hinged quoted $162.81 for 10 units while simply running its own 5-unit plan twice cost $152.82.
+    // Cheap to add because the patterns are already enumerated and greedy set-cover scales with the
+    // number of boards it places, so a 5-box batch costs a fraction of the whole-order call.
+    let best=dp;
+    if(pool.length&&qbNow()<=deadline){
+      const sb=qbSetCoverPlan(pool,panels.map(p=>(p.count||1)*B),nT,area,panels);
+      if(sb&&(!best||sb.totalCost<best.totalCost-1e-9))
+        best={totalCost:sb.totalCost,totalBoards:sb.totalBoards,areaUsed:sb.areaUsed,
+              boardArea:sb.boardArea,gr:sb.groups};
+    }
+    batchCache.set(B,best);return best;
   }
 
   // Same batch-periodicity search as the legacy engine: score a candidate batch by the cost of the
