@@ -2654,13 +2654,19 @@ function qbGenShelves(board,kinds,kerf,cap){
 // leaves than atoms. Most are redundant, because many different rips produce the identical piece
 // mix. Pruning first takes 48 shelves down to a handful and pattern generation from 2,641ms to
 // under 10 — with no loss, since a dominated shelf can never appear in an optimal board.
-function qbPruneShelves(shelves,nT,kindType){
+// `kinds` is carried through so a surviving shelf still knows the actual PIECES in it (size and
+// orientation), not just how many of each type. That is what lets the cut diagram draw the very
+// board the quote was priced from instead of re-deriving a second, different-looking layout.
+function qbPruneShelves(shelves,nT,kindType,kinds){
   const seen=new Map();
   shelves.forEach(sh=>{
-    const tc=new Array(nT).fill(0);
-    for(let j=0;j<sh.counts.length;j++)if(sh.counts[j])tc[kindType[j]]+=sh.counts[j];
+    const tc=new Array(nT).fill(0),pieces=[];
+    for(let j=0;j<sh.counts.length;j++)if(sh.counts[j]){
+      tc[kindType[j]]+=sh.counts[j];
+      for(let m=0;m<sh.counts[j];m++)pieces.push({pw:kinds[j].pw,pl:kinds[j].pl,type:kindType[j]});
+    }
     const key=tc.join(',');const e=seen.get(key);
-    if(!e||sh.len<e.len-1e-9)seen.set(key,{tc,len:sh.len});   // same yield: keep the shorter rip
+    if(!e||sh.len<e.len-1e-9)seen.set(key,{tc,len:sh.len,pieces}); // same yield: keep shorter rip
   });
   const uniq=[...seen.values()].sort((a,b)=>a.len-b.len);
   const kept=[];
@@ -2680,19 +2686,22 @@ function qbPruneShelves(shelves,nT,kindType){
 // `seen` dedup means the tree can churn for seconds without ever emitting a new distinct vector,
 // so the thing that must be bounded is the work, not the answer.
 function qbGenPatterns(board,shelves,nT,kerf,cap,budget){
-  const out=[],seen=new Set(),tc=new Array(nT).fill(0);
+  const out=[],seen=new Set(),tc=new Array(nT).fill(0),stack=[];
   let nodes=0;
   function rec(si,lenUsed,depth){
     if(depth>0){
       const key=tc.join(',');
-      if(!seen.has(key)){seen.add(key);out.push(tc.slice());}
+      // Keep the shelf stack alongside the count vector so a chosen pattern can be drawn later.
+      if(!seen.has(key)){seen.add(key);out.push({c:tc.slice(),sh:stack.slice()});}
     }
     if(si>=shelves.length||out.length>=cap||depth>=24||++nodes>budget)return;
     for(let i=si;i<shelves.length;i++){
       const sh=shelves[i],add=(depth===0?0:kerf)+sh.len;
       if(lenUsed+add>board.length+1e-9)continue;
       for(let j=0;j<nT;j++)if(sh.tc[j])tc[j]+=sh.tc[j];
+      stack.push(i);
       rec(i,lenUsed+add,depth+1);
+      stack.pop();
       for(let j=0;j<nT;j++)if(sh.tc[j])tc[j]-=sh.tc[j];
       if(out.length>=cap||nodes>budget)return;
     }
@@ -2706,12 +2715,12 @@ function qbGenPatterns(board,shelves,nT,kerf,cap,budget){
 // be the right choice. This is what makes v2 fast enough to run on every keystroke: it typically
 // cuts a few thousand enumerated patterns down to well under two hundred maximal ones.
 function qbPruneDominated(pats,nT){
-  const sorted=pats.map(p=>({p,s:p.reduce((a,b)=>a+b,0)})).sort((a,b)=>b.s-a.s);
+  const sorted=pats.slice().sort((a,b)=>b.c.reduce((x,y)=>x+y,0)-a.c.reduce((x,y)=>x+y,0));
   const kept=[];
-  outer:for(const{p}of sorted){
+  outer:for(const p of sorted){
     for(const q of kept){
       let dom=true;
-      for(let i=0;i<nT;i++)if(q[i]<p[i]){dom=false;break;}
+      for(let i=0;i<nT;i++)if(q.c[i]<p.c[i]){dom=false;break;}
       if(dom)continue outer;
     }
     kept.push(p);
@@ -2719,29 +2728,48 @@ function qbPruneDominated(pats,nT){
   return kept;
 }
 
+// Turn a chosen pattern back into real (x,y,w,h) placements on its board, so the cut diagram is
+// literally the board that was priced. x runs along the board's LENGTH, y across its WIDTH —
+// the same convention qbRenderNesting draws in.
+function qbPatternPlacement(pattern,shelves,kerf,labels){
+  const out=[];let x=0;
+  pattern.sh.forEach((si,n)=>{
+    const sh=shelves[si];
+    if(n>0)x+=kerf;
+    let y=0;
+    sh.pieces.forEach((pc,m)=>{
+      if(m>0)y+=kerf;
+      out.push({x,y,w:pc.pl,h:pc.pw,label:labels[pc.type]||'',type:pc.type});
+      y+=pc.pw;
+    });
+    x+=sh.len;
+  });
+  return out;
+}
+
 // Fewest boards of ONE size that satisfy `demand`, choosing greedily by useful area covered.
 // For identical bins this is near-optimal and, unlike the exact solve, cheap enough to sit inside
 // the subset DP (which calls it 2^types x board-sizes times per batch).
 function qbBoardsForDemand(usable,demand,nT,area){
-  if(!usable.length)return Infinity;
-  const rem=demand.slice();
+  if(!usable.length)return{n:Infinity,used:[]};
+  const rem=demand.slice(),used=[];
   let total=0,guard=0;
   while(rem.some(v=>v>0)){
-    if(++guard>20000)return Infinity;
+    if(++guard>20000)return{n:Infinity,used:[]};
     let best=null,bestScore=-1;
     for(const p of usable){
       let cov=0;
-      for(let i=0;i<nT;i++)if(rem[i]>0&&p[i]>0)cov+=Math.min(p[i],rem[i])*area[i];
+      for(let i=0;i<nT;i++)if(rem[i]>0&&p.c[i]>0)cov+=Math.min(p.c[i],rem[i])*area[i];
       if(cov>bestScore+1e-12){bestScore=cov;best=p;}
     }
-    if(!best||bestScore<=0)return Infinity;
+    if(!best||bestScore<=0)return{n:Infinity,used:[]};
     let reps=Infinity;
-    for(let i=0;i<nT;i++)if(best[i]>0&&rem[i]>0)reps=Math.min(reps,Math.floor(rem[i]/best[i]));
+    for(let i=0;i<nT;i++)if(best.c[i]>0&&rem[i]>0)reps=Math.min(reps,Math.floor(rem[i]/best.c[i]));
     if(!isFinite(reps)||reps<1)reps=1;
-    total+=reps;
-    for(let i=0;i<nT;i++)rem[i]=Math.max(0,rem[i]-best[i]*reps);
+    total+=reps;used.push({p:best,reps});
+    for(let i=0;i<nT;i++)rem[i]=Math.max(0,rem[i]-best.c[i]*reps);
   }
-  return total;
+  return{n:total,used};
 }
 
 // The subset DP assigns each panel TYPE wholly to one board size, which is what makes it exact and
@@ -2761,24 +2789,25 @@ function qbSetCoverPlan(pool,demand,nT,area,panels){
     let best=null,bs=-1;
     for(const p of pool){
       let cov=0;
-      for(let i=0;i<nT;i++)if(rem[i]>0&&p.c[i]>0)cov+=Math.min(p.c[i],rem[i])*area[i];
+      for(let i=0;i<nT;i++)if(rem[i]>0&&p.pat.c[i]>0)cov+=Math.min(p.pat.c[i],rem[i])*area[i];
       if(cov<=0)continue;
       const s=cov/p.price;                      // useful area per dollar — the only sane currency
       if(s>bs+1e-12){bs=s;best=p;}
     }
     if(!best)return null;
     let reps=Infinity;
-    for(let i=0;i<nT;i++)if(best.c[i]>0&&rem[i]>0)reps=Math.min(reps,Math.floor(rem[i]/best.c[i]));
+    for(let i=0;i<nT;i++)if(best.pat.c[i]>0&&rem[i]>0)reps=Math.min(reps,Math.floor(rem[i]/best.pat.c[i]));
     if(!isFinite(reps)||reps<1)reps=1;
     totalCost+=best.price*reps;totalBoards+=reps;
     boardArea+=best.w*best.len*reps;
     const e=gm.get(best.label)||{boardLabel:best.label,pricePerBoard:best.price,boardsNeeded:0,
-      cost:0,panelLabels:[],pieces:[],areaUsed:0};
+      cost:0,panelLabels:[],pieces:[],areaUsed:0,boardW:best.w,boardL:best.len,layouts:[]};
     e.boardsNeeded+=reps;e.cost+=best.price*reps;
-    for(let i=0;i<nT;i++)if(best.c[i]>0&&alloc[i]>0){
+    e.layouts.push({pattern:best.pat,shelves:best.shelves,times:reps});
+    for(let i=0;i<nT;i++)if(best.pat.c[i]>0&&alloc[i]>0){
       // Credit each group only the pieces the ORDER still needs. A pattern may overproduce on its
       // last repeat; counting those would inflate both the piece list and the utilisation figure.
-      const got=Math.min(best.c[i]*reps,alloc[i]);
+      const got=Math.min(best.pat.c[i]*reps,alloc[i]);
       if(got<=0)continue;
       alloc[i]-=got;e.areaUsed+=got*area[i];
       const lb=panels[i].label;
@@ -2789,7 +2818,7 @@ function qbSetCoverPlan(pool,demand,nT,area,panels){
       }
     }
     gm.set(best.label,e);
-    for(let i=0;i<nT;i++)rem[i]=Math.max(0,rem[i]-best.c[i]*reps);
+    for(let i=0;i<nT;i++)rem[i]=Math.max(0,rem[i]-best.pat.c[i]*reps);
   }
   let areaUsed=0;for(let i=0;i<nT;i++)areaUsed+=demand[i]*area[i];
   return{totalCost,totalBoards,areaUsed,boardArea,
@@ -2814,7 +2843,7 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
   panels.forEach(p=>{if(Math.min(p.w,p.h)>maxW+1e-9&&p.label)oversize.push(p.label);});
 
   // Patterns depend only on (board, panel geometry), never on batch size — enumerate once.
-  const pats=[],canFit=new Array(nB).fill(0);
+  const pats=[],shelvesFor=[],canFit=new Array(nB).fill(0);
   for(let bi=0;bi<nB;bi++){
     const b=boards[bi],kinds=[],kindType=[];
     panels.forEach((p,i)=>{
@@ -2829,11 +2858,11 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
       });
     });
     const raw=kinds.length?qbGenShelves(b,kinds,k,opts.shelfCap||1500):[];
-    const sh=raw.length?qbPruneShelves(raw,nT,kindType):[];
+    const sh=raw.length?qbPruneShelves(raw,nT,kindType,kinds):[];
     const pp=sh.length?qbPruneDominated(qbGenPatterns(b,sh,nT,k,opts.patCap||1500,opts.nodeCap||200000),nT):[];
-    pats.push(pp);
+    pats.push(pp);shelvesFor.push(sh);
     let m=0;
-    pp.forEach(p=>{for(let i=0;i<nT;i++)if(p[i]>0)m|=(1<<i);});
+    pp.forEach(p=>{for(let i=0;i<nT;i++)if(p.c[i]>0)m|=(1<<i);});
     canFit[bi]=m;
     if(qbNow()>deadline)return null;
   }
@@ -2845,7 +2874,7 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
   function usableFor(bi,mask){
     let u=byMask[bi].get(mask);
     if(u===undefined){
-      u=pats[bi].filter(p=>{for(let i=0;i<nT;i++)if(p[i]>0&&!(mask&(1<<i)))return false;return true;});
+      u=pats[bi].filter(p=>{for(let i=0;i<nT;i++)if(p.c[i]>0&&!(mask&(1<<i)))return false;return true;});
       byMask[bi].set(mask,u);
     }
     return u;
@@ -2874,7 +2903,7 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
         for(let T=avail;T>0;T=(T-1)&avail){             // every non-empty subset of S this board fits
           const base=prev[S^T];
           if(base===Infinity)continue;
-          const c0=cnt(bi,T);
+          const c0=cnt(bi,T).n;
           if(!isFinite(c0))continue;
           const c=base+c0*price;
           if(c<cur[S]-1e-12){cur[S]=c;pick[S]=T;}
@@ -2888,7 +2917,7 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
     for(let bi=nB-1;bi>=0;bi--){
       const T=picks[bi][S];
       if(T>0){
-        const c=cnt(bi,T);let au=0;const labels=[],pieces=[];
+        const cr=cnt(bi,T),c=cr.n;let au=0;const labels=[],pieces=[];
         for(let i=0;i<nT;i++)if(T&(1<<i)){
           const n=(panels[i].count||1)*B;
           au+=area[i]*n;
@@ -2896,7 +2925,9 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
         }
         gr.push({boardLabel:`${boards[bi].width}"×${boards[bi].length}"`,pricePerBoard:boards[bi].price,
           boardsNeeded:c,cost:c*boards[bi].price,panelLabels:[...new Set(labels)],pieces,areaUsed:au,
-          boardArea:c*boards[bi].width*boards[bi].length});
+          boardArea:c*boards[bi].width*boards[bi].length,
+          boardW:boards[bi].width,boardL:boards[bi].length,
+          layouts:cr.used.map(u=>({pattern:u.p,shelves:shelvesFor[bi],times:u.reps}))});
         S^=T;
       }
     }
@@ -2922,8 +2953,9 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
   // Free-mixing set-cover over the pooled patterns, on the whole order's demand at once. Runs on
   // the patterns already enumerated above, so it costs a few ms on top of the DP.
   const pool=[];
-  for(let bi=0;bi<nB;bi++)pats[bi].forEach(c=>pool.push({c,price:boards[bi].price,
-    w:boards[bi].width,len:boards[bi].length,label:`${boards[bi].width}"×${boards[bi].length}"`}));
+  for(let bi=0;bi<nB;bi++)pats[bi].forEach(pat=>pool.push({pat,shelves:shelvesFor[bi],
+    price:boards[bi].price,w:boards[bi].width,len:boards[bi].length,
+    label:`${boards[bi].width}"×${boards[bi].length}"`}));
   const demandQ=panels.map(p=>(p.count||1)*Q);
   const sc=(qbNow()<=deadline)?qbSetCoverPlan(pool,demandQ,nT,area,panels):null;
 
@@ -2945,8 +2977,10 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
   const gm=new Map();
   const addG=(list,mult)=>list.forEach(g=>{
     const e=gm.get(g.boardLabel)||{boardLabel:g.boardLabel,pricePerBoard:g.pricePerBoard,
-      boardsNeeded:0,cost:0,panelLabels:[],pieces:[],areaUsed:0};
+      boardsNeeded:0,cost:0,panelLabels:[],pieces:[],areaUsed:0,
+      boardW:g.boardW,boardL:g.boardL,layouts:[]};
     e.boardsNeeded+=g.boardsNeeded*mult;e.cost+=g.cost*mult;e.areaUsed+=g.areaUsed*mult;
+    (g.layouts||[]).forEach(L=>e.layouts.push({pattern:L.pattern,shelves:L.shelves,times:L.times*mult}));
     g.panelLabels.forEach(l=>{if(e.panelLabels.indexOf(l)<0)e.panelLabels.push(l);});
     g.pieces.forEach(pc=>{
       const ex=e.pieces.find(x=>x.label===pc.label);
