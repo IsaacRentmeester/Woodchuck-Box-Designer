@@ -6998,9 +6998,22 @@ function qbCalcYield(){
           </div>
           <span style="font-size:.62rem;color:${barColor};font-weight:700;white-space:nowrap">${usePct}% used</span>
         </div>`;
-        const groupRows=sel.groups.map(g=>
-          `<div class="qb-yield-row"><span>${g.boardLabel}${g.panelLabels.length?` <span style="color:var(--mu);font-weight:400">— ${g.panelLabels.join(', ')}</span>`:''}</span><span class="qb-val">${g.boardsNeeded} × $${g.pricePerBoard.toFixed(2)} = $${g.cost.toFixed(2)}</span></div>`
-        ).join('');
+        // Show the PIECE COUNT per panel type, not just the type name. "192 Left/Right Sides" off
+        // 10" stock and "8" off 4" stock is the whole point of a mixed-size plan — a bare list of
+        // names hides that a type was deliberately split, which reads as a bug rather than the
+        // saving it is. Also show pieces per board, which is the number the bench actually cuts to.
+        const groupRows=sel.groups.map(g=>{
+          const pc=g.pieces&&g.pieces.length
+            ?g.pieces.map(x=>`${x.count}× ${x.label}`).join(', ')
+            :g.panelLabels.join(', ');
+          const tot=g.pieces&&g.pieces.length?g.pieces.reduce((s,x)=>s+x.count,0):0;
+          const per=(tot&&g.boardsNeeded)?` <span style="color:var(--mu);font-weight:400">· ${(tot/g.boardsNeeded).toFixed(1)} pcs/board</span>`:'';
+          return`<div class="qb-yield-row"><span>${g.boardLabel}${pc?` <span style="color:var(--mu);font-weight:400">— ${pc}</span>`:''}${per}</span><span class="qb-val">${g.boardsNeeded} × $${g.pricePerBoard.toFixed(2)} = $${g.cost.toFixed(2)}</span></div>`;
+        }).join('');
+        // Cross-grain is a look decision, so it is offered, never taken silently.
+        const grainRow=(sel.crossGrainSaving>0.005)
+          ?`<div class="qb-yield-row" style="color:var(--mu)"><span style="font-size:.7rem">↻ Allowing cross-grain panels would save</span><span style="font-size:.7rem"><strong>$${sel.crossGrainSaving.toFixed(2)}</strong> more (grain would not match)</span></div>`
+          :'';
         // savings here = what nesting the whole order across shared boards saved vs. buying each
         // box's boards separately. Suppressed when the yield panel above already showed it, so the
         // same dollar figure never appears twice in one readout.
@@ -7027,7 +7040,8 @@ function qbCalcYield(){
           <div class="qb-yield-row"><span>Material cost</span><span class="qb-val">$${sel.totalCost.toFixed(2)} <span style="color:var(--mu);font-weight:400">($${sel.costPerBox.toFixed(2)}/box)</span></span></div>
           ${savingsRow}
           ${batchRow}
-          <div class="qb-yield-row"><span>Board usage</span><span class="qb-val" style="flex:1">${wasteBar}</span></div>
+          ${grainRow}
+          <div class="qb-yield-row"><span>Board usage <span style="color:var(--mu);font-weight:400">· all ${qty} unit${qty===1?'':'s'}</span></span><span class="qb-val" style="flex:1">${wasteBar}</span></div>
           ${oversizeRow}
           ${highWasteRow}
         </div>`;
