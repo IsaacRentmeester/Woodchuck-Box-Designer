@@ -6645,7 +6645,11 @@ function qbBuildPanels(W,D,H,T,lidType){
   const panels=[];
   // mat:'mdf'  → flat top/bottom panels (MDF in mix mode)
   // mat:'solid' → wall/side panels (solid wood in mix mode)
-  panels.push({name:'Bottom',pL:W,pW:D,count:1,mat:'mdf',grp:'base',
+  // grainFree marks a panel whose grain direction nobody will ever see, so the nesting optimizer
+  // is free to turn it 90° to save board. The Bottom is the only one on a standard carcass: it
+  // sits inside all four walls with the box's contents on top of it. Every other panel — including
+  // the lid — is a visible face where a cross-grain piece would read as a defect.
+  panels.push({name:'Bottom',pL:W,pW:D,count:1,mat:'mdf',grp:'base',grainFree:true,
                note:'Sits inside all four walls (glue pocket)'});
   panels.push({name:'Front / Back',pL:extL,pW:sideH,count:2,mat:'solid',grp:'base',
                note:'Full exterior width · covers the side panels’ end grain'});
@@ -6869,7 +6873,10 @@ function qbCalcYield(){
   // shown to the client are computed from the identical inputs and can never disagree.
   const okerf=parseFloat(document.getElementById('qb-kerf')?.value)||0.125;
   const orderPanelSrc=isMixMode?qbBoxPanels.filter(p=>p.mat==='solid'):qbBoxPanels;
-  const orderPanels=orderPanelSrc.map(p=>({w:p.pL,h:p.pW,count:p.count,label:p.name}));
+  // grainFree rides along so the packer knows which panels it may turn 90°. In Mix mode the MDF
+  // panels are filtered out above and priced by the sheet, so only genuinely hidden solid-wood
+  // panels ever carry the flag.
+  const orderPanels=orderPanelSrc.map(p=>({w:p.pL,h:p.pW,count:p.count,label:p.name,grainFree:p.grainFree===true}));
   const orderPlan=(isOcoochSolid&&wcSpeciesName&&orderPanels.length)
     ?qbPackOrder(wcSpeciesName,orderPanels,T_calc,okerf,qty):null;
   // Only price off the nested plan when every panel actually fits a stocked board. If any panel is
@@ -6972,7 +6979,7 @@ function qbCalcYield(){
       // qbBuildPanels output) rather than an ad-hoc reconstruction — in Mix mode only the solid
       // (Ocooch) panels need to fit/purchase from Ocooch boards; the MDF top/bottom are Forte's.
       const fitPanels=qbMatPath==='mix'?qbBoxPanels.filter(p=>p.mat==='solid'):qbBoxPanels;
-      const panels=fitPanels.map(p=>({w:p.pL,h:p.pW,count:p.count,label:p.name}));
+      const panels=fitPanels.map(p=>({w:p.pL,h:p.pW,count:p.count,label:p.name,grainFree:p.grainFree===true}));
       // Multi-board purchase optimization across the WHOLE ORDER: different panel types can be cut
       // from DIFFERENT Ocooch board widths (bottom/lid from a cheap narrow board, sides from a wider
       // board only if they actually need it), AND panels from different boxes share the same board
