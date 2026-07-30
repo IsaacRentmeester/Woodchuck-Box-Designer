@@ -3264,15 +3264,22 @@ function qbRenderNesting(layout,species){
 function qbSyncNesting(){
   const oversizeEl=document.getElementById('qb-nest-oversize');
   const wrap=document.getElementById('qb-nest-wrap');
+  // Every early exit below MUST clear the cached layout. _lastNestLayout is what the right-hand
+  // board chip reads, and that chip pairs it with the CURRENT species name — so bailing out while
+  // leaving a stale layout in place invents a quote: picking sheet-good Baltic Birch after a solid
+  // species showed "Baltic Birch Ply 3/4" · 4"×24" + 8"×24" · 267 boards", none of which is stock
+  // it is sold in.
+  const bail=()=>{_lastNestLayout=null;if(wrap)wrap.classList.remove('vis');
+    if(typeof qtUpdateBoardInfo==='function')qtUpdateBoardInfo();};
   // Only relevant for solid/mix paths
   if(qbMatPath==='mdf'){
-    if(wrap)wrap.classList.remove('vis');
     if(oversizeEl)oversizeEl.classList.remove('vis');
+    bail();
     return;
   }
   const spId=document.getElementById('qb-species')?.value;
   const sp=(typeof qbSpecies!=='undefined'?qbSpecies:[]).find(s=>s.id===spId);
-  if(!sp){if(wrap)wrap.classList.remove('vis');return;}
+  if(!sp){bail();return;}
   // Draw the plan the ORDER was priced from, not a one-box sketch. The old version packed a single
   // box onto a single board size and reported that board's waste — which is exactly the thing that
   // made the figure misleading: it showed the waste of box 1 rather than of the run, and it could
@@ -3281,12 +3288,14 @@ function qbSyncNesting(){
   // the diagram and the price cannot drift apart.
   const src=(qbMatPath==='mix')?qbBoxPanels.filter(p=>p.mat==='solid'):qbBoxPanels;
   const panels=src.map(p=>({w:p.pL,h:p.pW,count:p.count,label:p.name,grainFree:p.grainFree===true}));
-  if(!panels.length){if(wrap)wrap.classList.remove('vis');return;}
+  if(!panels.length){bail();return;}
   const T=parseFloat(document.getElementById('qb-matT')?.value)||C.cmat||0.25;
   const kerf=parseFloat(document.getElementById('qb-kerf')?.value)||0.125;
   const qty=Math.max(1,Math.round(C.qty||1));
   const boards=ocoochBoardsForSpecies(sp.name,T);
-  if(!boards||!boards.length){if(wrap)wrap.classList.remove('vis');return;}
+  // Sheet goods (plywood, MDF, acrylic, veneer) stock no dimensional boards, so there is nothing
+  // to nest and no board count to quote — they price by the sheet elsewhere.
+  if(!boards||!boards.length){bail();return;}
   const plan=qbPackOrder(sp.name,panels,T,kerf,qty);
   let layout=plan?qbOrderLayout(plan,panels,kerf):null;
   if(!layout){
@@ -8299,7 +8308,17 @@ function qtUpdateBoardInfo(){
     boardEl.textContent='MDF · '+name+(qbMdfSpecies?'':'')+' — sheet pricing';
     return;
   }
-  if(!_lastNestLayout){boardEl.textContent=name+' — select qty to price';return;}
+  if(!_lastNestLayout){
+    // Distinguish "this material has no boards to nest" from "not priced yet" — the old copy said
+    // "select qty to price" for both, which reads as a broken quote on sheet goods that are in fact
+    // fully priced, just not by the board.
+    const T=parseFloat(document.getElementById('qb-matT')?.value)||C.cmat||0.25;
+    const bs=(typeof ocoochBoardsForSpecies==='function')?ocoochBoardsForSpecies(name,T):null;
+    boardEl.textContent=name+((!bs||!bs.length)?' — sheet stock · no board nesting':' — select qty to price');
+    const rb=document.getElementById('qt-r-boards');
+    if(rb)rb.textContent='—';
+    return;
+  }
   const {boardW,boardL,boardCount,wastePercent,mixed,sizeLabel}=_lastNestLayout;
   const size=mixed?sizeLabel:`${boardW}"×${boardL}"`;
   boardEl.textContent=`${size} ${name} · ${boardCount} board${boardCount!==1?'s':''} · ${wastePercent}% waste`;
