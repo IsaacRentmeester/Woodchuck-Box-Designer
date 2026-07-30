@@ -794,7 +794,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <input id="qb-name" type="text">
     <input id="qb-client" type="text">
     <input id="qb-date" type="date">
-    <input id="qb-qty" type="number" value="100" oninput="qbSetQtyFromQuote(this.value)">
+    <input id="qb-qty" type="number" min="1" step="1" value="100" oninput="qbSetQtyFromQuote(this.value)">
     <input id="qb-needby" type="date" oninput="qbCheckRush()">
     <input id="qb-rep" type="text" oninput="const ef=document.getElementById('ef-name');if(ef&&!ef.dataset.manualEdit)ef.value=this.value;">
     <select id="qb-status"><option value="draft">Draft</option><option value="sent">Sent</option><option value="followup">Follow-up</option><option value="won">Won</option><option value="lost">Lost</option></select>
