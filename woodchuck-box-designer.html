@@ -2895,6 +2895,14 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
     return u;
   }
 
+  // Every board size's patterns in one bag, so a solver is free to mix sizes on a single run. Built
+  // here rather than after the batch loop because packBatch() needs it too — it depends only on
+  // pats/shelvesFor/boards, all finalised above, and never on the batch size.
+  const pool=[];
+  for(let bi=0;bi<nB;bi++)pats[bi].forEach(pat=>pool.push({pat,shelves:shelvesFor[bi],
+    price:boards[bi].price,w:boards[bi].width,len:boards[bi].length,
+    label:`${boards[bi].width}"×${boards[bi].length}"`}));
+
   const batchCache=new Map();
   function packBatch(B){
     if(batchCache.has(B))return batchCache.get(B);
@@ -2967,10 +2975,6 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
   }
   // Free-mixing set-cover over the pooled patterns, on the whole order's demand at once. Runs on
   // the patterns already enumerated above, so it costs a few ms on top of the DP.
-  const pool=[];
-  for(let bi=0;bi<nB;bi++)pats[bi].forEach(pat=>pool.push({pat,shelves:shelvesFor[bi],
-    price:boards[bi].price,w:boards[bi].width,len:boards[bi].length,
-    label:`${boards[bi].width}"×${boards[bi].length}"`}));
   const demandQ=panels.map(p=>(p.count||1)*Q);
   const sc=(qbNow()<=deadline)?qbSetCoverPlan(pool,demandQ,nT,area,panels):null;
 
