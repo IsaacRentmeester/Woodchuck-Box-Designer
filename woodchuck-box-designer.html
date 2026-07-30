@@ -6371,16 +6371,25 @@ function qbCalcPanels(){
   const extL=W+2*T, extW=D+2*T;
   const extH=H+T+(lidType!=='none'?T:0);
 
+  // A wrap lid (clamshell / set-top) carries its own four walls that drop OVER the
+  // base, so the finished box is wider and deeper than the base carcass. Reporting
+  // the base footprint as "the exterior" understated every clamshell on the shelf —
+  // the number a client measures is the lid.
+  const isWrap=(lidType==='wrap'||lidType==='liftoff');
+  const ovL=isWrap?extL+2*QB_LID_CLEAR+2*T:extL;
+  const ovW=isWrap?extW+2*QB_LID_CLEAR+2*T:extW;
+
   // ── Live exterior readout next to the dimension inputs ──
   const extRO=document.getElementById('qb-ext-readout');
   if(extRO){
-    const lidDescMap={none:'no lid — floor only',hinged:'floor + hinged lid',fixed:'floor + drop panel',sliding:'floor + sliding lid',liftoff:'floor + lift-off lid'};
+    const lidDescMap={none:'no lid — floor only',hinged:'floor + hinged lid',fixed:'floor + drop panel',sliding:'floor + sliding lid',wrap:'base + lift-off lid that wraps the base',liftoff:'base + lift-off lid that wraps the base'};
     const lidDesc=lidDescMap[lidType]||'floor + lid';
     extRO.style.display='';
-    extRO.innerHTML=`🪵 <strong>Exterior (wood we buy):</strong> `
-      +`${extL.toFixed(3)}" W &nbsp;×&nbsp; ${extW.toFixed(3)}" D &nbsp;×&nbsp; ${extH.toFixed(3)}" H `
+    extRO.innerHTML=`🪵 <strong>Exterior (finished box):</strong> `
+      +`${ovL.toFixed(3)}" W &nbsp;×&nbsp; ${ovW.toFixed(3)}" D &nbsp;×&nbsp; ${extH.toFixed(3)}" H `
       +`<span class="qb-ext-sub">— interior + ${T.toFixed(3)}" walls (${lidDesc}). `
-      +`Wood cost is quoted off these exterior dims.</span>`;
+      +(isWrap?`Base carcass is ${extL.toFixed(3)}" × ${extW.toFixed(3)}"; the lid adds its own walls plus 1⁄16" clearance per side. `:'')
+      +`Wood cost is quoted off the actual cut panels below.</span>`;
   }
 
   const panels=qbBuildPanels(W,D,H,T,lidType);
@@ -6390,9 +6399,10 @@ function qbCalcPanels(){
   if(!box)return;
   box.style.display='';
   const extDims=document.getElementById('qb-ext-dims');
-  if(extDims)extDims.innerHTML=`<span class="qb-int-dims"><strong>Interior (client specs):</strong> ${W.toFixed(2)}" × ${D.toFixed(2)}" × ${H.toFixed(2)}"</span><br><strong>Exterior (wood purchased):</strong> ${extL.toFixed(3)}" × ${extW.toFixed(3)}" × ${extH.toFixed(3)}" &nbsp;|&nbsp; <strong>Lid:</strong> ${lidType||'none'}`;
-  // Surface area calculations
-  const extSurfSqIn=2*(extL*extW)+2*(extL*extH)+2*(extW*extH);
+  if(extDims)extDims.innerHTML=`<span class="qb-int-dims"><strong>Interior (client specs):</strong> ${W.toFixed(2)}" × ${D.toFixed(2)}" × ${H.toFixed(2)}"</span><br><strong>Exterior (finished box):</strong> ${ovL.toFixed(3)}" × ${ovW.toFixed(3)}" × ${extH.toFixed(3)}"${isWrap?` <span class="qb-ext-sub">(base carcass ${extL.toFixed(3)}" × ${extW.toFixed(3)}")</span>`:''} &nbsp;|&nbsp; <strong>Lid:</strong> ${lidType||'none'}`;
+  // Surface area calculations — off the finished exterior, so the finishing
+  // estimate covers a wrap lid's extra girth instead of the base it hides.
+  const extSurfSqIn=2*(ovL*ovW)+2*(ovL*extH)+2*(ovW*extH);
   const extSurfSqFt=extSurfSqIn/144;
   const intSurfSqIn=2*(W*D)+2*(W*H)+2*(D*H);
 
@@ -6400,7 +6410,7 @@ function qbCalcPanels(){
   const dimSum=document.getElementById('qt-dim-summary');
   if(dimSum){
     dimSum.style.display='block';
-    dimSum.innerHTML=`<span class="qds-int">Interior: ${W.toFixed(2)}" W × ${D.toFixed(2)}" D × ${H.toFixed(2)}" H</span><span class="qds-ext"> &nbsp;·&nbsp; Exterior: ${extL.toFixed(3)}" × ${extW.toFixed(3)}" × ${extH.toFixed(3)}" &nbsp;·&nbsp; Lid: ${lidType||'none'} &nbsp;·&nbsp; Surface: ${extSurfSqIn.toFixed(0)} in² (${extSurfSqFt.toFixed(2)} ft²)</span>`;
+    dimSum.innerHTML=`<span class="qds-int">Interior: ${W.toFixed(2)}" W × ${D.toFixed(2)}" D × ${H.toFixed(2)}" H</span><span class="qds-ext"> &nbsp;·&nbsp; Exterior: ${ovL.toFixed(3)}" × ${ovW.toFixed(3)}" × ${extH.toFixed(3)}" &nbsp;·&nbsp; Lid: ${lidType||'none'} &nbsp;·&nbsp; Surface: ${extSurfSqIn.toFixed(0)} in² (${extSurfSqFt.toFixed(2)} ft²)</span>`;
   }
 
   // Update run-materials summary in right panel
