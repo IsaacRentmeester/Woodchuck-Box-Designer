@@ -8299,6 +8299,12 @@ function qtUpdateBoardInfo(){
   const boardSec=document.getElementById('qt-r-board-sec');
   const boardEl=document.getElementById('qt-r-board');
   if(!boardEl)return;
+  // Clear the run-summary board count UP FRONT so no early return below can leave the previous
+  // material's figure standing. Switching to MDF used to keep "250 boards (31% waste)" in the
+  // Boards-needed row -- a lumber count for a material that is priced by the sheet and has no
+  // boards at all. The success path at the bottom overwrites this with the real number.
+  const runBoardsEl=document.getElementById('qt-r-boards');
+  if(runBoardsEl)runBoardsEl.textContent='—';
   const spId=document.getElementById('qb-species')?.value;
   const sp=(typeof qbSpecies!=='undefined'?qbSpecies:[]).find(s=>s.id===spId);
   const name=sp?sp.name:'';
@@ -8315,15 +8321,12 @@ function qtUpdateBoardInfo(){
     const T=parseFloat(document.getElementById('qb-matT')?.value)||C.cmat||0.25;
     const bs=(typeof ocoochBoardsForSpecies==='function')?ocoochBoardsForSpecies(name,T):null;
     boardEl.textContent=name+((!bs||!bs.length)?' — sheet stock · no board nesting':' — select qty to price');
-    const rb=document.getElementById('qt-r-boards');
-    if(rb)rb.textContent='—';
     return;
   }
   const {boardW,boardL,boardCount,wastePercent,mixed,sizeLabel}=_lastNestLayout;
   const size=mixed?sizeLabel:`${boardW}"×${boardL}"`;
   boardEl.textContent=`${size} ${name} · ${boardCount} board${boardCount!==1?'s':''} · ${wastePercent}% waste`;
-  // Populate run-summary board count
-  const runBoardsEl=document.getElementById('qt-r-boards');
+  // Populate run-summary board count (overwrites the '—' reset at the top of this function)
   if(runBoardsEl)runBoardsEl.textContent=`${boardCount} board${boardCount!==1?'s':''} (${wastePercent}% waste)`;
 }
 // Toggle adhesive cost — adds QB_ADHESIVE_COST per sheet to the active sheet price field
