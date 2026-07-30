@@ -3250,8 +3250,11 @@ function qbSyncNesting(){
   const plan=qbPackOrder(sp.name,panels,T,kerf,qty);
   let layout=plan?qbOrderLayout(plan,panels,kerf):null;
   if(!layout){
-    // Fallback: the plan came from the legacy engine, which carries no placement data. Show one
-    // box on the cheapest board that fits so the panel stays populated, rather than blanking it.
+    // Fallback: no pattern-based plan exists — either a panel is wider than every stocked board
+    // (already flagged as a manual quote) or the older engine priced this order more cheaply.
+    // Draw one box's worth on the cheapest board that fits, but report the ORDER's board count and
+    // waste from the plan that was actually priced. Showing the one-box figures here instead is
+    // precisely the bug this whole change set out to remove.
     const flat=panels.flatMap(p=>Array(p.count||1).fill({w:p.w,h:p.h,label:p.label}));
     let bestCost=Infinity;
     boards.forEach(board=>{
@@ -3260,9 +3263,11 @@ function qbSyncNesting(){
       const cost=one.boardCount*board.price;
       if(cost<bestCost){bestCost=cost;
         layout={boards:one.boards.map(b=>({w:board.width,l:board.length,times:1,
-          sizeLabel:`${board.width}"×${board.length}"`,panels:b.panels})),
-          boardCount:one.boardCount,wastePercent:one.wastePercent,mixed:false,
-          sizeLabel:`${board.width}"×${board.length}"`,boardW:board.width,boardL:board.length};}
+          sizeLabel:`${board.width}"×${board.length}" · 1 box shown`,panels:b.panels})),
+          boardCount:plan?plan.totalBoards:one.boardCount,
+          wastePercent:plan?plan.wastePercent:one.wastePercent,
+          mixed:false,sizeLabel:`${board.width}"×${board.length}"`,
+          boardW:board.width,boardL:board.length,perBoxOnly:true};}
     });
   }
   _lastNestLayout=layout;  // Req 10: expose for right-panel board info
