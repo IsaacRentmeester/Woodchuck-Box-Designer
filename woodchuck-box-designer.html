@@ -2459,7 +2459,7 @@ function ocoochOptimizeBoards(speciesName,panels,t,kerf){
 // 60.3% of orders get cheaper, average spend -5.0%, average waste 30.3% -> 24.8%).
 // Returns {totalCost, totalBoards, costPerBox, boardsPerBox, wastePercent, groups, batch, nested,
 //          perBoxCost, perBoxTotal, savings, oversizePanels, highWaste} or null.
-function qbPackOrder(speciesName,panels,t,kerf,qty,opts){
+function qbPackOrderLegacy(speciesName,panels,t,kerf,qty,opts){
   const k=kerf||0.125;
   const Q=Math.max(1,Math.round(qty||1));
   const MAXB=(opts&&opts.maxBatch)||12; // 12 is the knee: going to 24 saves a further 0.05% but triples runtime
