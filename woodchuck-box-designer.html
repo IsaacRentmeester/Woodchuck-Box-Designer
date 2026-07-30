@@ -3025,7 +3025,10 @@ function qbPackOrder(speciesName,panels,t,kerf,qty,opts){
   if(!legacy)return bestV2?Object.assign({},bestV2,{engine:'v2',grainMode:bestMode,nested:true,
     perBoxCost:bestV2.costPerBox,perBoxTotal:bestV2.totalCost,savings:0,
     highWaste:bestV2.wastePercent>50}):null;
-  if(!bestV2||bestV2.totalCost>=legacy.totalCost-1e-9)
+  // Ties go to v2 deliberately. At equal cost it is never the worse plan (same or lower waste), and
+  // only v2 carries real board placements — which is what lets the cut diagram draw the boards that
+  // were actually priced instead of a second, differently-packed opinion of the same order.
+  if(!bestV2||bestV2.totalCost>legacy.totalCost+1e-9)
     return Object.assign({},legacy,{engine:'legacy',grainMode:'strict'});
 
   // v2 won. Re-derive the headline savings against the SAME one-box-at-a-time floor the legacy
@@ -3098,6 +3101,24 @@ function qbNestLayout(board,panels,kerf){
   return{boardW:bW,boardL:bL,boardCount:allBoards.length,boards:allBoards,wastePercent};
 }
 
+// Turn a priced order plan into drawable boards. Each entry is one distinct cut pattern plus how
+// many boards are cut that way, so an order of 500 boxes renders as a handful of representative
+// boards rather than 1,250 near-identical strips — while still summing to the real board count.
+function qbOrderLayout(plan,panels,kerf){
+  const labels=panels.map(p=>p.label);
+  const boards=[];
+  plan.groups.forEach(g=>{
+    (g.layouts||[]).forEach(L=>boards.push({w:g.boardW,l:g.boardL,times:L.times,
+      sizeLabel:g.boardLabel,panels:qbPatternPlacement(L.pattern,L.shelves,kerf,labels)}));
+  });
+  if(!boards.length)return null;
+  boards.sort((a,b)=>b.times-a.times);
+  const sizes=[...new Set(boards.map(b=>b.sizeLabel))];
+  return{boards,boardCount:plan.totalBoards,wastePercent:plan.wastePercent,
+    mixed:sizes.length>1,sizeLabel:sizes.join(' + '),
+    boardW:boards[0].w,boardL:boards[0].l};
+}
+
 // Draw the nesting layout on the canvas in Step 2.
 function qbRenderNesting(layout,species){
   const wrap=document.getElementById('qb-nest-wrap');
@@ -3113,14 +3134,20 @@ function qbRenderNesting(layout,species){
   oversizeEl&&oversizeEl.classList.remove('vis');
   wrap.classList.add('vis');
 
-  // Scale: fit the board width to canvas width (max 380px), with padding
-  const PAD=12, GAP=8;
+  // The plan can now mix board SIZES, so one shared scale is used for every strip — a 4" board has
+  // to look narrower than an 8" one, otherwise the picture argues against the very saving the
+  // optimizer just found. Length sets the horizontal scale off the longest board in the plan.
+  const PAD=12, GAP=8, ROWH=14;
+  const rows=(layout.boards||[]).slice(0,10);
   const totalBoards=layout.boardCount;
   const dpr=window.devicePixelRatio||1;
   const cssW=cv.parentElement.clientWidth||320;
-  const scaleX=(cssW-PAD*2)/layout.boardL; // px per inch (length runs horizontally)
-  const boardH_px=Math.min(48,Math.round(layout.boardW*scaleX));
-  const canvasH=PAD+totalBoards*(boardH_px+GAP)+PAD;
+  const maxL=Math.max.apply(null,rows.map(b=>b.l));
+  const maxW=Math.max.apply(null,rows.map(b=>b.w));
+  const scaleX=(cssW-PAD*2)/maxL;                  // px per inch along the board's length
+  const scaleY=Math.min(scaleX,48/maxW);           // px per inch across its width, capped for height
+  const hOf=b=>Math.max(10,Math.round(b.w*scaleY));
+  const canvasH=PAD+rows.reduce((s,b)=>s+hOf(b)+ROWH+GAP,0)+PAD;
 
   cv.width=Math.round(cssW*dpr);
   cv.height=Math.round(canvasH*dpr);
