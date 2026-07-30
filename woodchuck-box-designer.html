@@ -3456,8 +3456,15 @@ function printBoxTemplate(){
   const isClamshell=C.bt==='clamshell'||C.bt==='clamnolatch'||C.bt==='clamlatch';
   const lidDrop=1.5;                              // how far lid drops over base (clamshell only)
   const lidClr=0.0625;                            // 1/16" clearance each side
-  const lidW=parseFloat((extW+2*lidClr+2*t).toFixed(4)); // lid exterior width
-  const lidD=parseFloat((extD+2*lidClr+2*t).toFixed(4)); // lid exterior depth
+  // A clamshell lid wraps DOWN over the base exterior, so it needs the base
+  // footprint plus clearance plus its own wall thickness on each side. Every
+  // other lid here is a flat panel that sits ON TOP of the walls, so it is
+  // exactly the base exterior footprint — interior + one wall thickness per
+  // side — which is what this sheet's own note has always claimed it was.
+  // Before this, a flat lid was cut to the clamshell size and overhung the
+  // box by 2t + 2*lidClr (5/8" at 1/4" stock) on both axes.
+  const lidW=parseFloat((isClamshell?extW+2*lidClr+2*t:extW).toFixed(4)); // lid exterior width
+  const lidD=parseFloat((isClamshell?extD+2*lidClr+2*t:extD).toFixed(4)); // lid exterior depth
   const lidSideW=parseFloat((extD+2*lidClr).toFixed(4)); // lid L/R inner panel fits between F/B
 
   const panels=[
