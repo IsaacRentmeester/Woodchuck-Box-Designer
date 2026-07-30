@@ -263,8 +263,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* Nesting visualization — Req 2 */
 .qb-nest-wrap{margin:6px 0 4px;background:#f5f0e8;border-radius:8px;padding:7px 8px;border:1px solid var(--bo);display:none}
 .qb-nest-wrap.vis{display:block}
-.qb-nest-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;font-size:.62rem;font-weight:700;color:var(--green)}
-.qb-nest-stats{font-size:.58rem;color:var(--mu);font-weight:400}
+.qb-nest-hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px;font-size:.62rem;font-weight:700;color:var(--green)}
+.qb-nest-hd>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qb-nest-stats{font-size:.58rem;color:var(--mu);font-weight:400;white-space:nowrap;flex:0 0 auto}
 .qb-nest-oversize{background:rgba(244,67,54,.1);border:1.5px solid #f44336;border-radius:7px;padding:8px 10px;font-size:.68rem;color:#c62828;font-weight:700;margin:4px 0;display:none}
 .qb-nest-oversize.vis{display:block}
 #qb-nesting-canvas{display:block;width:100%;border-radius:5px;image-rendering:pixelated}
@@ -3214,9 +3215,18 @@ function qbRenderNesting(layout,species){
   const label=document.getElementById('qb-nest-label');
   const stats=document.getElementById('qb-nest-stats');
   const more=(layout.boards.length>rows.length)?` (+${layout.boards.length-rows.length} more patterns)`:'';
-  if(label)label.textContent=layout.mixed
-    ? `📐 Mixed board sizes: ${layout.sizeLabel} — ${layout.boardCount} boards total${more}`
-    : `📐 ${layout.boardW}"×${layout.boardL}" board — ${layout.boardCount} needed${more}`;
+  // The header is a single nowrap line (it ellipsises), so keep the text short and put the
+  // full description in the tooltip — the long "Mixed board sizes: …" form used to wrap and
+  // interleave with the stats span on narrow panels.
+  const txt=layout.mixed
+    ? `📐 Mixed: ${layout.sizeLabel} · ${layout.boardCount} boards${more}`
+    : `📐 ${layout.boardW}"×${layout.boardL}" · ${layout.boardCount} boards${more}`;
+  if(label){
+    label.textContent=txt;
+    label.title=layout.mixed
+      ? `Mixed board sizes: ${layout.sizeLabel} — ${layout.boardCount} boards total for the whole order${more}`
+      : `${layout.boardW}"×${layout.boardL}" boards — ${layout.boardCount} needed for the whole order${more}`;
+  }
   if(stats)stats.textContent=`${layout.wastePercent}% waste · whole order`;
 }
 
