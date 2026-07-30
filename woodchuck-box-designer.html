@@ -3448,36 +3448,40 @@ function printBoxTemplate(){
 
   // Set-top box construction (butt joints):
   //   front/back are full exterior width, sides fit between them, bottom inside all 4 walls
-  const extW=parseFloat((intW+2*t).toFixed(4));
-  const extD=parseFloat((intD+2*t).toFixed(4));
-  const extH=parseFloat((intH+t).toFixed(4));   // base total height incl. bottom panel
-  // Clamshell boxes have a lid that drops over the base exterior (lid front/back/sides).
-  // All other box types (hinged, slide, settop, droptop, etc.) have a flat lid panel only.
-  const isClamshell=C.bt==='clamshell'||C.bt==='clamnolatch'||C.bt==='clamlatch';
-  const lidDrop=1.5;                              // how far lid drops over base (clamshell only)
-  const lidClr=0.0625;                            // 1/16" clearance each side
-  // A clamshell lid wraps DOWN over the base exterior, so it needs the base
-  // footprint plus clearance plus its own wall thickness on each side. Every
-  // other lid here is a flat panel that sits ON TOP of the walls, so it is
-  // exactly the base exterior footprint — interior + one wall thickness per
-  // side — which is what this sheet's own note has always claimed it was.
-  // Before this, a flat lid was cut to the clamshell size and overhung the
-  // box by 2t + 2*lidClr (5/8" at 1/4" stock) on both axes.
-  const lidW=parseFloat((isClamshell?extW+2*lidClr+2*t:extW).toFixed(4)); // lid exterior width
-  const lidD=parseFloat((isClamshell?extD+2*lidClr+2*t:extD).toFixed(4)); // lid exterior depth
-  const lidSideW=parseFloat((extD+2*lidClr).toFixed(4)); // lid L/R inner panel fits between F/B
+  // This sheet used to re-derive the box geometry itself, and drifted away from the
+  // geometry the quote was priced from — different lid sizes, different wall heights,
+  // a lid printed for lidless crates. qbBuildPanels is now the single source of truth,
+  // so the shop cuts exactly what the customer was charged for.
+  const lidType=QB_LID_MAP[C.bt]||'hinged';
+  const isWrapLid=(lidType==='wrap'||lidType==='liftoff');
+  const geo=qbBuildPanels(intW,intD,intH,t,lidType);
+  const r4=v=>parseFloat(v.toFixed(4));
 
-  const panels=[
-    {id:1,name:'Base Bottom',   pw:intW,   ph:intD,    qty:1,grp:'base',note:'Inside all 4 walls (glue pocket)'},
-    {id:2,name:'Base Front',    pw:extW,   ph:extH,    qty:1,grp:'base',note:'Full width · covers L/R side edges'},
-    {id:3,name:'Base Back',     pw:extW,   ph:extH,    qty:1,grp:'base',note:'Full width · covers L/R side edges'},
-    {id:4,name:'Base Side',     pw:intD,   ph:extH,    qty:2,grp:'base',note:'Fits between Front & Back — cut ×2'},
-    {id:5,name:'Lid Top',       pw:lidW,   ph:lidD,    qty:1,grp:'lid', note:isClamshell?'Drops over base exterior with 1⁄16" clearance':'Flat lid panel — same footprint as base top'},
-    ...(isClamshell?[
-      {id:6,name:'Lid Front/Back',pw:lidW,   ph:lidDrop,qty:2,grp:'lid',note:'Full lid width · drops over base — cut ×2'},
-      {id:7,name:'Lid Side',      pw:lidSideW,ph:lidDrop,qty:2,grp:'lid',note:'Fits between Lid F/B — cut ×2'},
-    ]:[]),
-  ];
+  const extW=r4(intW+2*t);
+  const extD=r4(intD+2*t);
+  const extH=r4(geo.find(p=>p.name==='Front / Back').pW); // wall height = what we actually cut
+  const lidDrop=isWrapLid?r4(qbLidRim(intH,t)):0;
+  const lidTop=geo.find(p=>p.grp==='lid');
+  const lidW=lidTop?r4(lidTop.pL):0;
+  const lidD=lidTop?r4(lidTop.pW):0;
+
+  // Split the shared Front/Back and Left/Right pairs into the named rows a shop
+  // expects to read off a cut sheet, keeping every dimension byte-for-byte the
+  // same as the priced geometry.
+  const SPLIT={'Front / Back':['Base Front','Base Back'],'Left / Right Sides':['Base Side','Base Side']};
+  const panels=[];
+  geo.forEach(p=>{
+    const nm=SPLIT[p.name];
+    if(nm&&p.count===2){
+      panels.push({name:nm[0],pw:r4(p.pL),ph:r4(p.pW),qty:1,grp:p.grp,note:p.note});
+      if(nm[0]!==nm[1])panels.push({name:nm[1],pw:r4(p.pL),ph:r4(p.pW),qty:1,grp:p.grp,note:p.note});
+      else panels[panels.length-1].qty=2;
+      return;
+    }
+    panels.push({name:p.name==='Bottom'?'Base Bottom':p.name,
+                 pw:r4(p.pL),ph:r4(p.pW),qty:p.count,grp:p.grp,note:p.note});
+  });
+  panels.forEach((p,i)=>p.id=i+1);
 
   const totalSqIn=panels.reduce((s,p)=>s+p.pw*p.ph*p.qty,0);
   const roughBF=(totalSqIn*t/144).toFixed(2);
@@ -3635,13 +3639,14 @@ tr:nth-child(even) td{background:#faf7f2}
     <div class="sr"><span class="sk">Width</span><span class="sv">${extW}"</span></div>
     <div class="sr"><span class="sk">Depth</span><span class="sv">${extD}"</span></div>
     <div class="sr"><span class="sk">Height</span><span class="sv">${extH}"</span></div>
-    ${isClamshell?`<div class="sr"><span class="sk">Lid drop</span><span class="sv">${lidDrop}"</span></div>`:''}
+    ${isWrapLid?`<div class="sr"><span class="sk">Lid drop</span><span class="sv">${lidDrop}"</span></div>`:''}
   </div>
   <div class="sc">
-    <div class="sh">${isClamshell?'Lid Exterior':'Lid (flat top panel)'}</div>
-    <div class="sr"><span class="sk">Width</span><span class="sv">${lidW}"</span></div>
-    <div class="sr"><span class="sk">Depth</span><span class="sv">${lidD}"</span></div>
-    ${isClamshell?`<div class="sr"><span class="sk">Clearance</span><span class="sv">1⁄16" each side</span></div>`:''}
+    <div class="sh">${lidType==='none'?'Lid (none — open crate)':isWrapLid?'Lid Exterior':lidType==='sliding'?'Lid (sliding panel)':'Lid (flat top panel)'}</div>
+    ${lidTop?`<div class="sr"><span class="sk">Width</span><span class="sv">${lidW}"</span></div>
+    <div class="sr"><span class="sk">Depth</span><span class="sv">${lidD}"</span></div>`:`<div class="sr"><span class="sk">Lid</span><span class="sv">none</span></div>`}
+    ${isWrapLid?`<div class="sr"><span class="sk">Clearance</span><span class="sv">1⁄16" each side</span></div>`:''}
+    ${lidType==='sliding'?`<div class="sr"><span class="sk">Groove</span><span class="sv">${(t/2).toFixed(3)}" each side wall</span></div>`:''}
     <div class="sr"><span class="sk">Box style</span><span class="sv">${bt}</span></div>
   </div>
 </div>
@@ -6290,27 +6295,52 @@ function qbRenderSourceNote(sp){
 // ════════════════════════════════════════════════════════════════════════
 // Pure geometry: returns the list of flat panels a box of these dims needs.
 // Shared by the panel breakdown (qbCalcPanels) and the physical-size validator.
+// A lid that wraps down over the base needs air or it binds on a humid day;
+// 1/16" per side is the usual allowance. QB_LID_RIM is how far such a lid drops
+// over the base — a shop standard, but capped at half the box height so a shallow
+// box doesn't get a rim nearly as tall as the box itself, and floored at 2× stock
+// so there's real glue surface on the mitre.
+const QB_LID_CLEAR=0.0625;
+const QB_LID_RIM=1.5;
+function qbLidRim(H,T){return Math.max(2*T,Math.min(QB_LID_RIM,H/2));}
+
 function qbBuildPanels(W,D,H,T,lidType){
-  const extL=W+2*T, extW=D+2*T, sideH=H+2*T;
+  const extL=W+2*T, extW=D+2*T;
+  // Walls stand ON the bottom panel and the lid lands on their top edge, so a wall
+  // spans the bottom's thickness plus the clear interior height — H+T, not H+2T.
+  // Charging H+2T made every box one stock-thickness taller than the client's spec.
+  // A sliding lid is the exception: it rides in grooves cut into the side walls, so
+  // the walls must carry on past it to leave material above the groove.
+  const sideH=(lidType==='sliding')?H+2*T:H+T;
   const panels=[];
   // mat:'mdf'  → flat top/bottom panels (MDF in mix mode)
   // mat:'solid' → wall/side panels (solid wood in mix mode)
-  panels.push({name:'Bottom',pL:W,pW:D,count:1,mat:'mdf'});
-  panels.push({name:'Front / Back',pL:extL,pW:sideH,count:2,mat:'solid'});
-  panels.push({name:'Left / Right Sides',pL:D,pW:sideH,count:2,mat:'solid'});
+  panels.push({name:'Bottom',pL:W,pW:D,count:1,mat:'mdf',grp:'base',
+               note:'Sits inside all four walls (glue pocket)'});
+  panels.push({name:'Front / Back',pL:extL,pW:sideH,count:2,mat:'solid',grp:'base',
+               note:'Full exterior width · covers the side panels’ end grain'});
+  panels.push({name:'Left / Right Sides',pL:D,pW:sideH,count:2,mat:'solid',grp:'base',
+               note:`Cut ${(2*T).toFixed(3)}" short to fit between Front & Back`});
   if(lidType==='fixed'||lidType==='hinged'){
-    // Exterior footprint (base dims + thickness on all sides), not interior — a hinged/droptop
-    // lid rests ON TOP of the box's walls (QB_LID_MAP: droptop→'fixed', clamshell→'hinged'), so
-    // it needs to span the full outside of the box to fit perfectly on top, matching the
-    // liftoff lid's already-exterior-based sizing below.
-    panels.push({name:'Lid (top panel)',pL:extL,pW:extW,count:1,mat:'mdf'});
+    // Rests ON TOP of the walls, so it spans the full outside of the box:
+    // base footprint plus one wall thickness on each of the four sides.
+    panels.push({name:'Lid (top panel)',pL:extL,pW:extW,count:1,mat:'mdf',grp:'lid',
+                 note:'Sits on the walls — base + one wall thickness per side'});
   }else if(lidType==='sliding'){
-    panels.push({name:'Sliding Lid',pL:W-T*2,pW:D,count:1,mat:'mdf'});
-  }else if(lidType==='liftoff'){
-    const lidWallH=T*1.5;
-    panels.push({name:'Lid Top Panel',pL:extL+T*2,pW:extW+T*2,count:1,mat:'mdf'});
-    panels.push({name:'Lid Front/Back Walls',pL:extL,pW:lidWallH,count:2,mat:'solid'});
-    panels.push({name:'Lid Side Walls',pL:extW,pW:lidWallH,count:2,mat:'solid'});
+    // Rides in a groove ploughed T/2 deep into each side wall, so it spans the
+    // interior opening PLUS that engagement. The old W−2T was narrower than the
+    // opening it was meant to close — it would drop straight through the box.
+    panels.push({name:'Sliding Lid',pL:W+T,pW:D,count:1,mat:'mdf',grp:'lid',
+                 note:`Engages a ${(T/2).toFixed(3)}" groove in each side wall`});
+  }else if(lidType==='wrap'||lidType==='liftoff'){
+    const rim=qbLidRim(H,T);
+    const lidL=extL+2*QB_LID_CLEAR+2*T, lidD=extW+2*QB_LID_CLEAR+2*T;
+    panels.push({name:'Lid Top Panel',pL:lidL,pW:lidD,count:1,mat:'mdf',grp:'lid',
+                 note:`Drops over the base with ${QB_LID_CLEAR}" clearance per side`});
+    panels.push({name:'Lid Front/Back Walls',pL:lidL,pW:rim,count:2,mat:'solid',grp:'lid',
+                 note:'Full lid width · drops over the base'});
+    panels.push({name:'Lid Side Walls',pL:extW+2*QB_LID_CLEAR,pW:rim,count:2,mat:'solid',grp:'lid',
+                 note:'Fits between the lid Front & Back'});
   }
   return panels;
 }
