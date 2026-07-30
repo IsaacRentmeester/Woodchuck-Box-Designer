@@ -6356,6 +6356,12 @@ function qbReflectDesign(){
     const calc=qbUpdateAll();
     renderSyncReadout(calc);
     qbRenderValidity();
+    // The board plan depends on panel SIZE and ORDER QTY, so it has to be re-solved whenever the
+    // design changes -- not just on species/material switches. Without this the price updated live
+    // while the "N boards - X% waste" figures kept showing the previous design's run (8x6x4 @250
+    // read 250 boards/31% when the truth was 500/27%). Last, so a nesting failure cannot block
+    // pricing. Costs ~1ms on top of the recompute that already happens per keystroke.
+    qbSyncNesting();
   }catch(e){}
 }
 // Quantity edited from the QUOTE tab → drive the shared C.qty + recalc both sides
@@ -6369,6 +6375,9 @@ function qbSetQtyFromQuote(v){
   const calc=qbUpdateAll();
   renderSyncReadout(calc);
   qbSyncQtyPresets();
+  // qty < 50 skips syncQty(), so it never reaches qbReflectDesign -- re-solve the board plan here
+  // too, otherwise small orders keep the previous quantity's board count and waste.
+  try{qbSyncNesting();}catch(e){}
 }
 // Quick-quantity preset pills → set qty, recalc, and highlight the active pill
 function qbSetQtyPreset(n){
