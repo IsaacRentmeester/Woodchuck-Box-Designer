@@ -3155,6 +3155,13 @@ function qbRenderNesting(layout,species){
     if(oversizeEl){oversizeEl.classList.add('vis');}
     return;
   }
+  // Priced, but with no placements to draw. Hide the canvas without raising the oversize warning —
+  // this is not an un-quotable panel, and Math.max over an empty board list would be -Infinity.
+  if(!layout.boards||!layout.boards.length){
+    wrap.classList.remove('vis');
+    if(oversizeEl)oversizeEl.classList.remove('vis');
+    return;
+  }
   oversizeEl&&oversizeEl.classList.remove('vis');
   wrap.classList.add('vis');
 
@@ -3302,6 +3309,18 @@ function qbSyncNesting(){
           mixed:false,sizeLabel:`${board.width}"×${board.length}"`,
           boardW:board.width,boardL:board.length,perBoxOnly:true};}
     });
+  }
+  if(!layout&&plan){
+    // Nothing drawable: a legacy plan carries no placements, and on narrow stock (Gaboon Ebony is
+    // 3/4/5" only) no single board holds every panel, so the one-box sketch above cannot be built
+    // either. The order was still priced and its board count and waste are known — publish those
+    // rather than letting the chip claim "select qty to price" for a quote that is fully costed.
+    const gs=plan.groups||[];
+    const m=gs.length===1?/^([\d.]+)"×([\d.]+)"/.exec(gs[0].boardLabel||''):null;
+    layout={boards:[],boardCount:plan.totalBoards,wastePercent:plan.wastePercent,
+      mixed:gs.length>1,sizeLabel:gs.map(g=>g.boardLabel).join(' + '),
+      boardW:m?+m[1]:(gs[0]&&gs[0].boardW)||0,boardL:m?+m[2]:(gs[0]&&gs[0].boardL)||0,
+      figuresOnly:true};
   }
   _lastNestLayout=layout;  // Req 10: expose for right-panel board info
   qbRenderNesting(layout,sp.name);
