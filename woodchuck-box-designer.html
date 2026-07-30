@@ -3489,7 +3489,9 @@ function printBoxTemplate(){
 
   const wood=woodName()||'Birch';
   const fin=NM.fin[C.fin]||'Natural';
-  const bt=NM.bt[C.bt]||'Set Top';
+  // Fall back to the raw key, not to 'Set Top' -- a mislabelled style on a shop
+  // cut sheet is worse than an ugly one, since the bench reads this to build from.
+  const bt=NM.bt[C.bt]||C.bt||'Box';
   const projName=document.getElementById('qb-name')?.value.trim()||'Custom Box';
   const repName=(document.getElementById('ef-name')?.value.trim()||document.getElementById('qb-rep')?.value.trim()||'');
   const today=new Date().toISOString().slice(0,10);
