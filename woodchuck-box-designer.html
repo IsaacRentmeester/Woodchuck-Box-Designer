@@ -2744,6 +2744,58 @@ function qbBoardsForDemand(usable,demand,nT,area){
   return total;
 }
 
+// The subset DP assigns each panel TYPE wholly to one board size, which is what makes it exact and
+// fast — but it cannot express "cut 192 of the Sides from 10" stock and the last 8 from 4" stock".
+// Sometimes that split is the cheapest thing available: on Alder 1/4" 8x6x4 with a sliding lid it
+// is 12.4% cheaper than any single-board-per-type assignment. So pool every board size's patterns
+// and run a straight greedy set-cover over the WHOLE order's demand, free to mix. It is a heuristic
+// and loses to the DP more often than it wins (23% vs 35% over 5,205 configs), which is exactly why
+// both run and the cheaper one is kept rather than picking a side.
+function qbSetCoverPlan(pool,demand,nT,area,panels){
+  if(!pool.length)return null;
+  const rem=demand.slice(),alloc=demand.slice();
+  let totalCost=0,totalBoards=0,boardArea=0,guard=0;
+  const gm=new Map();
+  while(rem.some(v=>v>0)){
+    if(++guard>50000)return null;
+    let best=null,bs=-1;
+    for(const p of pool){
+      let cov=0;
+      for(let i=0;i<nT;i++)if(rem[i]>0&&p.c[i]>0)cov+=Math.min(p.c[i],rem[i])*area[i];
+      if(cov<=0)continue;
+      const s=cov/p.price;                      // useful area per dollar — the only sane currency
+      if(s>bs+1e-12){bs=s;best=p;}
+    }
+    if(!best)return null;
+    let reps=Infinity;
+    for(let i=0;i<nT;i++)if(best.c[i]>0&&rem[i]>0)reps=Math.min(reps,Math.floor(rem[i]/best.c[i]));
+    if(!isFinite(reps)||reps<1)reps=1;
+    totalCost+=best.price*reps;totalBoards+=reps;
+    boardArea+=best.w*best.len*reps;
+    const e=gm.get(best.label)||{boardLabel:best.label,pricePerBoard:best.price,boardsNeeded:0,
+      cost:0,panelLabels:[],pieces:[],areaUsed:0};
+    e.boardsNeeded+=reps;e.cost+=best.price*reps;
+    for(let i=0;i<nT;i++)if(best.c[i]>0&&alloc[i]>0){
+      // Credit each group only the pieces the ORDER still needs. A pattern may overproduce on its
+      // last repeat; counting those would inflate both the piece list and the utilisation figure.
+      const got=Math.min(best.c[i]*reps,alloc[i]);
+      if(got<=0)continue;
+      alloc[i]-=got;e.areaUsed+=got*area[i];
+      const lb=panels[i].label;
+      if(lb){
+        if(e.panelLabels.indexOf(lb)<0)e.panelLabels.push(lb);
+        const ex=e.pieces.find(x=>x.label===lb);
+        if(ex)ex.count+=got;else e.pieces.push({label:lb,count:got});
+      }
+    }
+    gm.set(best.label,e);
+    for(let i=0;i<nT;i++)rem[i]=Math.max(0,rem[i]-best.c[i]*reps);
+  }
+  let areaUsed=0;for(let i=0;i<nT;i++)areaUsed+=demand[i]*area[i];
+  return{totalCost,totalBoards,areaUsed,boardArea,
+    groups:[...gm.values()].sort((a,b)=>b.cost-a.cost)};
+}
+
 // rotate: false = grain-strict, 'auto' = only grainFree panels may turn, true = anything may turn.
 function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
   opts=opts||{};
@@ -2866,6 +2918,22 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
     const total=reps*r.totalCost+(rr?rr.totalCost:0);
     if(!win||total<win.total-1e-9)win={B,total,reps,r,rr};
     if(qbNow()>deadline)break;
+  }
+  // Free-mixing set-cover over the pooled patterns, on the whole order's demand at once. Runs on
+  // the patterns already enumerated above, so it costs a few ms on top of the DP.
+  const pool=[];
+  for(let bi=0;bi<nB;bi++)pats[bi].forEach(c=>pool.push({c,price:boards[bi].price,
+    w:boards[bi].width,len:boards[bi].length,label:`${boards[bi].width}"×${boards[bi].length}"`}));
+  const demandQ=panels.map(p=>(p.count||1)*Q);
+  const sc=(qbNow()<=deadline)?qbSetCoverPlan(pool,demandQ,nT,area,panels):null;
+
+  if(!win&&!sc)return null;
+  if(sc&&(!win||sc.totalCost<win.total-1e-9)){
+    const wastePct=sc.boardArea?Math.max(0,Math.round(100*(1-sc.areaUsed/sc.boardArea))):0;
+    return{qty:Q,batch:1,mixedPlan:true,totalCost:sc.totalCost,totalBoards:sc.totalBoards,
+      totalAreaUsed:sc.areaUsed,totalBoardArea:sc.boardArea,wastePercent:wastePct,
+      costPerBox:sc.totalCost/Q,boardsPerBox:sc.totalBoards/Q,groups:sc.groups,
+      oversizePanels:[...new Set(oversize)]};
   }
   if(!win)return null;
 
