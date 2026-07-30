@@ -6297,12 +6297,22 @@ function qbRenderSourceNote(sp){
 // Shared by the panel breakdown (qbCalcPanels) and the physical-size validator.
 // A lid that wraps down over the base needs air or it binds on a humid day;
 // 1/16" per side is the usual allowance. QB_LID_RIM is how far such a lid drops
-// over the base — a shop standard, but capped at half the box height so a shallow
-// box doesn't get a rim nearly as tall as the box itself, and floored at 2× stock
-// so there's real glue surface on the mitre.
+// over the base — a shop standard, floored at 2x stock so there's real glue
+// surface on the mitre.
+//
+// The half-height cap is a HARD ceiling, not a preference: the base's exterior
+// height is H+T (walls stand on the bottom), and a rim taller than that would
+// hang past the underside of the box, so the box would rest on the lid instead
+// of on its own bottom. Half of it keeps a visible reveal of base below the lid.
+// The 2xT glue floor must never punch through that ceiling -- on a shallow box
+// cut from thick stock (3.75x3.75x1.25 out of 3/4 or 1" stock) the old
+// max(2T, min(1.5, H/2)) returned a 1.5" rim for a 1.25" box.
 const QB_LID_CLEAR=0.0625;
 const QB_LID_RIM=1.5;
-function qbLidRim(H,T){return Math.max(2*T,Math.min(QB_LID_RIM,H/2));}
+function qbLidRim(H,T){
+  const cap=(H+T)/2;                                  // half the base's exterior height
+  return Math.min(cap,Math.max(2*T,Math.min(QB_LID_RIM,cap)));
+}
 
 function qbBuildPanels(W,D,H,T,lidType){
   const extL=W+2*T, extW=D+2*T;
