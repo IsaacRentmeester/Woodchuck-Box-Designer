@@ -2645,6 +2645,9 @@ function qbGenShelves(board,kinds,kerf,cap){
     }
   }
   rec(0,0,0,0);
+  // Flag a truncated enumeration so the caller can decide to re-solve with a larger budget.
+  // If this is false the enumeration is COMPLETE and no bigger cap can ever find more.
+  shelves.truncated=(shelves.length>=cap);
   return shelves;
 }
 
@@ -2708,6 +2711,9 @@ function qbGenPatterns(board,shelves,nT,kerf,cap,budget){
     }
   }
   rec(0,0,0);
+  // Same idea as qbGenShelves: record whether either bound actually bit. A complete enumeration
+  // cannot be improved by raising the cap, so the escalation pass can be skipped entirely.
+  out.truncated=(out.length>=cap||nodes>budget);
   return out;
 }
 
@@ -2845,6 +2851,7 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
 
   // Patterns depend only on (board, panel geometry), never on batch size — enumerate once.
   const pats=[],shelvesFor=[],canFit=new Array(nB).fill(0);
+  let truncated=false;                               // did any cap actually bite?
   for(let bi=0;bi<nB;bi++){
     const b=boards[bi],kinds=[],kindType=[];
     panels.forEach((p,i)=>{
@@ -2859,8 +2866,11 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
       });
     });
     const raw=kinds.length?qbGenShelves(b,kinds,k,opts.shelfCap||1500):[];
+    if(raw.truncated)truncated=true;
     const sh=raw.length?qbPruneShelves(raw,nT,kindType,kinds):[];
-    const pp=sh.length?qbPruneDominated(qbGenPatterns(b,sh,nT,k,opts.patCap||1500,opts.nodeCap||200000),nT):[];
+    let gp=[];
+    if(sh.length){gp=qbGenPatterns(b,sh,nT,k,opts.patCap||1500,opts.nodeCap||200000);if(gp.truncated)truncated=true;}
+    const pp=gp.length?qbPruneDominated(gp,nT):[];
     pats.push(pp);shelvesFor.push(sh);
     let m=0;
     pp.forEach(p=>{for(let i=0;i<nT;i++)if(p.c[i]>0)m|=(1<<i);});
@@ -2966,7 +2976,7 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
     return{qty:Q,batch:1,mixedPlan:true,totalCost:sc.totalCost,totalBoards:sc.totalBoards,
       totalAreaUsed:sc.areaUsed,totalBoardArea:sc.boardArea,wastePercent:wastePct,
       costPerBox:sc.totalCost/Q,boardsPerBox:sc.totalBoards/Q,groups:sc.groups,
-      oversizePanels:[...new Set(oversize)]};
+      oversizePanels:[...new Set(oversize)],truncated};
   }
   if(!win)return null;
 
@@ -2994,7 +3004,7 @@ function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
   const wastePercent=boardArea?Math.max(0,Math.round(100*(1-areaUsed/boardArea))):0;
   return{qty:Q,batch:B,totalCost,totalBoards,totalAreaUsed:areaUsed,totalBoardArea:boardArea,
     wastePercent,costPerBox:totalCost/Q,boardsPerBox:totalBoards/Q,groups,
-    oversizePanels:[...new Set(oversize)]};
+    oversizePanels:[...new Set(oversize)],truncated};
 }
 
 function qbNow(){return (typeof performance!=='undefined'&&performance.now)?performance.now():Date.now();}
@@ -3010,11 +3020,24 @@ function qbPackOrder(speciesName,panels,t,kerf,qty,opts){
   const policy=opts.grainPolicy||qbGrainPolicy||'auto';
   const deadline=qbNow()+(opts.budgetMs||300);
   const sub=Object.assign({},opts,{deadline});
+  // Escalation tier. Small panels on long stock (a 3.75" lidless box on 96" Select Pine) blow past
+  // the default caps, and there the truncated search can miss real money — up to 33% on one config,
+  // $792 on another. But raising the caps for EVERY quote costs ~30% average runtime for nothing:
+  // when the default enumeration ran to completion, a bigger cap provably cannot find more, because
+  // it explores the identical (already exhausted) space. So escalate only where a cap actually bit.
+  const ESC={shelfCap:2500,patCap:2500,nodeCap:500000};
   const runs={};
   ['strict','auto','free'].forEach(m=>{
     if(qbNow()>deadline)return;
-    const r=qbPackOrderV2(speciesName,panels,t,kerf,qty,
-      Object.assign({},sub,{rotate:m==='strict'?false:m==='free'?true:'auto'}));
+    const rot={rotate:m==='strict'?false:m==='free'?true:'auto'};
+    let r=qbPackOrderV2(speciesName,panels,t,kerf,qty,Object.assign({},sub,rot));
+    // More patterns is not monotonically better — the DP/greedy can land differently and come out
+    // slightly worse (3 configs in 15,300 did). Keeping the cheaper of the two makes escalation
+    // strictly an improvement rather than a gamble.
+    if(r&&r.truncated&&qbNow()<deadline&&!opts.shelfCap&&!opts.patCap&&!opts.nodeCap){
+      const r2=qbPackOrderV2(speciesName,panels,t,kerf,qty,Object.assign({},sub,rot,ESC));
+      if(r2&&r2.totalCost<r.totalCost-1e-9)r=r2;
+    }
     if(r)runs[m]=r;
   });
   // 'auto' may use a strict plan if turning nothing happens to be cheaper, and 'free' may use
