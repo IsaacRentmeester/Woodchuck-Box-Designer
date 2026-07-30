@@ -1736,6 +1736,10 @@ function qbSetMatPath(path){
   else qbSetPriceSrc('mdf');
   qbSyncNesting(); // Req 2: refresh nesting on path change
   qbUpdateAll();
+  // The step-2 summary chip renders "<path> · <species>", so a path switch has to refresh it.
+  // It was only ever painted by the one-shot init settle, which left it reading "Solid Wood"
+  // after switching to MDF.
+  if(typeof qtUpdChip==='function')qtUpdChip(2);
 }
 
 // Per-species, per-size 1/4" board pricing from ocoochhardwoods.com
@@ -6813,6 +6817,10 @@ function qbLoadSpeciesPrice(skipGrainUpdate){
   qbSyncNesting();            // Req 2: refresh board layout canvas
   const calc=qbUpdateAll();
   renderSyncReadout(calc);
+  // C.species was just reassigned above, so repaint the step-2 summary chip that renders it.
+  // Previously only the one-shot init settle painted this chip, so it kept naming whichever
+  // species happened to be selected at page load no matter what the user picked afterwards.
+  if(typeof qtUpdChip==='function')qtUpdChip(2);
   qbLastSyncedGrain=C.wood;   // remember which grain this species was synced to
 }
 // The supplier-input badges (Stock size / Price / thickness) name whichever source is
