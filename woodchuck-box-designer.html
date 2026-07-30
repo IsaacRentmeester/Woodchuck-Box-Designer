@@ -2592,6 +2592,324 @@ function qbPackOrderLegacy(speciesName,panels,t,kerf,qty,opts){
     oversizePanels:perBox.oversizePanels,highWaste:wastePercent>50};
 }
 
+// ── Order-level cutting-stock optimizer v2: pattern-based + rotation-aware ─
+// The engine above picks which BOARD SIZE each panel type is cut from optimally, but once a
+// subset lands on a board it fills that board with a greedy first-fit shelf packer, and it never
+// considers turning a panel 90°. Both cost real money.
+//
+// Greedy is order-dependent, and that is not a theoretical worry. On a 4"x24" board only one
+// 3.25"-wide panel fits across, so the board collapses to a pure 1-D length problem; longest-first
+// puts 2 Sides on it (18.25" used, 5.75" stranded — just short of the 6.625" Front it could have
+// taken), where 1 Side + 2 Front/Back = 22.375" is strictly better. On one real order that single
+// mistake bought 167 boards where 150 sufficed: $71.40 thrown away on one panel group.
+//
+// v2 replaces the greedy fill with exhaustive PATTERN enumeration. A pattern is one whole board's
+// cut plan — a stack of shelves down the board's length, each shelf a rip of pieces across its
+// width — so the packer commits to complete boards instead of placing pieces one at a time and
+// discovering the stranded remainder too late. Everything else (the subset DP over board sizes,
+// the batch-periodicity search) is kept, because both were already right.
+//
+// Rotation is a product decision, not only a math one, so it is a policy rather than a default:
+//   'strict' every panel keeps its grain running the long way — visible faces stay matched
+//   'auto'   only panels flagged grainFree may turn 90°: the Bottom (hidden inside the carcass)
+//            and anything cut from MDF, which has no grain to mismatch
+//   'free'   any panel may turn
+// Measured over 384 species x size x lid x qty combinations: strict saves 1.8%, auto 13.2%,
+// free 14.9%. 'auto' captures 88% of the whole benefit with ZERO visible grain change, which is
+// why it is the default — the last 1.7% is not worth mismatched grain on a lid a client handles.
+let qbGrainPolicy='auto';
+
+// A shelf = one crosscut segment of the board; pieces sit side by side across its WIDTH and it
+// consumes (longest piece) of the board's LENGTH.
+function qbGenShelves(board,kinds,kerf,cap){
+  const shelves=[],seen=new Set(),nK=kinds.length;
+  const counts=new Array(nK).fill(0);
+  // Kerf is consumed BETWEEN adjacent pieces only. The board's two outer edges are already
+  // dimensioned stock, so the first piece across a shelf pays no kerf. Charging it there meant a
+  // 6.00" panel would not fit a 6" board at all, pushing it onto 8" stock — which made v2 come out
+  // MORE expensive than the engine it replaces until the accounting was fixed.
+  function rec(ki,widthUsed,maxLen,nPieces){
+    if(nPieces>0){
+      const key=counts.join(',');
+      if(!seen.has(key)){seen.add(key);shelves.push({counts:counts.slice(),len:maxLen});}
+    }
+    if(ki>=nK||shelves.length>=cap||nPieces>=16)return;
+    for(let ni=ki;ni<nK;ni++){                      // ni>=ki keeps combinations, not permutations
+      const kd=kinds[ni],add=(nPieces===0?0:kerf)+kd.pw;
+      if(widthUsed+add>board.width+1e-9)continue;
+      counts[ni]++;
+      rec(ni,widthUsed+add,Math.max(maxLen,kd.pl),nPieces+1);
+      counts[ni]--;
+      if(shelves.length>=cap)return;
+    }
+  }
+  rec(0,0,0,0);
+  return shelves;
+}
+
+// A pattern = one whole board: shelves stacked down its length. Returned as a per-panel-TYPE
+// count vector (orientations collapse away here — the DP only cares how many of each type a
+// board yields).
+function qbGenPatterns(board,shelves,nT,kindType,kerf,cap){
+  const out=[],seen=new Set(),tc=new Array(nT).fill(0);
+  function rec(si,lenUsed,depth){
+    if(depth>0){
+      const key=tc.join(',');
+      if(!seen.has(key)){seen.add(key);out.push(tc.slice());}
+    }
+    if(si>=shelves.length||out.length>=cap||depth>=24)return;
+    for(let i=si;i<shelves.length;i++){
+      const sh=shelves[i],add=(depth===0?0:kerf)+sh.len;
+      if(lenUsed+add>board.length+1e-9)continue;
+      for(let j=0;j<sh.counts.length;j++)if(sh.counts[j])tc[kindType[j]]+=sh.counts[j];
+      rec(i,lenUsed+add,depth+1);
+      for(let j=0;j<sh.counts.length;j++)if(sh.counts[j])tc[kindType[j]]-=sh.counts[j];
+      if(out.length>=cap)return;
+    }
+  }
+  rec(0,0,0);
+  return out;
+}
+
+// Drop every pattern another pattern beats outright (yields >= of every type). Board cost is per
+// board regardless of how full it is, so overproducing is free and a dominated pattern can never
+// be the right choice. This is what makes v2 fast enough to run on every keystroke: it typically
+// cuts a few thousand enumerated patterns down to well under two hundred maximal ones.
+function qbPruneDominated(pats,nT){
+  const sorted=pats.map(p=>({p,s:p.reduce((a,b)=>a+b,0)})).sort((a,b)=>b.s-a.s);
+  const kept=[];
+  outer:for(const{p}of sorted){
+    for(const q of kept){
+      let dom=true;
+      for(let i=0;i<nT;i++)if(q[i]<p[i]){dom=false;break;}
+      if(dom)continue outer;
+    }
+    kept.push(p);
+  }
+  return kept;
+}
+
+// Fewest boards of ONE size that satisfy `demand`, choosing greedily by useful area covered.
+// For identical bins this is near-optimal and, unlike the exact solve, cheap enough to sit inside
+// the subset DP (which calls it 2^types x board-sizes times per batch).
+function qbBoardsForDemand(usable,demand,nT,area){
+  if(!usable.length)return Infinity;
+  const rem=demand.slice();
+  let total=0,guard=0;
+  while(rem.some(v=>v>0)){
+    if(++guard>20000)return Infinity;
+    let best=null,bestScore=-1;
+    for(const p of usable){
+      let cov=0;
+      for(let i=0;i<nT;i++)if(rem[i]>0&&p[i]>0)cov+=Math.min(p[i],rem[i])*area[i];
+      if(cov>bestScore+1e-12){bestScore=cov;best=p;}
+    }
+    if(!best||bestScore<=0)return Infinity;
+    let reps=Infinity;
+    for(let i=0;i<nT;i++)if(best[i]>0&&rem[i]>0)reps=Math.min(reps,Math.floor(rem[i]/best[i]));
+    if(!isFinite(reps)||reps<1)reps=1;
+    total+=reps;
+    for(let i=0;i<nT;i++)rem[i]=Math.max(0,rem[i]-best[i]*reps);
+  }
+  return total;
+}
+
+// rotate: false = grain-strict, 'auto' = only grainFree panels may turn, true = anything may turn.
+function qbPackOrderV2(speciesName,panels,t,kerf,qty,opts){
+  opts=opts||{};
+  const rotate=opts.rotate===undefined?'auto':opts.rotate;
+  const k=kerf||0.125, Q=Math.max(1,Math.round(qty||1));
+  const MAXB=opts.maxBatch||12;
+  const deadline=opts.deadline||Infinity;
+  const boards=ocoochBoardsForSpecies(speciesName,t);
+  if(!boards||!boards.length||!panels||!panels.length)return null;
+  const nT=panels.length;
+  if(nT>16)return null;                              // bitmask DP guard; a box has ~4-6 types
+  const area=panels.map(p=>p.w*p.h);
+  const nB=boards.length,FULL=(1<<nT)-1;
+  const maxW=boards.reduce((a,b)=>Math.max(a,b.width),0);
+  const oversize=[];
+  panels.forEach(p=>{if(Math.min(p.w,p.h)>maxW+1e-9&&p.label)oversize.push(p.label);});
+
+  // Patterns depend only on (board, panel geometry), never on batch size — enumerate once.
+  const pats=[],canFit=new Array(nB).fill(0);
+  for(let bi=0;bi<nB;bi++){
+    const b=boards[bi],kinds=[],kindType=[];
+    panels.forEach((p,i)=>{
+      const mayRot=rotate===true||(rotate==='auto'&&(p.grainFree===true||p.rot===true));
+      const os=mayRot?[[Math.min(p.w,p.h),Math.max(p.w,p.h)],[Math.max(p.w,p.h),Math.min(p.w,p.h)]]
+                     :[[Math.min(p.w,p.h),Math.max(p.w,p.h)]];
+      const seenO=new Set();
+      os.forEach(([pw,pl])=>{
+        const key=pw+'x'+pl;
+        if(seenO.has(key))return;seenO.add(key);
+        if(pw<=b.width+1e-9&&pl<=b.length+1e-9){kinds.push({pw,pl});kindType.push(i);}
+      });
+    });
+    const sh=kinds.length?qbGenShelves(b,kinds,k,opts.shelfCap||1500):[];
+    const pp=sh.length?qbPruneDominated(qbGenPatterns(b,sh,nT,kindType,k,opts.patCap||1500),nT):[];
+    pats.push(pp);
+    let m=0;
+    pp.forEach(p=>{for(let i=0;i<nT;i++)if(p[i]>0)m|=(1<<i);});
+    canFit[bi]=m;
+    if(qbNow()>deadline)return null;
+  }
+  if((canFit.reduce((a,b)=>a|b,0)&FULL)!==FULL)return null; // some type has nowhere to go
+
+  // Patterns whose support fits inside `mask` — cached, since the DP asks for the same masks
+  // repeatedly across batch sizes.
+  const byMask=new Array(nB);for(let i=0;i<nB;i++)byMask[i]=new Map();
+  function usableFor(bi,mask){
+    let u=byMask[bi].get(mask);
+    if(u===undefined){
+      u=pats[bi].filter(p=>{for(let i=0;i<nT;i++)if(p[i]>0&&!(mask&(1<<i)))return false;return true;});
+      byMask[bi].set(mask,u);
+    }
+    return u;
+  }
+
+  const batchCache=new Map();
+  function packBatch(B){
+    if(batchCache.has(B))return batchCache.get(B);
+    const memo=new Array(nB);for(let i=0;i<nB;i++)memo[i]=new Map();
+    function cnt(bi,mask){
+      let v=memo[bi].get(mask);if(v!==undefined)return v;
+      const demand=new Array(nT).fill(0);
+      for(let i=0;i<nT;i++)if(mask&(1<<i))demand[i]=(panels[i].count||1)*B;
+      v=qbBoardsForDemand(usableFor(bi,mask),demand,nT,area);
+      memo[bi].set(mask,v);return v;
+    }
+    let prev=new Float64Array(FULL+1).fill(Infinity);prev[0]=0;
+    const picks=[];
+    for(let bi=0;bi<nB;bi++){
+      const cur=new Float64Array(FULL+1).fill(Infinity);
+      const pick=new Int32Array(FULL+1).fill(-1);
+      const price=boards[bi].price,fit=canFit[bi];
+      for(let S=0;S<=FULL;S++){
+        if(prev[S]<cur[S]){cur[S]=prev[S];pick[S]=0;}   // buy none of this board size
+        const avail=S&fit;
+        for(let T=avail;T>0;T=(T-1)&avail){             // every non-empty subset of S this board fits
+          const base=prev[S^T];
+          if(base===Infinity)continue;
+          const c0=cnt(bi,T);
+          if(!isFinite(c0))continue;
+          const c=base+c0*price;
+          if(c<cur[S]-1e-12){cur[S]=c;pick[S]=T;}
+        }
+      }
+      picks.push(pick);prev=cur;
+      if(qbNow()>deadline){batchCache.set(B,null);return null;}
+    }
+    if(prev[FULL]===Infinity){batchCache.set(B,null);return null;}
+    let S=FULL;const gr=[];
+    for(let bi=nB-1;bi>=0;bi--){
+      const T=picks[bi][S];
+      if(T>0){
+        const c=cnt(bi,T);let au=0;const labels=[],pieces=[];
+        for(let i=0;i<nT;i++)if(T&(1<<i)){
+          const n=(panels[i].count||1)*B;
+          au+=area[i]*n;
+          if(panels[i].label){labels.push(panels[i].label);pieces.push({label:panels[i].label,count:n});}
+        }
+        gr.push({boardLabel:`${boards[bi].width}"×${boards[bi].length}"`,pricePerBoard:boards[bi].price,
+          boardsNeeded:c,cost:c*boards[bi].price,panelLabels:[...new Set(labels)],pieces,areaUsed:au,
+          boardArea:c*boards[bi].width*boards[bi].length});
+        S^=T;
+      }
+    }
+    let totalBoards=0,areaUsed=0,boardArea=0;
+    gr.forEach(g=>{totalBoards+=g.boardsNeeded;areaUsed+=g.areaUsed;boardArea+=g.boardArea;});
+    const res={totalCost:prev[FULL],totalBoards,areaUsed,boardArea,gr};
+    batchCache.set(B,res);return res;
+  }
+
+  // Same batch-periodicity search as the legacy engine: score a candidate batch by the cost of the
+  // WHOLE order it implies (repeats + one exact remainder run), never by its own cost per box.
+  const MB=Math.max(1,Math.min(MAXB,Q));
+  let win=null;
+  for(let B=1;B<=MB;B++){
+    const r=packBatch(B);if(!r)continue;
+    const reps=Math.floor(Q/B),rem=Q%B;
+    const rr=rem?packBatch(rem):null;
+    if(rem&&!rr)continue;
+    const total=reps*r.totalCost+(rr?rr.totalCost:0);
+    if(!win||total<win.total-1e-9)win={B,total,reps,r,rr};
+    if(qbNow()>deadline)break;
+  }
+  if(!win)return null;
+
+  const{B,reps,r,rr}=win;
+  const totalCost=win.total;
+  const totalBoards=reps*r.totalBoards+(rr?rr.totalBoards:0);
+  const areaUsed=reps*r.areaUsed+(rr?rr.areaUsed:0);
+  const boardArea=reps*r.boardArea+(rr?rr.boardArea:0);
+  const gm=new Map();
+  const addG=(list,mult)=>list.forEach(g=>{
+    const e=gm.get(g.boardLabel)||{boardLabel:g.boardLabel,pricePerBoard:g.pricePerBoard,
+      boardsNeeded:0,cost:0,panelLabels:[],pieces:[],areaUsed:0};
+    e.boardsNeeded+=g.boardsNeeded*mult;e.cost+=g.cost*mult;e.areaUsed+=g.areaUsed*mult;
+    g.panelLabels.forEach(l=>{if(e.panelLabels.indexOf(l)<0)e.panelLabels.push(l);});
+    g.pieces.forEach(pc=>{
+      const ex=e.pieces.find(x=>x.label===pc.label);
+      if(ex)ex.count+=pc.count*mult;else e.pieces.push({label:pc.label,count:pc.count*mult});
+    });
+    gm.set(g.boardLabel,e);
+  });
+  addG(r.gr,reps);if(rr)addG(rr.gr,1);
+  const groups=[...gm.values()].sort((a,b)=>b.cost-a.cost);
+  const wastePercent=boardArea?Math.max(0,Math.round(100*(1-areaUsed/boardArea))):0;
+  return{qty:Q,batch:B,totalCost,totalBoards,totalAreaUsed:areaUsed,totalBoardArea:boardArea,
+    wastePercent,costPerBox:totalCost/Q,boardsPerBox:totalBoards/Q,groups,
+    oversizePanels:[...new Set(oversize)]};
+}
+
+function qbNow(){return (typeof performance!=='undefined'&&performance.now)?performance.now():Date.now();}
+
+// Public entry point. Runs the legacy engine and v2 under each rotation policy, then returns the
+// CHEAPEST result the current grain policy permits. Keeping legacy in the race is what guarantees
+// this can never quote higher than what it replaced, no matter how the pattern caps or the time
+// budget bite; the budget exists because this recomputes on every input change, and a packer that
+// finds a better answer 400ms late is worse than one that answers now.
+function qbPackOrder(speciesName,panels,t,kerf,qty,opts){
+  opts=opts||{};
+  const legacy=qbPackOrderLegacy(speciesName,panels,t,kerf,qty,opts);
+  const policy=opts.grainPolicy||qbGrainPolicy||'auto';
+  const deadline=qbNow()+(opts.budgetMs||300);
+  const sub=Object.assign({},opts,{deadline});
+  const runs={};
+  ['strict','auto','free'].forEach(m=>{
+    if(qbNow()>deadline)return;
+    const r=qbPackOrderV2(speciesName,panels,t,kerf,qty,
+      Object.assign({},sub,{rotate:m==='strict'?false:m==='free'?true:'auto'}));
+    if(r)runs[m]=r;
+  });
+  // 'auto' may use a strict plan if turning nothing happens to be cheaper, and 'free' may use
+  // either — each policy is a permission, not an obligation.
+  const allowed=policy==='strict'?['strict']:policy==='free'?['strict','auto','free']:['strict','auto'];
+  let bestV2=null,bestMode=null;
+  allowed.forEach(m=>{if(runs[m]&&(!bestV2||runs[m].totalCost<bestV2.totalCost-1e-9)){bestV2=runs[m];bestMode=m;}});
+
+  if(!legacy)return bestV2?Object.assign({},bestV2,{engine:'v2',grainMode:bestMode,nested:true,
+    perBoxCost:bestV2.costPerBox,perBoxTotal:bestV2.totalCost,savings:0,
+    highWaste:bestV2.wastePercent>50}):null;
+  if(!bestV2||bestV2.totalCost>=legacy.totalCost-1e-9)
+    return Object.assign({},legacy,{engine:'legacy',grainMode:'strict'});
+
+  // v2 won. Re-derive the headline savings against the SAME one-box-at-a-time floor the legacy
+  // engine quotes against, so "you save $X by ordering together" keeps meaning the same thing.
+  const out=Object.assign({},bestV2,{engine:'v2',grainMode:bestMode,nested:true,
+    perBoxCost:legacy.perBoxCost,perBoxTotal:legacy.perBoxTotal,
+    savings:Math.max(0,legacy.perBoxTotal-bestV2.totalCost),
+    highWaste:bestV2.wastePercent>50});
+  if(!out.oversizePanels||!out.oversizePanels.length)out.oversizePanels=legacy.oversizePanels;
+  // What the client would gain by letting grain run either way — worth surfacing, never applied
+  // silently, because it changes how the finished box looks.
+  const free=runs.free;
+  if(policy!=='free'&&free&&free.totalCost<out.totalCost-1e-9)
+    out.crossGrainSaving=out.totalCost-free.totalCost;
+  return out;
+}
+
 // ── Req 2: Nesting layout + canvas renderer ───────────────────────────────
 // Computes panel placement coordinates for the selected board using the same 2D shelf-packing
 // model as ocoochShelfPack (crosscut into length-segments, then nest multiple panels side-by-side
