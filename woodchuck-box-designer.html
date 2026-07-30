@@ -6410,6 +6410,17 @@ function qbSetQtyFromQuote(v){
   // qty < 50 skips syncQty(), so it never reaches qbReflectDesign -- re-solve the board plan here
   // too, otherwise small orders keep the previous quantity's board count and waste.
   try{qbSyncNesting();}catch(e){}
+  // Mirror the quantity into the quote panel. qb-qty and qt-qty are separate inputs and the sync
+  // only ever ran quote -> designer, so typing a quantity on the designer side left the quote
+  // field and its step-6 chip reading the OLD number right next to a correctly repriced total
+  // ("100 units - $143.20/unit" beside "$35801 total - 250 units").
+  const q=C.qty||n;
+  const qtEl=document.getElementById('qt-qty');
+  // Compare parsed values so this no-ops mid-typing and never steals the caret.
+  if(qtEl&&parseInt(qtEl.value,10)!==q)qtEl.value=q;
+  document.querySelectorAll('.qt-qp').forEach(b=>
+    b.classList.toggle('sel',parseInt((b.textContent||'').replace(/,/g,''),10)===q));
+  if(typeof qtUpdChip==='function')qtUpdChip(6);
 }
 // Quick-quantity preset pills → set qty, recalc, and highlight the active pill
 function qbSetQtyPreset(n){
@@ -8110,18 +8121,20 @@ function qtUpdBrand(){
   if(clr)clr.style.display=C.logo?'block':'none';
   qtUpdChip(4);
 }
+// Both quote-side quantity controls funnel through qbSetQtyFromQuote so that changing qty from
+// the quote panel does everything changing it from the designer does. They used to call
+// qbUpdateAll() alone, which reprices but never re-solves the board plan -- so a 1000-unit order
+// kept displaying the 250-unit board count (667 boards when the real answer was 2667) in both the
+// board chip and the Boards-needed row.
 function qtSQ(qty){
   qty=parseInt(qty)||100;
-  document.getElementById('qt-qty').value=qty;
-  document.getElementById('qb-qty').value=qty; C.qty=qty;
-  document.querySelectorAll('.qt-qp').forEach(b=>b.classList.toggle('sel',parseInt((b.textContent||'').replace(/,/g,''))===qty));
-  qbUpdateAll(); qtUpdChip(6);
+  document.getElementById('qb-qty').value=qty;
+  qbSetQtyFromQuote(qty);
 }
 function qtSQI(val){
   const qty=parseInt(val)||100;
-  document.getElementById('qb-qty').value=qty; C.qty=qty;
-  document.querySelectorAll('.qt-qp').forEach(b=>b.classList.toggle('sel',parseInt((b.textContent||'').replace(/,/g,''))===qty));
-  qbUpdateAll();
+  document.getElementById('qb-qty').value=qty;
+  qbSetQtyFromQuote(qty);
 }
 function qtSetJoin(val){
   const sel=document.getElementById('qb-cc-join-sel');if(sel)sel.value=val;
