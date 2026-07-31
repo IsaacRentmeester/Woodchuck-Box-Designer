@@ -7143,8 +7143,12 @@ function qbCalcYield(){
   // Only the non-Mix branch here used to ignore it and bill WOOD_SHEET_PRICES/4608 instead.
   // WOOD_SHEET_PRICES is the 1/4" column with no thickness dimension, so MDF cost did not move when
   // thickness changed: 3/8" Raw MDF displayed $33.10/sheet and billed $11.13 (−66%), 3/8" PS White
-  // Maple displayed $61.97 and billed $49.09 (−21%), while 1/8" over-billed by 3–11%. It agreed to
-  // the cent only at 1/4" — the default — which is why it went unnoticed.
+  // Maple displayed $61.97 and billed $49.09 (−21%), while 1/8" over-billed by 3–11%. For the four
+  // PS species it agreed to the cent at 1/4" — the default — which is why it went unnoticed.
+  //
+  // Raw MDF was the exception that hid in plain sight: its WOOD_SHEET_PRICES entry ($11.13) was
+  // copied out of the 1/8" column, not the 1/4" one, so the DEFAULT species at the DEFAULT
+  // thickness under-billed by 39.5%. Fixing this raises that quote by 65.4%.
   //
   // Mix mode never had the bug: it reads mdfSpeciesCost(...).cost directly (see mixMdfSheetPrice
   // below), so the two halves of this same function used to disagree about what an MDF sheet costs.
