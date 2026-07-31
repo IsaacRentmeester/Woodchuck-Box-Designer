@@ -8031,8 +8031,15 @@ let _lastNestLayout=null;
   qbRenderMaterials();
   qbRenderCustoms();
   qbSyncConfigCosts(); // seed hardware/insert/finish costs from default C state
-  // Init mat path buttons and margin display
-  document.querySelectorAll('.qb-mp-btn').forEach(b=>b.classList.toggle('sel',b.dataset.mp===qbMatPath));
+  // Init mat path buttons and margin display.
+  // This used to only PAINT the button, which left the tool contradicting itself on a cold load:
+  // "Solid Wood" showed as selected while qbPriceSrc kept its own independent default of 'wc', so
+  // wood was priced by the flat sheet-area proxy instead of the Ocooch board-nesting engine. On the
+  // stock 6×9×3 at qty 100 that read $27.57/unit on load and $73.55/unit the moment anything called
+  // qbSetMatPath — 2.7× — for a mode the user never chose and can no longer choose (the qb-src-*
+  // buttons that once selected it are gone from the markup). Applying the path makes the pricing
+  // source derive from the tab that is actually lit; qbSetMatPath paints the button itself.
+  qbSetMatPath(qbMatPath);
   const initQty=parseInt(document.getElementById('qb-qty')?.value)||100;
   qbUpdateMarginDisplay(initQty);
   // Sync tree inputs from initial C state
