@@ -6527,6 +6527,9 @@ function qbSetMatT(v){
   }
   qbCheckThickness();
   qbRenderValidity();
+  // Editing the designer's thickness field must move the quote panel's ✓ too — they are two views
+  // of the same number, and letting them disagree is what let 1/4" read as 0.24".
+  if(typeof qtSyncThickBtns==='function')qtSyncThickBtns();
 }
 // Full pull from the 3D design into the quote (runs on tab-switch). Auto-picks the
 // best species for the current wood so wood cost is realistic out of the gate.
@@ -6535,6 +6538,7 @@ function qbSyncFromDesign(){
   syncDimInputs();
   document.querySelectorAll('#qb-btchips .qb-btchip').forEach(c=>c.classList.toggle('sel',c.dataset.bt===C.bt));
   const mt=document.getElementById('qb-matT'); if(mt)mt.value=C.cmat||0.25;
+  if(typeof qtSyncThickBtns==='function')qtSyncThickBtns();
   const qtyEl=document.getElementById('qb-qty'); if(qtyEl)qtyEl.value=C.qty||100;
   qbSyncQtyPresets();
   const best=qbBestSpeciesForGrain(C.wood);
