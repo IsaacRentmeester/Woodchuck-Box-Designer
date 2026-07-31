@@ -966,9 +966,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <!-- Thickness picker — matches sheet dropdown -->
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap">
             <span style="font-size:.64rem;font-weight:700;color:#3d4f43;flex-shrink:0">📏 Thickness:</span>
-            <button class="qt-bts" id="qt-thk-btn-8" onclick="qtSetThick(0.155,this)" style="padding:3px 8px;font-size:.62rem">1/8″</button>
-            <button class="qt-bts sel" id="qt-thk-btn-4" onclick="qtSetThick(0.24,this)" style="padding:3px 8px;font-size:.62rem">1/4″ ✓</button>
-            <button class="qt-bts" id="qt-thk-btn-38" onclick="qtSetThick(0.36,this)" style="padding:3px 8px;font-size:.62rem">3/8″</button>
+            <!-- These MUST be the nominal stock thicknesses. They used to pass milled/actual figures
+                 (0.155 / 0.24 / 0.36), which made the button labelled 1/4" set 0.24" — so the app
+                 raised its own "0.24 isn't a stock thickness" error against a value its own button
+                 had just supplied, every wall came out 0.01" thin, and the cut list no longer matched
+                 the 1/4" boards being priced and bought. -->
+            <button class="qt-bts" id="qt-thk-btn-8" onclick="qtSetThick(0.125,this)" style="padding:3px 8px;font-size:.62rem">1/8″</button>
+            <button class="qt-bts sel" id="qt-thk-btn-4" onclick="qtSetThick(0.25,this)" style="padding:3px 8px;font-size:.62rem">1/4″ ✓</button>
+            <button class="qt-bts" id="qt-thk-btn-38" onclick="qtSetThick(0.375,this)" style="padding:3px 8px;font-size:.62rem">3/8″</button>
             <span style="font-size:.6rem;color:var(--mu)">(most boxes = 1/4″)</span>
           </div>
           <!-- Acrylic inlay for top — primary quote field per sheet -->
@@ -6824,6 +6829,9 @@ function qbLoadSpeciesPrice(skipGrainUpdate){
         matTEl.value=sp.defaultThick;
         C.cmat=sp.defaultThick;
         qbCheckThickness();qbRenderValidity();
+        // The quote panel's 1/8 / 1/4 / 3/8 buttons have to follow, or they keep ticking 1/4"
+        // while the engine is quoting 3/4" dimensional lumber.
+        if(typeof qtSyncThickBtns==='function')qtSyncThickBtns();
       }
     }
   }
@@ -8106,17 +8114,27 @@ function qtSetPath(path,el){
   document.querySelectorAll('.qt-path').forEach(b=>b.classList.toggle('sel',b.dataset.mp===path));
   qbSetMatPath(path);
 }
-function qtSetThick(val,el){
+// Paint the ✓ from the thickness that is actually in effect, never from whichever button was last
+// clicked. Thickness also changes from the designer's own qb-matT field and from a species default
+// (Menards dimensional lumber forces 3/4"), and those paths left the quote panel still ticking 1/4".
+// A thickness with no button of its own — 1/16, 3/16, 1/2, 3/4 — correctly ticks nothing.
+function qtSyncThickBtns(){
+  const mt=document.getElementById('qb-matT');
+  const t=parseFloat(mt?mt.value:C.cmat);
+  document.querySelectorAll('#qt-thk-btn-8,#qt-thk-btn-4,#qt-thk-btn-38').forEach(b=>{
+    const m=/qtSetThick\(([\d.]+)/.exec(b.getAttribute('onclick')||'');
+    const on=!!m&&Math.abs(parseFloat(m[1])-t)<1e-9;
+    b.classList.toggle('sel',on);
+    b.textContent=b.textContent.replace(' ✓','')+(on?' ✓':'');
+  });
+}
+function qtSetThick(val){
   // Update the hidden engine thickness input and re-price
   const mt=document.getElementById('qb-matT');
   if(mt){mt.value=val;mt.dispatchEvent(new Event('input'));}
   C.cmat=val;
-  // Update button highlight
-  document.querySelectorAll('#qt-thk-btn-8,#qt-thk-btn-4,#qt-thk-btn-38').forEach(b=>{
-    b.classList.remove('sel');
-    b.textContent=b.textContent.replace(' ✓','');
-  });
-  if(el){el.classList.add('sel');el.textContent=el.textContent.replace(' ✓','')+' ✓';}
+  if(typeof qbCheckThickness==='function')qbCheckThickness();
+  qtSyncThickBtns();
   qbUpdateAll();
 }
 function qtPFin(fin,el){
